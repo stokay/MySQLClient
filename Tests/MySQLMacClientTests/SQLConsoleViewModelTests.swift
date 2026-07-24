@@ -29,10 +29,12 @@ final class SQLConsoleViewModelTests: XCTestCase {
         introspection = SchemaIntrospectionService(service: service)
         try await resetWidgets()
         try await service.execute("DROP TABLE IF EXISTS console_scratch")
+        try await service.execute("DROP VIEW IF EXISTS console_scratch_view")
     }
 
     override func tearDown() async throws {
         try await service.execute("DROP TABLE IF EXISTS console_scratch")
+        try await service.execute("DROP VIEW IF EXISTS console_scratch_view")
         try await service.disconnect()
     }
 
@@ -83,6 +85,31 @@ final class SQLConsoleViewModelTests: XCTestCase {
         XCTAssertNil(console.queryErrorMessage)
         XCTAssertTrue(console.isShowingQueryResult, "sonuç, tablo seçili olmasa da gösterilmeli")
         XCTAssertEqual(console.queryResultRows.map { $0.originalValues["name"]?.displayString }, ["Nut"])
+    }
+
+    /// End-to-end for the "Alter View" context-menu action's whole
+    /// pipeline: a real `SHOW CREATE VIEW` definition, reformatted by
+    /// `ViewAlterStatement` into a `DELIMITER $$ ... DELIMITER ;` script,
+    /// must actually run in the console — not just parse correctly in
+    /// isolation. `DELIMITER` is a `mysql`-CLI-only directive with no
+    /// server-side meaning, so this is the regression test for the bug
+    /// where running that script verbatim failed with a syntax error at
+    /// `DELIMITER $$`.
+    func testRunQueryExecutesDelimiterWrappedAlterViewScript() async throws {
+        let console = makeConsole()
+        try await service.execute("CREATE VIEW console_scratch_view AS SELECT id, name FROM widgets")
+        let createView = try await introspection.showCreateView("console_scratch_view", inDatabase: "mysqlmacclient_test")
+
+        console.queryText = ViewAlterStatement.format(
+            database: "mysqlmacclient_test",
+            view: "console_scratch_view",
+            createView: createView
+        )
+        await console.runQuery()
+
+        XCTAssertNil(console.queryErrorMessage)
+        let tables = try await introspection.listTablesAndViews(inDatabase: "mysqlmacclient_test")
+        XCTAssertTrue(tables.contains { $0.name == "console_scratch_view" && $0.isView })
     }
 
     func testToggleQueryPanelWithNoTableHintOpensABlankEditor() {

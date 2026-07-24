@@ -96,6 +96,25 @@ struct SchemaIntrospectionService {
         }
     }
 
+    /// The view's `CREATE VIEW` statement, exactly as MySQL would print it
+    /// after a plain `SHOW CREATE VIEW view_name` (no schema qualifiers on
+    /// the view/table/column references) — needed even though the query
+    /// itself must use the qualified form (the connection isn't necessarily
+    /// sitting in `database`'s context). MySQL always fully qualifies every
+    /// reference with the queried name when the view identifier itself was
+    /// qualified, so the leading `` `database`. `` is stripped back out
+    /// afterward to match what a `USE database; SHOW CREATE VIEW` would
+    /// have produced.
+    func showCreateView(_ view: String, inDatabase database: String) async throws -> String {
+        let qualifiedView = try Self.qualifiedIdentifier(database: database, name: view)
+        let rows = try await service.query("SHOW CREATE VIEW \(qualifiedView)")
+        guard let raw = rows.first?.column("Create View")?.string else {
+            throw MySQLServiceError.invalidIdentifier(view)
+        }
+        let qualifiedPrefix = "\(try Self.quotedIdentifier(database))."
+        return raw.replacingOccurrences(of: qualifiedPrefix, with: "")
+    }
+
     /// Every character set the server supports, for the "Yeni Tablo" form's
     /// picker — the handful of hardcoded names a static list would have
     /// covered is nowhere near what real servers offer.

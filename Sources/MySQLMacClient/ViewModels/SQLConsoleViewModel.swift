@@ -116,38 +116,78 @@ final class SQLConsoleViewModel: ObservableObject {
         queryErrorMessage = nil
         queryMessage = nil
         defer { isExecutingQuery = false }
+
+        // A `DELIMITER $$ ... DELIMITER ;`-wrapped script (the sidebar's
+        // "Oluştur ▸ Stored Procedure/…" templates, "Alter View") isn't
+        // valid SQL to send as one blob — `DELIMITER` is a `mysql`-CLI-only
+        // directive the server has never heard of. `DelimiterScript`
+        // returns `nil` for every other query, so this only ever changes
+        // behavior for scripts that actually contain one.
+        if let statements = DelimiterScript.statements(from: sqlToRun) {
+            await runStatements(statements)
+            return
+        }
+
         do {
             let result = try await service.rawQuery(sqlToRun)
-            if let firstRow = result.rows.first {
-                let columnNames = firstRow.columnDefinitions.map(\.name)
-                queryResultColumns = columnNames
-                queryResultRows = result.rows.map { mysqlRow in
-                    var values: [String: RowValue] = [:]
-                    for definition in mysqlRow.columnDefinitions {
-                        if let data = mysqlRow.column(definition.name) {
-                            values[definition.name] = RowValue(mysqlData: data)
-                        }
-                    }
-                    return TableRow(values: values)
-                }
-                isShowingQueryResult = true
-                queryMessage = "\(result.rows.count) satır döndürüldü."
-                await resolveQueryEditContext(executedSQL: sqlToRun, columnNames: columnNames)
-            } else {
-                queryResultColumns = []
-                queryResultRows = []
-                isShowingQueryResult = false
-                queryEditContext = nil
-                if let affected = result.affectedRows {
-                    queryMessage = "\(affected) satır etkilendi."
-                } else {
-                    queryMessage = "Sorgu tamamlandı, sonuç yok."
-                }
-            }
+            await applyResult(result, executedSQL: sqlToRun)
         } catch {
             queryErrorMessage = describe(error)
             isShowingQueryResult = false
             queryEditContext = nil
+        }
+    }
+
+    /// Runs a `DELIMITER`-split script's statements one at a time, in order
+    /// (a `DROP VIEW` before its replacing `CREATE VIEW`, etc.) — stopping
+    /// and reporting immediately on the first failure, since the
+    /// server has no notion of the script as a whole to roll back. Only the
+    /// last statement's result populates the grid, matching what running
+    /// just that one statement by itself would have shown.
+    private func runStatements(_ statements: [String]) async {
+        for (index, statement) in statements.enumerated() {
+            do {
+                let result = try await service.rawQuery(statement)
+                if index == statements.count - 1 {
+                    await applyResult(result, executedSQL: statement)
+                    queryMessage = "\(statements.count) ifade çalıştırıldı. \(queryMessage ?? "")"
+                        .trimmingCharacters(in: .whitespaces)
+                }
+            } catch {
+                queryErrorMessage = "İfade \(index + 1)/\(statements.count) başarısız: \(describe(error))"
+                isShowingQueryResult = false
+                queryEditContext = nil
+                return
+            }
+        }
+    }
+
+    private func applyResult(_ result: RawQueryResult, executedSQL: String) async {
+        if let firstRow = result.rows.first {
+            let columnNames = firstRow.columnDefinitions.map(\.name)
+            queryResultColumns = columnNames
+            queryResultRows = result.rows.map { mysqlRow in
+                var values: [String: RowValue] = [:]
+                for definition in mysqlRow.columnDefinitions {
+                    if let data = mysqlRow.column(definition.name) {
+                        values[definition.name] = RowValue(mysqlData: data)
+                    }
+                }
+                return TableRow(values: values)
+            }
+            isShowingQueryResult = true
+            queryMessage = "\(result.rows.count) satır döndürüldü."
+            await resolveQueryEditContext(executedSQL: executedSQL, columnNames: columnNames)
+        } else {
+            queryResultColumns = []
+            queryResultRows = []
+            isShowingQueryResult = false
+            queryEditContext = nil
+            if let affected = result.affectedRows {
+                queryMessage = "\(affected) satır etkilendi."
+            } else {
+                queryMessage = "Sorgu tamamlandı, sonuç yok."
+            }
         }
     }
 

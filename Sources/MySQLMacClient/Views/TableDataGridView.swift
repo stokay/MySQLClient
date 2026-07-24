@@ -14,6 +14,10 @@ struct TableDataGridView: View {
     @ObservedObject var insertionBridge: SQLInsertionBridge
     /// For the İnfo report's font size/color (live-updating).
     @EnvironmentObject private var settingsStore: SettingsStore
+    /// Reports this table's total row count up to `MainWindowView`, which
+    /// forwards it into the session-level `StatusBarView` — this view has
+    /// no direct reference to that bar itself.
+    let onRowCountChange: (Int) -> Void
 
     /// Grid (default) vs. mysql-CLI-style aligned text rendering of the
     /// same rows — toggled by the two leftmost toolbar buttons.
@@ -25,7 +29,8 @@ struct TableDataGridView: View {
         service: MySQLService,
         introspection: SchemaIntrospectionService,
         console: SQLConsoleViewModel,
-        insertionBridge: SQLInsertionBridge
+        insertionBridge: SQLInsertionBridge,
+        onRowCountChange: @escaping (Int) -> Void
     ) {
         _viewModel = StateObject(wrappedValue: TableDataViewModel(
             databaseName: databaseName,
@@ -35,6 +40,7 @@ struct TableDataGridView: View {
         ))
         self.console = console
         self.insertionBridge = insertionBridge
+        self.onRowCountChange = onRowCountChange
     }
 
     var body: some View {
@@ -118,6 +124,9 @@ struct TableDataGridView: View {
             guard newValue else { return }
             insertionBridge.pendingShowInfo = false
             Task { await viewModel.showTableInfo() }
+        }
+        .onChange(of: viewModel.totalRowCount, initial: true) { _, newValue in
+            onRowCountChange(newValue)
         }
     }
 

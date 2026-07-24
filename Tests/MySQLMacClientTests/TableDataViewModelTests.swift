@@ -162,6 +162,21 @@ final class TableDataViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.rows.count, 1)
     }
 
+    /// The "Sınırlı" checkbox: unchecked ignores `pageSize` entirely and
+    /// loads every row.
+    func testDisablingPaginationLoadsTheWholeTableIgnoringPageSize() async throws {
+        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection, pageSize: 2)
+        await viewModel.load()
+        XCTAssertEqual(viewModel.rows.count, 2)
+
+        await viewModel.setPaginationEnabled(false)
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertEqual(viewModel.rows.count, 3, "sayfalama kapalıyken tüm satırlar yüklenmeli")
+
+        await viewModel.setPaginationEnabled(true)
+        XCTAssertEqual(viewModel.rows.count, 2, "tekrar açıldığında pageSize'a dönmeli")
+    }
+
     func testFilterNarrowsRows() async throws {
         let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection)
         await viewModel.load()

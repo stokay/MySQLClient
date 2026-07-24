@@ -3,11 +3,15 @@ import SwiftUI
 /// The "Alter Table" sheet, opened from a table's context menu in the
 /// sidebar. Same layout as `CreateTableView`, but the column grid arrives
 /// pre-filled with the live schema and the SQL preview shows the *diff* as
-/// a single `ALTER TABLE` statement (or a "no changes" note).
+/// a single `ALTER TABLE` statement (or a "no changes" note). Shares
+/// `SchemaModalTheme`'s visual language with `CreateTableView`.
 struct AlterTableView: View {
     @StateObject private var viewModel: AlterTableViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     let onAltered: (TableInfo) -> Void
+
+    private var theme: SchemaModalTheme { SchemaModalTheme(colorScheme: colorScheme) }
 
     init(service: MySQLService, table: TableInfo, onAltered: @escaping (TableInfo) -> Void) {
         _viewModel = StateObject(wrappedValue: AlterTableViewModel(service: service, table: table))
@@ -16,8 +20,17 @@ struct AlterTableView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Alter Table — \(viewModel.originalTableName)")
-                .font(.title2.bold())
+            (
+                Text("Alter Table ")
+                    .font(.title2.bold())
+                    .foregroundColor(theme.textPrimary)
+                + Text("— ")
+                    .font(.title2.bold())
+                    .foregroundColor(theme.textSecondary)
+                + Text(viewModel.originalTableName)
+                    .font(.system(size: 17, weight: .semibold, design: .monospaced))
+                    .foregroundColor(theme.amber)
+            )
 
             if viewModel.isLoading {
                 ProgressView("Tablo yapısı yükleniyor…")
@@ -45,6 +58,7 @@ struct AlterTableView: View {
                 Spacer()
                 Button("İptal") { dismiss() }
                     .keyboardShortcut(.cancelAction)
+                    .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
                 Button {
                     Task {
                         if let table = await viewModel.submit() {
@@ -61,10 +75,12 @@ struct AlterTableView: View {
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(!viewModel.canSubmit)
+                .buttonStyle(SchemaPrimaryButtonStyle(theme: theme))
             }
         }
         .padding(24)
         .frame(minWidth: 920, idealWidth: 960, minHeight: 640, idealHeight: 700)
+        .background(theme.windowBackground)
         .task {
             await viewModel.load()
         }
@@ -74,32 +90,34 @@ struct AlterTableView: View {
         Form {
             LabeledContent("Tablo Adı") {
                 TextField("", text: $viewModel.tableName)
-                    .visibleFieldBorder()
+                    .schemaFieldBorder(theme: theme)
             }
             LabeledContent("Veritabanı") {
                 Text(viewModel.database)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(theme.textSecondary)
             }
         }
+        .foregroundStyle(theme.textPrimary)
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
-        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .gridLineColor)))
+        .schemaCard(theme: theme)
     }
 
     private var sqlPreviewSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("SQL Önizleme").font(.headline)
+            Text("SQL ÖNİZLEME")
+                .font(.system(size: 11, weight: .semibold))
+                .tracking(0.6)
+                .foregroundStyle(theme.textSecondary)
             ScrollView {
                 Text(viewModel.previewSQL)
                     .font(.system(size: 12, design: .monospaced))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(theme.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(8)
                     .textSelection(.enabled)
             }
             .frame(minHeight: 90, maxHeight: 140)
-            .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
-            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .gridLineColor)))
+            .schemaCard(theme: theme, fill: theme.previewBackground)
         }
     }
 }

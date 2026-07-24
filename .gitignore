@@ -4,3 +4,6 @@
 *.xcodeproj
 DerivedData/
 .DS_Store
+MyAssets/
+MyDocs/
+*.dmg

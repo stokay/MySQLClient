@@ -74,6 +74,19 @@ final class SchemaIntrospectionServiceTests: XCTestCase {
         XCTAssertEqual(byName["idx_name_quantity"]?.isUnique, false)
     }
 
+    /// The qualified query (`` SHOW CREATE VIEW `db`.`view` ``) is what
+    /// actually runs — MySQL then fully qualifies every reference in the
+    /// response with that same `` `db`. `` prefix, which `showCreateView`
+    /// must strip back out so "Alter View" produces the same unqualified
+    /// style a plain `USE db; SHOW CREATE VIEW view` would have.
+    func testShowCreateViewStripsSchemaQualifiers() async throws {
+        let createView = try await introspection.showCreateView("widget_view", inDatabase: "mysqlmacclient_test")
+
+        XCTAssertFalse(createView.contains("`mysqlmacclient_test`."))
+        XCTAssertTrue(createView.contains("VIEW `widget_view` AS"))
+        XCTAssertTrue(createView.contains("from `widgets`"))
+    }
+
     func testQuotedIdentifierRejectsBacktick() {
         XCTAssertThrowsError(try SchemaIntrospectionService.quotedIdentifier("evil`table"))
     }

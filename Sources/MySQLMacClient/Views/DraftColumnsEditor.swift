@@ -1,28 +1,29 @@
 import SwiftUI
 
-/// The SQLyog-style column grid shared by the Create Table and Alter Table
-/// forms: header row, editable rows, add/remove, and (for Create) row
-/// reordering. Operates directly on the bound `DraftColumn` array; the
-/// owning view model only sees the resulting values.
+/// The column grid shared by the Create Table and Alter Table forms:
+/// header row, editable rows, add/remove, and (for Create) row reordering.
+/// Operates directly on the bound `DraftColumn` array; the owning view
+/// model only sees the resulting values. Styled by `SchemaModalTheme`.
 struct DraftColumnsEditor: View {
     @Binding var columns: [DraftColumn]
     let dataTypes: [String]
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedColumnID: UUID?
 
+    private var theme: SchemaModalTheme { SchemaModalTheme(colorScheme: colorScheme) }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 12) {
-                Text("Kolonlar").font(.headline)
+                Text("KOLONLAR")
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(0.6)
+                    .foregroundStyle(theme.textSecondary)
 
-                Button {
-                    columns.append(DraftColumn())
-                } label: {
-                    Label("Kolon Ekle", systemImage: "plus.circle")
-                }
-                .buttonStyle(.plain)
+                Spacer()
 
-                HStack(spacing: 4) {
+                HStack(spacing: 10) {
                     Button {
                         moveSelected(-1)
                     } label: {
@@ -37,20 +38,26 @@ struct DraftColumnsEditor: View {
                     }
                     .disabled(!canMoveSelected(1))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(SchemaIconButtonStyle(theme: theme))
 
-                Spacer()
+                Button {
+                    columns.append(DraftColumn())
+                } label: {
+                    Label("Kolon Ekle", systemImage: "plus")
+                }
+                .buttonStyle(SchemaPrimaryButtonStyle(theme: theme))
             }
 
             VStack(alignment: .leading, spacing: 4) {
                 headerRow
 
                 ScrollView {
-                    VStack(spacing: 2) {
+                    VStack(spacing: 3) {
                         ForEach($columns) { $column in
                             DraftColumnRow(
                                 column: $column,
                                 dataTypes: dataTypes,
+                                theme: theme,
                                 isSelected: column.id == selectedColumnID,
                                 onSelect: { selectedColumnID = column.id },
                                 onDelete: { columns.removeAll { $0.id == column.id } }
@@ -62,8 +69,7 @@ struct DraftColumnsEditor: View {
                 .frame(minHeight: 180, maxHeight: 280)
             }
             .padding(10)
-            .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
-            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .gridLineColor)))
+            .schemaCard(theme: theme)
         }
     }
 
@@ -82,19 +88,20 @@ struct DraftColumnsEditor: View {
     private var headerRow: some View {
         HStack(spacing: 6) {
             Color.clear.frame(width: 16)
-            Text("Kolon Adı").frame(width: 150, alignment: .leading)
-            Text("Tip").frame(width: 110, alignment: .leading)
-            Text("Uzunluk").frame(width: 64, alignment: .leading)
-            Text("Varsayılan").frame(width: 90, alignment: .leading)
+            Text("KOLON ADI").frame(width: 150, alignment: .leading)
+            Text("TİP").frame(width: 110, alignment: .leading)
+            Text("UZUNLUK").frame(width: 64, alignment: .leading)
+            Text("VARSAYILAN").frame(width: 90, alignment: .leading)
             Text("PK").frame(width: 24, alignment: .center)
-            Text("Null Değil").frame(width: 58, alignment: .center)
-            Text("Unsigned").frame(width: 58, alignment: .center)
-            Text("Oto Artış").frame(width: 58, alignment: .center)
-            Text("Açıklama").frame(minWidth: 100, alignment: .leading)
+            Text("NULL\nDEĞİL").multilineTextAlignment(.center).frame(width: 58, alignment: .center)
+            Text("UNSIGNED").frame(width: 58, alignment: .center)
+            Text("OTO ARTIŞ").frame(width: 58, alignment: .center)
+            Text("AÇIKLAMA").frame(minWidth: 100, alignment: .leading)
             Spacer(minLength: 20)
         }
-        .font(.caption.bold())
-        .foregroundStyle(.secondary)
+        .font(.system(size: 10, weight: .semibold))
+        .tracking(0.4)
+        .foregroundStyle(theme.textSecondary)
         .padding(.horizontal, 6)
     }
 }
@@ -102,6 +109,7 @@ struct DraftColumnsEditor: View {
 private struct DraftColumnRow: View {
     @Binding var column: DraftColumn
     let dataTypes: [String]
+    let theme: SchemaModalTheme
     let isSelected: Bool
     let onSelect: () -> Void
     let onDelete: () -> Void
@@ -110,13 +118,13 @@ private struct DraftColumnRow: View {
         HStack(spacing: 6) {
             Image(systemName: "line.3.horizontal")
                 .font(.system(size: 11))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(theme.textSecondary)
                 .frame(width: 16)
                 .contentShape(Rectangle())
                 .onTapGesture { onSelect() }
 
             TextField("", text: $column.name)
-                .visibleFieldBorder(padding: 4, cornerRadius: 4)
+                .schemaFieldBorder(theme: theme, padding: 4, cornerRadius: 5)
                 .frame(width: 150)
             Picker("", selection: $column.dataType) {
                 ForEach(dataTypes, id: \.self) { Text($0).tag($0) }
@@ -124,30 +132,30 @@ private struct DraftColumnRow: View {
             .labelsHidden()
             .frame(width: 110)
             TextField("", text: $column.length)
-                .visibleFieldBorder(padding: 4, cornerRadius: 4)
+                .schemaFieldBorder(theme: theme, padding: 4, cornerRadius: 5)
                 .frame(width: 64)
             TextField("", text: $column.defaultValue)
-                .visibleFieldBorder(padding: 4, cornerRadius: 4)
+                .schemaFieldBorder(theme: theme, padding: 4, cornerRadius: 5)
                 .frame(width: 90)
             Toggle("", isOn: $column.isPrimaryKey)
                 .labelsHidden()
-                .toggleStyle(.checkbox)
+                .toggleStyle(SchemaCheckboxToggleStyle(theme: theme))
                 .frame(width: 24)
             Toggle("", isOn: $column.isNotNull)
                 .labelsHidden()
-                .toggleStyle(.checkbox)
+                .toggleStyle(SchemaCheckboxToggleStyle(theme: theme))
                 .frame(width: 58)
                 .disabled(column.isPrimaryKey)
             Toggle("", isOn: $column.isUnsigned)
                 .labelsHidden()
-                .toggleStyle(.checkbox)
+                .toggleStyle(SchemaCheckboxToggleStyle(theme: theme))
                 .frame(width: 58)
             Toggle("", isOn: $column.isAutoIncrement)
                 .labelsHidden()
-                .toggleStyle(.checkbox)
+                .toggleStyle(SchemaCheckboxToggleStyle(theme: theme))
                 .frame(width: 58)
             TextField("", text: $column.comment)
-                .visibleFieldBorder(padding: 4, cornerRadius: 4)
+                .schemaFieldBorder(theme: theme, padding: 4, cornerRadius: 5)
                 .frame(minWidth: 100)
 
             Button {
@@ -155,12 +163,14 @@ private struct DraftColumnRow: View {
             } label: {
                 Image(systemName: "minus.circle")
             }
-            .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
+            .buttonStyle(SchemaIconButtonStyle(theme: theme))
             .frame(width: 20)
         }
         .padding(.horizontal, 6)
-        .padding(.vertical, 1)
-        .background(isSelected ? Color.accentColor.opacity(0.15) : Color.clear)
+        .padding(.vertical, 3)
+        .background(
+            RoundedRectangle(cornerRadius: 5)
+                .fill(isSelected ? theme.accent.opacity(0.15) : Color.clear)
+        )
     }
 }

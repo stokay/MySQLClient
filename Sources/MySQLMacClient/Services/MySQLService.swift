@@ -127,6 +127,17 @@ actor MySQLService {
     func rawQuery(_ sql: String) async throws -> RawQueryResult {
         try await withRetryOnClosedConnection {
             try await self.withExclusiveConnectionAccess { conn in
+                // `USE db_name` is one of a handful of MySQL utility
+                // commands the prepared-statement protocol (what
+                // `conn.query(_:_:)` always uses, even with no binds)
+                // explicitly rejects — the server answers with "This
+                // command is not supported in the prepared statement
+                // protocol yet". It has to go through the plain-text
+                // `simpleQuery` path instead, same as the real `mysql` CLI.
+                if Self.isUseStatement(sql) {
+                    let rows = try await conn.simpleQuery(sql).get()
+                    return RawQueryResult(rows: rows, affectedRows: nil, lastInsertID: nil)
+                }
                 let box = MetadataBox()
                 let rows = try await conn.query(sql, [], onMetadata: { metadata in
                     box.affectedRows = metadata.affectedRows
@@ -135,6 +146,11 @@ actor MySQLService {
                 return RawQueryResult(rows: rows, affectedRows: box.affectedRows, lastInsertID: box.lastInsertID)
             }
         }
+    }
+
+    private static func isUseStatement(_ sql: String) -> Bool {
+        let trimmed = sql.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.range(of: #"(?i)^USE\s+\S"#, options: .regularExpression) != nil
     }
 
     /// Retries exactly once, and only for a connection that's actually

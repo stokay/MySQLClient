@@ -71,6 +71,10 @@ struct MainWindowView: View {
     @State private var tablePendingDrop: TableInfo?
     @State private var tableToAlter: TableInfo?
     @State private var contextActionError: String?
+    /// Surfaced from the selected table's grid up to `StatusBarView` — see
+    /// `TableDataGridView`'s `onRowCountChange`. `nil` with nothing selected
+    /// (or before its first load completes).
+    @State private var selectedTableRowCount: Int?
 
     private static let minPanelHeight: CGFloat = 180
     private static let minGridHeight: CGFloat = 150
@@ -123,14 +127,18 @@ struct MainWindowView: View {
                     onShowTableInfo: { table in
                         selectedTable = table
                         insertionBridge.pendingShowInfo = true
-                    }
+                    },
+                    onAlterView: { view in
+                        Task { await alterView(view) }
+                    },
+                    onDropView: { tablePendingDrop = $0 }
                 )
                 .navigationSplitViewColumnWidth(min: 200, ideal: 260)
             } detail: {
                 detailPane
             }
 
-            StatusBarView(profile: session.profile, onDisconnect: onDisconnect)
+            StatusBarView(profile: session.profile, rowCount: selectedTableRowCount, onDisconnect: onDisconnect)
         }
         .task {
             await schemaTreeViewModel.loadDatabases()
@@ -143,6 +151,7 @@ struct MainWindowView: View {
             console.currentDatabaseHint = newValue?.database
             if newValue == nil {
                 console.onQueryResultCleared = nil
+                selectedTableRowCount = nil
             }
         }
         .onChange(of: insertionBridge.pendingText) { _, newValue in
@@ -166,7 +175,7 @@ struct MainWindowView: View {
                     Label {
                         Text("Yeni Tablo")
                     } icon: {
-                        Image.bundled("create_table", fallbackSystemImage: "tablecells.badge.plus")
+                        Image.bundled("create_table", fallbackSystemImage: "rectangle.badge.plus")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 30, height: 30)
@@ -186,6 +195,9 @@ struct MainWindowView: View {
                     }
                 }
                 .help("Ayarlar (⌘,)")
+            }
+            ToolbarItem(placement: .primaryAction) {
+                AppearancePickerView()
             }
         }
         .sheet(isPresented: $isShowingCreateTable) {
@@ -249,7 +261,9 @@ struct MainWindowView: View {
             Text("TRUNCATE TABLE geri alınamaz.")
         }
         .confirmationDialog(
-            "'\(tablePendingDrop?.name ?? "")' tablosu tamamen silinsin mi?",
+            tablePendingDrop?.isView == true
+                ? "'\(tablePendingDrop?.name ?? "")' view'ı tamamen silinsin mi?"
+                : "'\(tablePendingDrop?.name ?? "")' tablosu tamamen silinsin mi?",
             isPresented: Binding(
                 get: { tablePendingDrop != nil },
                 set: { if !$0 { tablePendingDrop = nil } }
@@ -264,7 +278,11 @@ struct MainWindowView: View {
             }
             Button("İptal", role: .cancel) { tablePendingDrop = nil }
         } message: {
-            Text("DROP TABLE tabloyu yapısıyla birlikte kalıcı olarak siler, geri alınamaz.")
+            Text(
+                tablePendingDrop?.isView == true
+                    ? "DROP VIEW view'ı kalıcı olarak siler, geri alınamaz."
+                    : "DROP TABLE tabloyu yapısıyla birlikte kalıcı olarak siler, geri alınamaz."
+            )
         }
         .alert(
             "Hata",
@@ -318,7 +336,8 @@ struct MainWindowView: View {
                             service: session.mysqlService,
                             introspection: session.introspectionService,
                             console: console,
-                            insertionBridge: insertionBridge
+                            insertionBridge: insertionBridge,
+                            onRowCountChange: { selectedTableRowCount = $0 }
                         )
                         .id(selectedTable.id)
                     } else {
@@ -451,7 +470,8 @@ struct MainWindowView: View {
     private func dropTable(_ table: TableInfo) async {
         do {
             let qualified = try SchemaIntrospectionService.qualifiedIdentifier(database: table.database, name: table.name)
-            try await session.mysqlService.execute("DROP TABLE \(qualified)")
+            let statement = table.isView ? "DROP VIEW \(qualified)" : "DROP TABLE \(qualified)"
+            try await session.mysqlService.execute(statement)
         } catch {
             contextActionError = "Drop başarısız: \(error.localizedDescription)"
             return
@@ -463,5 +483,25 @@ struct MainWindowView: View {
         if let node = schemaTreeViewModel.databaseNodes.first(where: { $0.info.name == table.database }) {
             await node.reload()
         }
+    }
+
+    /// "Alter View" context-menu action: reads the view's real definition
+    /// back off the server (rather than reconstructing it from whatever's
+    /// in the sidebar, which only ever holds the name) and appends it,
+    /// reformatted, to the query console for editing.
+    private func alterView(_ view: TableInfo) async {
+        let createView: String
+        do {
+            createView = try await session.introspectionService.showCreateView(view.name, inDatabase: view.database)
+        } catch {
+            contextActionError = "View tanımı alınamadı: \(error.localizedDescription)"
+            return
+        }
+
+        insertionBridge.pendingAppend = ViewAlterStatement.format(
+            database: view.database,
+            view: view.name,
+            createView: createView
+        )
     }
 }

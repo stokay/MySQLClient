@@ -37,6 +37,18 @@ final class MySQLServiceRawQueryTests: XCTestCase {
         XCTAssertEqual(check.first?.column("quantity")?.int, 500)
     }
 
+    /// `USE db_name` is rejected by the prepared-statement protocol
+    /// (`conn.query(_:_:)`, which `rawQuery` otherwise always uses, even
+    /// with no binds) with "This command is not supported in the prepared
+    /// statement protocol yet" — `rawQuery` must special-case it onto the
+    /// plain-text `simpleQuery` path instead, the same way the real `mysql`
+    /// CLI sends it.
+    func testRawQueryRunsUseStatementViaThePlainTextProtocol() async throws {
+        let result = try await service.rawQuery("USE `mysqlmacclient_test`")
+        XCTAssertTrue(result.rows.isEmpty)
+        XCTAssertNil(result.affectedRows)
+    }
+
     func testRawQuerySyntaxErrorThrows() async throws {
         do {
             _ = try await service.rawQuery("SELEKT * FROM widgets")

@@ -6,6 +6,9 @@ final class TableDataViewModel: ObservableObject {
     @Published private(set) var columns: [ColumnInfo] = []
     @Published private(set) var rows: [TableRow] = []
     @Published var pageSize: Int = 1000
+    /// Off = the "Sınırlı" checkbox unchecked: `fetchPage()` sends no
+    /// `LIMIT` at all, loading the whole table regardless of `pageSize`.
+    @Published private(set) var isPaginationEnabled: Bool = true
     @Published private(set) var currentOffset: Int = 0
     @Published private(set) var totalRowCount: Int = 0
     @Published var sortColumn: String?
@@ -93,7 +96,9 @@ final class TableDataViewModel: ObservableObject {
         if let sortColumn, columns.contains(where: { $0.name == sortColumn }) {
             sql += " ORDER BY \(try quoted(sortColumn)) \(sortAscending ? "ASC" : "DESC")"
         }
-        sql += " LIMIT \(pageSize) OFFSET \(currentOffset)"
+        if isPaginationEnabled {
+            sql += " LIMIT \(pageSize) OFFSET \(currentOffset)"
+        }
 
         let mysqlRows = try await service.query(sql, binds)
         return mysqlRows.map { mysqlRow in
@@ -151,6 +156,15 @@ final class TableDataViewModel: ObservableObject {
     func changePageSize(_ newSize: Int) async {
         guard newSize > 0, newSize != pageSize else { return }
         pageSize = newSize
+        currentOffset = 0
+        await reload()
+    }
+
+    /// The "Sınırlı" checkbox: off loads every row in the table, ignoring
+    /// `pageSize` entirely.
+    func setPaginationEnabled(_ enabled: Bool) async {
+        guard enabled != isPaginationEnabled else { return }
+        isPaginationEnabled = enabled
         currentOffset = 0
         await reload()
     }

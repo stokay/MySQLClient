@@ -22,36 +22,28 @@ struct PaginationControlView: View {
         )
     }
 
+    private var paginationEnabledBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.isPaginationEnabled },
+            set: { newValue in Task { await viewModel.setPaginationEnabled(newValue) } }
+        )
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             Text("Sayfa boyutu:")
                 .lineLimit(1)
             TextField("", text: pageSizeBinding)
                 .frame(width: 60)
+                .disabled(!viewModel.isPaginationEnabled)
                 .onSubmit {
                     Task { await viewModel.reload() }
                 }
 
-            Divider().frame(height: 16)
-
-            Button {
-                Task { await viewModel.previousPage() }
-            } label: {
-                Image(systemName: "chevron.left")
-            }
-            .disabled(viewModel.currentOffset == 0)
-
-            Text(rangeDescription)
-                .monospacedDigit()
-                .foregroundStyle(.secondary)
+            Toggle("Sınırlı", isOn: paginationEnabledBinding)
+                .toggleStyle(.checkbox)
                 .lineLimit(1)
-
-            Button {
-                Task { await viewModel.nextPage() }
-            } label: {
-                Image(systemName: "chevron.right")
-            }
-            .disabled(viewModel.currentOffset + viewModel.pageSize >= viewModel.totalRowCount)
+                .help("Kapatılırsa sayfa boyutu yok sayılır ve tablonun tamamı yüklenir.")
 
             Spacer()
 
@@ -86,12 +78,5 @@ struct PaginationControlView: View {
                 .buttonStyle(.plain)
             }
         }
-    }
-
-    private var rangeDescription: String {
-        guard viewModel.totalRowCount > 0 else { return "0 satır" }
-        let start = viewModel.currentOffset + 1
-        let end = min(viewModel.currentOffset + viewModel.pageSize, viewModel.totalRowCount)
-        return "\(start)–\(end) / \(viewModel.totalRowCount)"
     }
 }
