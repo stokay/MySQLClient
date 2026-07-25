@@ -28,9 +28,9 @@ targets:
     info:
       path: Info.plist
       properties:
-        CFBundleDisplayName: "MySQL Mac Client"
-        CFBundleShortVersionString: "1.0.0"
-        CFBundleVersion: "2"
+        CFBundleDisplayName: "MySQL Client"
+        CFBundleShortVersionString: "1.0.1"
+        CFBundleVersion: "3"
         LSApplicationCategoryType: "public.app-category.developer-tools"
         CFBundleIconName: AppIcon
         NSHumanReadableCopyright: "Copyright © 2025 Sedat Tokay. All rights reserved."
@@ -53,8 +53,8 @@ targets:
         # Gerçek Team ID (sertifikanın OU alanı) — CN'deki parantez içi
         # (UR6S53DFBX) kişisel kimliktir, takım kimliği değildir.
         DEVELOPMENT_TEAM: 848JB749D8
-        MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "2"
+        MARKETING_VERSION: "1.0.1"
+        CURRENT_PROJECT_VERSION: "3"
         ENABLE_HARDENED_RUNTIME: YES
         CODE_SIGN_STYLE: Automatic
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
