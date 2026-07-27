@@ -1,4 +1,4 @@
-# MySQLMacClient
+# MySQL Client
 
 A native macOS MySQL management tool built with **Swift 6 / SwiftUI**, inspired by SQLyog. Designed as a personal desktop client for managing MySQL databases — local (XAMPP) or remote (cPanel shared hosting, etc.).
 
@@ -24,7 +24,7 @@ A native macOS MySQL management tool built with **Swift 6 / SwiftUI**, inspired 
 ### Connection Management
 - Multiple connection profiles with named presets
 - Passwords stored securely in **macOS Keychain** (never on disk)
-- Connection metadata persisted in `~/Library/Application Support/MySQLMacClient/connections.json`
+- Connection metadata persisted in `~/Library/Application Support/MySQL Client/connections.json`
 
 ### Schema Browser
 - Multi-database tree: databases → tables (sidebar with `NavigationSplitView`)
@@ -97,8 +97,8 @@ Sources/MySQLMacClient/
 
 ```bash
 # Clone
-git clone https://github.com/stokay/MySQLMacClient.git
-cd MySQLMacClient
+git clone https://github.com/stokay/MySQLClient.git
+cd MySQLClient
 
 # Build and run
 swift run

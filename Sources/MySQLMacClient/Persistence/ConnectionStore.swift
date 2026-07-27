@@ -13,7 +13,7 @@ final class ConnectionStore: ObservableObject {
             self.fileURL = fileURL
         } else {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            let directory = appSupport.appendingPathComponent("MySQLMacClient", isDirectory: true)
+            let directory = appSupport.appendingPathComponent("MySQL Client", isDirectory: true)
             try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             self.fileURL = directory.appendingPathComponent("connections.json")
         }
