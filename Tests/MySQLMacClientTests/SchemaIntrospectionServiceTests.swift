@@ -87,6 +87,43 @@ final class SchemaIntrospectionServiceTests: XCTestCase {
         XCTAssertTrue(createView.contains("from `widgets`"))
     }
 
+    func testListStoredProceduresReturnsCreatedProcedure() async throws {
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS introspection_test_proc")
+        _ = try await service.rawQuery("""
+            CREATE PROCEDURE introspection_test_proc()
+            BEGIN
+                SELECT 1;
+            END
+            """)
+
+        let procedures = try await introspection.listStoredProcedures(inDatabase: "mysqlmacclient_test")
+        XCTAssertTrue(procedures.contains { $0.name == "introspection_test_proc" && $0.database == "mysqlmacclient_test" })
+
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS introspection_test_proc")
+    }
+
+    /// Unlike `showCreateView`, no schema-qualifier stripping is expected
+    /// here — `SHOW CREATE PROCEDURE` never adds one regardless of whether
+    /// the query itself used a qualified or unqualified name (verified
+    /// against a real server).
+    func testShowCreateProcedureReturnsVerbatimDefinition() async throws {
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS introspection_test_proc")
+        _ = try await service.rawQuery("""
+            CREATE PROCEDURE introspection_test_proc(IN newQuantity INT)
+            BEGIN
+                UPDATE widgets SET quantity = newQuantity WHERE name = 'Bolt';
+            END
+            """)
+
+        let createProcedure = try await introspection.showCreateProcedure("introspection_test_proc", inDatabase: "mysqlmacclient_test")
+
+        XCTAssertFalse(createProcedure.contains("`mysqlmacclient_test`."))
+        XCTAssertTrue(createProcedure.contains("PROCEDURE `introspection_test_proc`(IN newQuantity INT)"))
+        XCTAssertTrue(createProcedure.contains("UPDATE widgets SET quantity = newQuantity WHERE name = 'Bolt';"))
+
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS introspection_test_proc")
+    }
+
     func testQuotedIdentifierRejectsBacktick() {
         XCTAssertThrowsError(try SchemaIntrospectionService.quotedIdentifier("evil`table"))
     }

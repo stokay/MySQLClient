@@ -1,4 +1,5 @@
 import XCTest
+import MySQLNIO
 @testable import MySQLMacClient
 
 /// Runs against a real local MariaDB/MySQL (XAMPP), not a mock — see
@@ -39,14 +40,95 @@ final class MySQLServiceRawQueryTests: XCTestCase {
 
     /// `USE db_name` is rejected by the prepared-statement protocol
     /// (`conn.query(_:_:)`, which `rawQuery` otherwise always uses, even
-    /// with no binds) with "This command is not supported in the prepared
-    /// statement protocol yet" — `rawQuery` must special-case it onto the
-    /// plain-text `simpleQuery` path instead, the same way the real `mysql`
-    /// CLI sends it.
+    /// with no binds) with `ER_UNSUPPORTED_PS` ("This command is not
+    /// supported in the prepared statement protocol yet") — `rawQuery`
+    /// must retry it onto the plain-text `simpleQuery` path instead, the
+    /// same way the real `mysql` CLI sends it.
     func testRawQueryRunsUseStatementViaThePlainTextProtocol() async throws {
         let result = try await service.rawQuery("USE `mysqlmacclient_test`")
         XCTAssertTrue(result.rows.isEmpty)
         XCTAssertNil(result.affectedRows)
+    }
+
+    /// `CREATE`/`DROP PROCEDURE` hit the exact same `ER_UNSUPPORTED_PS`
+    /// rejection as `USE` — this is the regression test for a real
+    /// user-reported case (writing a stored procedure by hand in the query
+    /// console), confirming the fix generalizes to *any* statement MySQL
+    /// rejects from the prepared-statement protocol, not just `USE`.
+    /// `CALL`ing the procedure back exercises the normal, still-prepared
+    /// path; the tests below cover procedures that return result sets.
+    func testRawQueryRunsCreateAndDropProcedureViaThePlainTextProtocol() async throws {
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS raw_query_test_proc")
+
+        let created = try await service.rawQuery("""
+            CREATE PROCEDURE raw_query_test_proc(IN newQuantity INT)
+            BEGIN
+                UPDATE widgets SET quantity = newQuantity WHERE name = 'Bolt';
+            END
+            """)
+        XCTAssertTrue(created.rows.isEmpty)
+
+        _ = try await service.rawQuery("CALL raw_query_test_proc(321)")
+        let check = try await service.query("SELECT quantity FROM widgets WHERE name = 'Bolt'")
+        XCTAssertEqual(check.first?.column("quantity")?.int, 321)
+
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS raw_query_test_proc")
+    }
+
+    /// `CALL`ing a procedure whose body runs a `SELECT` used to fail with
+    /// `ER_SP_BADSELECT` ("can't return a result set in the given context")
+    /// because upstream MySQLNIO never requests `CLIENT_MULTI_RESULTS` in
+    /// its handshake. This app now depends on a fork that does (see
+    /// `Package.swift`), so this must work.
+    func testRawQueryCallsProcedureThatReturnsAResultSet() async throws {
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS raw_query_test_select_proc")
+        _ = try await service.rawQuery("""
+            CREATE PROCEDURE raw_query_test_select_proc()
+            BEGIN
+                SELECT name FROM widgets WHERE name = 'Bolt';
+            END
+            """)
+
+        let result = try await service.rawQuery("CALL raw_query_test_select_proc()")
+        XCTAssertEqual(result.rows.count, 1)
+        XCTAssertEqual(result.rows.first?.column("name")?.string, "Bolt")
+
+        // The connection must stay usable afterwards — requesting
+        // `CLIENT_MULTI_RESULTS` without draining the follow-up result sets
+        // desyncs the protocol, which showed up as the *next* query hanging
+        // rather than as an error here.
+        let followUp = try await service.rawQuery("SELECT 42 AS answer")
+        XCTAssertEqual(followUp.rows.first?.column("answer")?.int, 42)
+
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS raw_query_test_select_proc")
+    }
+
+    /// A procedure with *two* `SELECT`s is the case that exposed why the
+    /// capability flag alone isn't enough: the driver stopped after the
+    /// first result set and left the rest on the wire, so this call
+    /// succeeded but every later query on that connection hung. Both
+    /// result sets must come back — kept apart, not merged — and the
+    /// connection must survive.
+    func testRawQueryCallsProcedureReturningTwoResultSetsWithoutDesync() async throws {
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS raw_query_test_two_selects")
+        _ = try await service.rawQuery("""
+            CREATE PROCEDURE raw_query_test_two_selects()
+            BEGIN
+                SELECT name FROM widgets WHERE name = 'Bolt';
+                SELECT quantity FROM widgets WHERE name = 'Nut';
+            END
+            """)
+
+        let result = try await service.rawQuery("CALL raw_query_test_two_selects()")
+        XCTAssertEqual(result.resultSets.count, 2, "both result sets should arrive, kept separate")
+        XCTAssertEqual(result.resultSets.first?.first?.column("name")?.string, "Bolt")
+        XCTAssertEqual(result.resultSets.last?.first?.column("quantity")?.int, 250)
+        XCTAssertEqual(result.rows.count, 1, "`rows` is the first result set")
+
+        let followUp = try await service.rawQuery("SELECT 7 AS answer")
+        XCTAssertEqual(followUp.rows.first?.column("answer")?.int, 7)
+
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS raw_query_test_two_selects")
     }
 
     func testRawQuerySyntaxErrorThrows() async throws {

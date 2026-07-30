@@ -13,6 +13,15 @@ struct QueryEditContext {
     let columns: [ColumnInfo]
 }
 
+/// One result set of a query's response. Ordinary statements produce at
+/// most one; a `CALL` to a procedure whose body runs several `SELECT`s
+/// produces one per `SELECT`, which the console shows as separate tabs.
+struct QueryResultSet: Identifiable {
+    let id: Int
+    let columns: [String]
+    var rows: [TableRow]
+}
+
 /// Backs the SQL query panel as a *session*-level concern, not a per-table
 /// one: one instance lives for the whole connected window
 /// (`MainWindowView`) and is shared by every table's grid and by the
@@ -35,10 +44,24 @@ final class SQLConsoleViewModel: ObservableObject {
     @Published var queryErrorMessage: String?
     @Published private(set) var queryMessage: String?
     @Published private(set) var isShowingQueryResult = false
-    @Published private(set) var queryResultColumns: [String] = []
-    @Published private(set) var queryResultRows: [TableRow] = []
+    /// Every result set the last query returned, in order. The grid renders
+    /// `selectedResultSetIndex`'s entry; more than one turns on the tab bar.
+    @Published private(set) var queryResultSets: [QueryResultSet] = []
+    @Published var selectedResultSetIndex = 0
     @Published var isQueryResultEditableRequested = false
     @Published private(set) var queryEditContext: QueryEditContext?
+
+    /// The result set currently on screen — the grid and the row-editing
+    /// paths below all work against this one, never across tabs. Guarded
+    /// against a stale index (a new query can return fewer result sets than
+    /// the previous one while `selectedResultSetIndex` still points high).
+    private var selectedResultSet: QueryResultSet? {
+        guard queryResultSets.indices.contains(selectedResultSetIndex) else { return queryResultSets.first }
+        return queryResultSets[selectedResultSetIndex]
+    }
+
+    var queryResultColumns: [String] { selectedResultSet?.columns ?? [] }
+    var queryResultRows: [TableRow] { selectedResultSet?.rows ?? [] }
 
     /// `true` once both the user asked for editing and the last query
     /// actually qualifies (single table, PK included in the result).
@@ -108,13 +131,7 @@ final class SQLConsoleViewModel: ObservableObject {
     /// back to a row's primary key, so those stay read-only regardless of
     /// the Editable toggle.
     func runQuery() async {
-        let selection = querySelectedText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let sqlToRun = selection.isEmpty ? queryText : selection
-        let trimmed = sqlToRun.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        isExecutingQuery = true
-        queryErrorMessage = nil
-        queryMessage = nil
+        guard let sqlToRun = prepareToRunQuery() else { return }
         defer { isExecutingQuery = false }
 
         // A `DELIMITER $$ ... DELIMITER ;`-wrapped script (the sidebar's
@@ -136,6 +153,37 @@ final class SQLConsoleViewModel: ObservableObject {
             isShowingQueryResult = false
             queryEditContext = nil
         }
+    }
+
+    /// "Tümünü Çalıştır": splits the editor's selected text (or the whole
+    /// editor — same "selection wins" convention as `runQuery()`) on every
+    /// top-level `;` and runs each resulting statement in order, with no
+    /// `DELIMITER` directive required first — unlike `runQuery()`, which
+    /// only ever splits a script that already has one. Only safe for
+    /// scripts made of independent simple statements (`USE db;\ncall
+    /// proc();`, …): see `DelimiterScript.allStatements(from:)` for why a
+    /// `CREATE PROCEDURE`/`FUNCTION`/`TRIGGER` body still needs `DELIMITER`
+    /// wrapping even with this button.
+    func runAllStatements() async {
+        guard let sqlToRun = prepareToRunQuery() else { return }
+        defer { isExecutingQuery = false }
+        await runStatements(DelimiterScript.allStatements(from: sqlToRun))
+    }
+
+    /// Shared by `runQuery()`/`runAllStatements()`: resolves which text to
+    /// run (selection wins over the whole editor), resets the previous
+    /// run's error/message state, and flips `isExecutingQuery` — `nil`
+    /// when there's nothing to run, which both callers treat as "do
+    /// nothing" (no `isExecutingQuery` flip, no `defer` to unwind).
+    private func prepareToRunQuery() -> String? {
+        let selection = querySelectedText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let sqlToRun = selection.isEmpty ? queryText : selection
+        let trimmed = sqlToRun.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        isExecutingQuery = true
+        queryErrorMessage = nil
+        queryMessage = nil
+        return sqlToRun
     }
 
     /// Runs a `DELIMITER`-split script's statements one at a time, in order
@@ -163,24 +211,27 @@ final class SQLConsoleViewModel: ObservableObject {
     }
 
     private func applyResult(_ result: RawQueryResult, executedSQL: String) async {
-        if let firstRow = result.rows.first {
+        let sets: [QueryResultSet] = result.resultSets.enumerated().compactMap { index, rows in
+            guard let firstRow = rows.first else { return nil }
             let columnNames = firstRow.columnDefinitions.map(\.name)
-            queryResultColumns = columnNames
-            queryResultRows = result.rows.map { mysqlRow in
-                var values: [String: RowValue] = [:]
-                for definition in mysqlRow.columnDefinitions {
-                    if let data = mysqlRow.column(definition.name) {
-                        values[definition.name] = RowValue(mysqlData: data)
+            return QueryResultSet(
+                id: index,
+                columns: columnNames,
+                rows: rows.map { mysqlRow in
+                    var values: [String: RowValue] = [:]
+                    for definition in mysqlRow.columnDefinitions {
+                        if let data = mysqlRow.column(definition.name) {
+                            values[definition.name] = RowValue(mysqlData: data)
+                        }
                     }
+                    return TableRow(values: values)
                 }
-                return TableRow(values: values)
-            }
-            isShowingQueryResult = true
-            queryMessage = "\(result.rows.count) satır döndürüldü."
-            await resolveQueryEditContext(executedSQL: executedSQL, columnNames: columnNames)
-        } else {
-            queryResultColumns = []
-            queryResultRows = []
+            )
+        }
+
+        guard let first = sets.first else {
+            queryResultSets = []
+            selectedResultSetIndex = 0
             isShowingQueryResult = false
             queryEditContext = nil
             if let affected = result.affectedRows {
@@ -188,6 +239,24 @@ final class SQLConsoleViewModel: ObservableObject {
             } else {
                 queryMessage = "Sorgu tamamlandı, sonuç yok."
             }
+            return
+        }
+
+        queryResultSets = sets
+        selectedResultSetIndex = 0
+        isShowingQueryResult = true
+        if sets.count > 1 {
+            let total = sets.reduce(0) { $0 + $1.rows.count }
+            queryMessage = "\(sets.count) sonuç kümesi, toplam \(total) satır döndürüldü."
+        } else {
+            queryMessage = "\(first.rows.count) satır döndürüldü."
+        }
+        // Editing is only ever offered for a single, simple single-table
+        // SELECT — a multi-result `CALL` can't map a row back to one table.
+        if sets.count == 1 {
+            await resolveQueryEditContext(executedSQL: executedSQL, columnNames: first.columns)
+        } else {
+            queryEditContext = nil
         }
     }
 
@@ -196,22 +265,25 @@ final class SQLConsoleViewModel: ObservableObject {
     /// switching back to shouldn't show stale pre-query data.
     func clearQueryResult() async {
         isShowingQueryResult = false
-        queryResultColumns = []
-        queryResultRows = []
+        queryResultSets = []
+        selectedResultSetIndex = 0
         queryMessage = nil
         queryEditContext = nil
         await onQueryResultCleared?()
     }
 
     func commitQueryResultEdit(rowId: TableRow.ID, column: String, newText: String) async {
+        // `queryEditContext` is only ever non-nil for a single result set
+        // (see `applyResult`), so editing always targets set 0.
         guard let context = queryEditContext, isQueryResultEditableRequested,
-              let index = queryResultRows.firstIndex(where: { $0.id == rowId }) else { return }
-        queryResultRows[index].editedText[column] = newText
-        guard queryResultRows[index].isDirty(column) else { return }
+              !queryResultSets.isEmpty,
+              let index = queryResultSets[0].rows.firstIndex(where: { $0.id == rowId }) else { return }
+        queryResultSets[0].rows[index].editedText[column] = newText
+        guard queryResultSets[0].rows[index].isDirty(column) else { return }
 
         do {
-            try await updateQueryResultRow(queryResultRows[index], changedColumn: column, context: context)
-            queryResultRows[index].acceptEdits(for: [column])
+            try await updateQueryResultRow(queryResultSets[0].rows[index], changedColumn: column, context: context)
+            queryResultSets[0].rows[index].acceptEdits(for: [column])
             queryErrorMessage = nil
         } catch {
             queryErrorMessage = describe(error)

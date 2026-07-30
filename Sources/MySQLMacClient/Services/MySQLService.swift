@@ -17,9 +17,23 @@ struct ExecuteResult: Sendable {
 /// it's a SELECT (rows matter) or an INSERT/UPDATE/DDL (affected-row count
 /// matters), so this carries both.
 struct RawQueryResult: Sendable {
-    let rows: [MySQLRow]
+    /// One entry per result set. Ordinary statements produce at most one;
+    /// a `CALL` to a procedure whose body runs several `SELECT`s produces
+    /// one per `SELECT`, which the console shows as separate tabs. Empty
+    /// for a write/DDL.
+    let resultSets: [[MySQLRow]]
     let affectedRows: UInt64?
     let lastInsertID: UInt64?
+
+    /// The first result set — what a single-result caller means by "the
+    /// rows", and what the grid shows when it isn't tab-aware.
+    var rows: [MySQLRow] { resultSets.first ?? [] }
+
+    init(resultSets: [[MySQLRow]], affectedRows: UInt64?, lastInsertID: UInt64?) {
+        self.resultSets = resultSets
+        self.affectedRows = affectedRows
+        self.lastInsertID = lastInsertID
+    }
 }
 
 enum MySQLServiceError: Error, LocalizedError {
@@ -127,30 +141,42 @@ actor MySQLService {
     func rawQuery(_ sql: String) async throws -> RawQueryResult {
         try await withRetryOnClosedConnection {
             try await self.withExclusiveConnectionAccess { conn in
-                // `USE db_name` is one of a handful of MySQL utility
-                // commands the prepared-statement protocol (what
-                // `conn.query(_:_:)` always uses, even with no binds)
-                // explicitly rejects — the server answers with "This
-                // command is not supported in the prepared statement
-                // protocol yet". It has to go through the plain-text
-                // `simpleQuery` path instead, same as the real `mysql` CLI.
-                if Self.isUseStatement(sql) {
-                    let rows = try await conn.simpleQuery(sql).get()
-                    return RawQueryResult(rows: rows, affectedRows: nil, lastInsertID: nil)
+                do {
+                    let box = MetadataBox()
+                    let resultSets = try await conn.queryResultSets(sql, [], onMetadata: { metadata in
+                        box.affectedRows = metadata.affectedRows
+                        box.lastInsertID = metadata.lastInsertID
+                    }).get()
+                    return RawQueryResult(resultSets: resultSets, affectedRows: box.affectedRows, lastInsertID: box.lastInsertID)
+                } catch MySQLError.server(let packet) where packet.errorCode == .UNSUPPORTED_PS {
+                    // `ER_UNSUPPORTED_PS` (1295) — MySQL rejects a whole
+                    // category of statements (`USE db`, `CREATE PROCEDURE`/
+                    // `FUNCTION`/`TRIGGER`/`EVENT`, …) from the
+                    // prepared-statement protocol, which is what
+                    // `conn.query(_:_:)` always uses even with no binds.
+                    // Rather than enumerate every affected statement kind
+                    // up front, retry once through the plain-text
+                    // `simpleQuery` path — the same one the real `mysql`
+                    // CLI uses — whenever the server says this specific
+                    // statement can't be prepared.
+                    //
+                    // NOTE: `ER_SP_BADSELECT` (1312) — `CALL`ing a
+                    // procedure whose body runs a `SELECT` — looks like the
+                    // same class of problem but isn't: it comes from the
+                    // `CLIENT_MULTI_RESULTS` capability never being
+                    // requested in MySQLNIO's connection handshake
+                    // (`CapabilityFlags.clientDefault`, hardcoded, no
+                    // public override). That's a per-*connection*
+                    // capability, not a per-*query* protocol choice, so
+                    // retrying via `simpleQuery` here wouldn't help — it
+                    // fails identically either way. Calling a procedure
+                    // that returns a result set isn't supported by this
+                    // client until MySQLNIO exposes that capability flag.
+                    let resultSets = try await conn.simpleQueryResultSets(sql).get()
+                    return RawQueryResult(resultSets: resultSets, affectedRows: nil, lastInsertID: nil)
                 }
-                let box = MetadataBox()
-                let rows = try await conn.query(sql, [], onMetadata: { metadata in
-                    box.affectedRows = metadata.affectedRows
-                    box.lastInsertID = metadata.lastInsertID
-                }).get()
-                return RawQueryResult(rows: rows, affectedRows: box.affectedRows, lastInsertID: box.lastInsertID)
             }
         }
-    }
-
-    private static func isUseStatement(_ sql: String) -> Bool {
-        let trimmed = sql.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.range(of: #"(?i)^USE\s+\S"#, options: .regularExpression) != nil
     }
 
     /// Retries exactly once, and only for a connection that's actually

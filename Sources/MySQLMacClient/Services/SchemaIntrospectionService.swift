@@ -115,6 +115,37 @@ struct SchemaIntrospectionService {
         return raw.replacingOccurrences(of: qualifiedPrefix, with: "")
     }
 
+    /// `SHOW PROCEDURE STATUS` is server-wide by default; scoped here with a
+    /// `WHERE Db = '...'` literal (same pattern as `collations(forCharset:)`
+    /// — `SHOW` statements' patchy prepared-statement support is why this is
+    /// a manually-escaped literal, not a bound `?` param) since `database`
+    /// only ever comes from `SHOW DATABASES`, never raw user input.
+    func listStoredProcedures(inDatabase database: String) async throws -> [ProcedureInfo] {
+        let escaped = database.replacingOccurrences(of: "'", with: "''")
+        let rows = try await service.query("SHOW PROCEDURE STATUS WHERE Db = '\(escaped)'")
+        return rows.compactMap { row -> ProcedureInfo? in
+            guard let name = row.column("Name")?.string else { return nil }
+            return ProcedureInfo(database: database, name: name)
+        }
+    }
+
+    /// The procedure's `CREATE PROCEDURE` statement, exactly as MySQL
+    /// stored it. Unlike `showCreateView`, there's no schema-qualifier
+    /// stripping needed — `SHOW CREATE PROCEDURE` never qualifies the
+    /// procedure name or its body regardless of whether the query itself
+    /// used a qualified or unqualified name (verified against a real
+    /// server; a procedure's body is stored close to verbatim, not
+    /// recompiled with fully-qualified references the way a view's
+    /// `SELECT` is).
+    func showCreateProcedure(_ name: String, inDatabase database: String) async throws -> String {
+        let qualifiedProcedure = try Self.qualifiedIdentifier(database: database, name: name)
+        let rows = try await service.query("SHOW CREATE PROCEDURE \(qualifiedProcedure)")
+        guard let raw = rows.first?.column("Create Procedure")?.string else {
+            throw MySQLServiceError.invalidIdentifier(name)
+        }
+        return raw
+    }
+
     /// Every character set the server supports, for the "Yeni Tablo" form's
     /// picker — the handful of hardcoded names a static list would have
     /// covered is nowhere near what real servers offer.

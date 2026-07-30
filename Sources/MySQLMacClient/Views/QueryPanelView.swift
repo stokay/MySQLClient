@@ -96,6 +96,20 @@ struct QueryPanelView: View {
                 .disabled(console.isExecutingQuery || console.queryText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 .help("Seçili metin varsa yalnızca onu, yoksa tüm sorguyu çalıştırır (⌘↩)")
 
+                Button {
+                    Task { await console.runAllStatements() }
+                } label: {
+                    if console.isExecutingQuery {
+                        ProgressView().controlSize(.small)
+                    } else {
+                        Label("Tümünü Çalıştır", systemImage: "forward.fill")
+                            .lineLimit(1)
+                    }
+                }
+                .keyboardShortcut(.return, modifiers: [.command, .shift])
+                .disabled(console.isExecutingQuery || console.queryText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .help("Her \";\" ile ayrılmış ifadeyi DELIMITER olmadan sırayla çalıştırır (⇧⌘↩). BEGIN…END gövdeli bir CREATE PROCEDURE/FUNCTION/TRIGGER için hâlâ DELIMITER gerekir.")
+
                 Divider().frame(height: 16)
 
                 Button {

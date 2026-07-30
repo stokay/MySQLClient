@@ -208,28 +208,35 @@ struct SpreadsheetGridView: NSViewRepresentable {
             let dataRow = viewModel.rows[row]
 
             if tableColumn.identifier == Self.deleteColumnID {
-                let button = NSButton(
-                    image: NSImage(systemSymbolName: "trash", accessibilityDescription: "Sil") ?? NSImage(),
-                    target: self,
-                    action: #selector(deleteTapped(_:))
-                )
-                button.isBordered = false
-                button.bezelStyle = .regularSquare
-                button.tag = row
-                button.isEnabled = viewModel.hasPrimaryKey
-                return wrapInGridCellView(button, centered: true)
+                let cell: GridButtonCellView
+                if let reused = tableView.makeView(withIdentifier: tableColumn.identifier, owner: self) as? GridButtonCellView {
+                    cell = reused
+                } else {
+                    cell = GridButtonCellView()
+                    cell.identifier = tableColumn.identifier
+                    cell.button.target = self
+                    cell.button.action = #selector(deleteTapped(_:))
+                }
+                cell.button.tag = row
+                cell.button.isEnabled = viewModel.hasPrimaryKey
+                return cell
             }
 
             let columnName = tableColumn.identifier.rawValue
-            let textField = NSTextField(string: dataRow.editedText[columnName] ?? "")
-            textField.isBordered = false
-            textField.drawsBackground = false
-            textField.isEditable = viewModel.hasPrimaryKey
-            textField.font = .systemFont(ofSize: CGFloat(SettingsStore.shared.settings.grid.cellFontSize))
-            applyGridTextColor(to: textField, isSelected: tableView.selectedRowIndexes.contains(row))
-            textField.delegate = self
-            textField.identifier = NSUserInterfaceItemIdentifier("\(row)|\(columnName)")
-            return wrapInGridCellView(textField, centered: false)
+            let cell: GridTextCellView
+            if let reused = tableView.makeView(withIdentifier: tableColumn.identifier, owner: self) as? GridTextCellView {
+                cell = reused
+            } else {
+                cell = GridTextCellView()
+                cell.identifier = tableColumn.identifier
+                cell.textField.delegate = self
+            }
+            cell.textField.stringValue = dataRow.editedText[columnName] ?? ""
+            cell.textField.isEditable = viewModel.hasPrimaryKey
+            cell.textField.font = .systemFont(ofSize: CGFloat(SettingsStore.shared.settings.grid.cellFontSize))
+            applyGridTextColor(to: cell.textField, isSelected: tableView.selectedRowIndexes.contains(row))
+            cell.textField.identifier = NSUserInterfaceItemIdentifier("\(row)|\(columnName)")
+            return cell
         }
 
         @objc private func deleteTapped(_ sender: NSButton) {

@@ -17,7 +17,12 @@ enum DelimiterScript {
     /// should fall back to sending it unmodified, exactly as before this
     /// existed, since every other kind of query the console runs (a plain
     /// `SELECT`, a hand-typed multi-line `INSERT`, …) must keep behaving
-    /// identically.
+    /// identically. "Çalıştır" uses this: a `CREATE PROCEDURE`/`FUNCTION`/
+    /// `TRIGGER` body with its own internal `;`s is only safe to send
+    /// whole (today's behavior) when nothing here decides to split it —
+    /// see `allStatements(from:)` for the always-split version "Tümünü
+    /// Çalıştır" uses instead, and why *that* one carries a real caveat
+    /// for exactly this case.
     static func statements(from script: String) -> [String]? {
         // `[ \t]`, not `\s` — this must only match a directive that's
         // complete on one line, matching `parseDelimiterDirective`'s
@@ -27,7 +32,22 @@ enum DelimiterScript {
         guard script.range(of: #"(?im)^[ \t]*DELIMITER[ \t]+\S+[ \t]*$"#, options: .regularExpression) != nil else {
             return nil
         }
+        return allStatements(from: script)
+    }
 
+    /// Always splits — with a `DELIMITER` directive honored wherever one
+    /// appears, defaulting to `;` everywhere else. Unlike `statements(from:)`,
+    /// this never opts out just because the script has no `DELIMITER` line,
+    /// which is exactly what "Tümünü Çalıştır" needs for a plain script like
+    /// `USE db;\ncall proc();` — two independent statements with no
+    /// `DELIMITER` in sight.
+    ///
+    /// The tradeoff: this has no `BEGIN…END` awareness (same as the real
+    /// `mysql` CLI without `DELIMITER`), so a pasted `CREATE PROCEDURE`/
+    /// `FUNCTION`/`TRIGGER` body that relies on being sent as one statement
+    /// gets cut apart at its own internal `;`s instead of erroring clearly.
+    /// That's why this isn't what the plain "Çalıştır" button uses.
+    static func allStatements(from script: String) -> [String] {
         var statements: [String] = []
         var buffer = ""
         var currentDelimiter = ";"

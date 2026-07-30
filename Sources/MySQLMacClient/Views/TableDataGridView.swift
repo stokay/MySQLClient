@@ -84,18 +84,7 @@ struct TableDataGridView: View {
             } else if isTextViewMode {
                 textualRowsView
             } else if console.isShowingQueryResult {
-                QueryResultGridView(
-                    columnNames: console.queryResultColumns,
-                    rows: console.queryResultRows,
-                    primaryKeyColumns: Set(console.queryEditContext?.primaryKeyColumns ?? []),
-                    isEditable: console.isQueryResultEditable,
-                    onCommitEdit: { rowId, column, newText in
-                        Task { await console.commitQueryResultEdit(rowId: rowId, column: column, newText: newText) }
-                    },
-                    onDeleteRow: { row in
-                        Task { await console.deleteQueryResultRow(row) }
-                    }
-                )
+                QueryResultTabbedView(console: console)
             } else {
                 SpreadsheetGridView(viewModel: viewModel)
             }

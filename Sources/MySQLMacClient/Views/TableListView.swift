@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// Sidebar schema tree: Server > Databases > Tablolar/View'lar > table >
-/// Kolonlar/İndeksler. Every level below "Databases" loads lazily, only
-/// when that specific row is first expanded. Stored procedures/functions/
-/// triggers/events are a later phase — their content (source) needs the
-/// SQL editor to be worth showing at all.
+/// Sidebar schema tree: Server > Databases > Tablolar/View'lar/Procedure'lar
+/// > table > Kolonlar/İndeksler. Every level below "Databases" loads lazily,
+/// only when that specific row is first expanded. Functions/triggers/events
+/// are still a later phase — their content (source) needs the SQL editor to
+/// be worth showing at all.
 ///
 /// Built on a plain `ScrollView`/`LazyVStack`, not `List`/`DisclosureGroup`:
 /// SwiftUI's native `DisclosureGroup` bakes in enough row padding that
@@ -30,6 +30,8 @@ struct TableListView: View {
     let onShowTableInfo: (TableInfo) -> Void
     let onAlterView: (TableInfo) -> Void
     let onDropView: (TableInfo) -> Void
+    let onAlterProcedure: (ProcedureInfo) -> Void
+    let onDropProcedure: (ProcedureInfo) -> Void
 
     var body: some View {
         Group {
@@ -64,7 +66,9 @@ struct TableListView: View {
                                 onAlterTable: onAlterTable,
                                 onShowTableInfo: onShowTableInfo,
                                 onAlterView: onAlterView,
-                                onDropView: onDropView
+                                onDropView: onDropView,
+                                onAlterProcedure: onAlterProcedure,
+                                onDropProcedure: onDropProcedure
                             )
                         }
                     }
@@ -237,6 +241,8 @@ private struct DatabaseRow: View {
     let onShowTableInfo: (TableInfo) -> Void
     let onAlterView: (TableInfo) -> Void
     let onDropView: (TableInfo) -> Void
+    let onAlterProcedure: (ProcedureInfo) -> Void
+    let onDropProcedure: (ProcedureInfo) -> Void
     @State private var isExpanded = false
 
     var body: some View {
@@ -305,6 +311,25 @@ private struct DatabaseRow: View {
                         onShowTableInfo: onShowTableInfo,
                         onAlterView: onAlterView,
                         onDropView: onDropView
+                    )
+                }
+
+                CategoryRow(
+                    title: "Procedure'lar",
+                    systemImage: "gearshape.2",
+                    indent: 14,
+                    items: node.procedureNodes,
+                    isLoading: node.isLoadingProcedures,
+                    isLoaded: node.isProceduresLoaded,
+                    errorMessage: node.proceduresErrorMessage,
+                    emptyText: "Procedure yok",
+                    onExpand: { Task { await node.loadProceduresIfNeeded() } }
+                ) { procedure in
+                    ProcedureRow(
+                        procedure: procedure,
+                        indent: 28,
+                        onAlterProcedure: onAlterProcedure,
+                        onDropProcedure: onDropProcedure
                     )
                 }
             }
@@ -489,6 +514,35 @@ private struct ColumnRow: View {
                 insertionBridge.pendingText = "`\(column.name)`"
             }
         )
+    }
+}
+
+/// A leaf row — a procedure has no Kolonlar/İndeksler-style children, just
+/// the Alter/Drop actions, same shape as `viewContextMenu` above.
+private struct ProcedureRow: View {
+    let procedure: ProcedureInfo
+    let indent: CGFloat
+    let onAlterProcedure: (ProcedureInfo) -> Void
+    let onDropProcedure: (ProcedureInfo) -> Void
+
+    var body: some View {
+        RowHeader(
+            title: procedure.name,
+            systemImage: "gearshape.2",
+            iconColor: .secondary,
+            indent: indent,
+            isExpandable: false,
+            isExpanded: false
+        )
+        .contextMenu {
+            Button("Alter Procedure") {
+                onAlterProcedure(procedure)
+            }
+
+            Button("Drop Procedure", role: .destructive) {
+                onDropProcedure(procedure)
+            }
+        }
     }
 }
 

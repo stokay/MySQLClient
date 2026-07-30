@@ -13,6 +13,15 @@ final class DatabaseNode: ObservableObject, Identifiable {
     @Published private(set) var isLoaded = false
     @Published var errorMessage: String?
 
+    // Procedures are a separate category from Tablolar/View'lar (which
+    // share one `SHOW FULL TABLES` call) — loaded independently, only when
+    // that category row is itself expanded, same lazy-per-category pattern
+    // as a table's Kolonlar/İndeksler.
+    @Published private(set) var procedureNodes: [ProcedureInfo] = []
+    @Published private(set) var isLoadingProcedures = false
+    @Published private(set) var isProceduresLoaded = false
+    @Published var proceduresErrorMessage: String?
+
     private let introspection: SchemaIntrospectionService
 
     init(info: DatabaseInfo, introspection: SchemaIntrospectionService) {
@@ -43,6 +52,26 @@ final class DatabaseNode: ObservableObject, Identifiable {
     func reload() async {
         isLoaded = false
         await loadIfNeeded()
+    }
+
+    func loadProceduresIfNeeded() async {
+        guard !isProceduresLoaded, !isLoadingProcedures else { return }
+        isLoadingProcedures = true
+        proceduresErrorMessage = nil
+        defer { isLoadingProcedures = false }
+        do {
+            procedureNodes = try await introspection.listStoredProcedures(inDatabase: info.name)
+            isProceduresLoaded = true
+        } catch {
+            proceduresErrorMessage = "Prosedür listesi alınamadı: \(error.localizedDescription)"
+        }
+    }
+
+    /// See `reload()` — same "force a fresh fetch" need after Alter/Drop
+    /// Procedure changes the list.
+    func reloadProcedures() async {
+        isProceduresLoaded = false
+        await loadProceduresIfNeeded()
     }
 }
 

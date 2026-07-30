@@ -60,4 +60,44 @@ final class DelimiterScriptTests: XCTestCase {
         let script = "DELIMITER\nSELECT 1;"
         XCTAssertNil(DelimiterScript.statements(from: script))
     }
+
+    // MARK: - allStatements(from:) — "Tümünü Çalıştır"
+
+    /// The exact reported case: two independent statements, each on its
+    /// own line, no `DELIMITER` in sight — `statements(from:)` opts out of
+    /// this (see `testReturnsNilWhenNoDelimiterDirectiveIsPresent`) but
+    /// `allStatements(from:)` must still split it, since that's the whole
+    /// point of the "Tümünü Çalıştır" button.
+    func testAllStatementsSplitsAPlainScriptWithNoDelimiterDirective() {
+        let script = "USE cantokay_adres_tr;\ncall addNew();"
+        XCTAssertEqual(DelimiterScript.allStatements(from: script), [
+            "USE cantokay_adres_tr",
+            "call addNew()",
+        ])
+    }
+
+    /// A single statement (with or without a trailing `;`) still comes
+    /// back as one element, not an empty array or a stray empty string.
+    func testAllStatementsReturnsOneElementForASingleStatement() {
+        XCTAssertEqual(DelimiterScript.allStatements(from: "SELECT 1;"), ["SELECT 1"])
+        XCTAssertEqual(DelimiterScript.allStatements(from: "SELECT 1"), ["SELECT 1"])
+    }
+
+    /// `allStatements(from:)` is a strict superset of `statements(from:)` —
+    /// a script that *does* have a `DELIMITER` directive splits identically
+    /// either way.
+    func testAllStatementsHonorsADelimiterDirectiveWhenPresent() {
+        let script = [
+            "DELIMITER $$",
+            "",
+            "CREATE PROCEDURE `p`()",
+            "BEGIN",
+            "    SELECT 1;",
+            "END$$",
+            "",
+            "DELIMITER ;",
+        ].joined(separator: "\n")
+
+        XCTAssertEqual(DelimiterScript.allStatements(from: script), DelimiterScript.statements(from: script))
+    }
 }

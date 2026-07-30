@@ -30,11 +30,13 @@ final class SQLConsoleViewModelTests: XCTestCase {
         try await resetWidgets()
         try await service.execute("DROP TABLE IF EXISTS console_scratch")
         try await service.execute("DROP VIEW IF EXISTS console_scratch_view")
+        try await service.rawQuery("DROP PROCEDURE IF EXISTS console_scratch_proc")
     }
 
     override func tearDown() async throws {
         try await service.execute("DROP TABLE IF EXISTS console_scratch")
         try await service.execute("DROP VIEW IF EXISTS console_scratch_view")
+        try await service.rawQuery("DROP PROCEDURE IF EXISTS console_scratch_proc")
         try await service.disconnect()
     }
 
@@ -110,6 +112,111 @@ final class SQLConsoleViewModelTests: XCTestCase {
         XCTAssertNil(console.queryErrorMessage)
         let tables = try await introspection.listTablesAndViews(inDatabase: "mysqlmacclient_test")
         XCTAssertTrue(tables.contains { $0.name == "console_scratch_view" && $0.isView })
+    }
+
+    /// End-to-end for the "Alter Procedure" context-menu action: a real
+    /// `SHOW CREATE PROCEDURE` definition, wrapped by
+    /// `ProcedureAlterStatement` into a `DELIMITER $$ ... DELIMITER ;`
+    /// script, must actually run in the console (drop, then recreate).
+    func testRunQueryExecutesDelimiterWrappedAlterProcedureScript() async throws {
+        let console = makeConsole()
+        try await service.rawQuery("""
+            CREATE PROCEDURE console_scratch_proc(IN newQuantity INT)
+            BEGIN
+                UPDATE widgets SET quantity = newQuantity WHERE name = 'Bolt';
+            END
+            """)
+        let createProcedure = try await introspection.showCreateProcedure("console_scratch_proc", inDatabase: "mysqlmacclient_test")
+
+        console.queryText = ProcedureAlterStatement.format(
+            database: "mysqlmacclient_test",
+            name: "console_scratch_proc",
+            createProcedure: createProcedure
+        )
+        await console.runQuery()
+
+        XCTAssertNil(console.queryErrorMessage)
+        let procedures = try await introspection.listStoredProcedures(inDatabase: "mysqlmacclient_test")
+        XCTAssertTrue(procedures.contains { $0.name == "console_scratch_proc" })
+
+        _ = try await service.rawQuery("CALL console_scratch_proc(555)")
+        let check = try await service.query("SELECT quantity FROM widgets WHERE name = 'Bolt'")
+        XCTAssertEqual(check.first?.column("quantity")?.int, 555)
+    }
+
+    /// A `CALL` to a procedure with two `SELECT`s must surface as two
+    /// separate result sets (the console renders them as tabs), each with
+    /// its own columns — not merged into one list, which is what happens if
+    /// the boundaries aren't tracked while reading the response.
+    func testRunQueryKeepsProcedureResultSetsSeparate() async throws {
+        let console = makeConsole()
+        _ = try await service.rawQuery("""
+            CREATE PROCEDURE console_scratch_proc()
+            BEGIN
+                SELECT name FROM widgets WHERE name = 'Bolt';
+                SELECT quantity FROM widgets WHERE name = 'Nut';
+            END
+            """)
+
+        console.queryText = "CALL console_scratch_proc()"
+        await console.runQuery()
+
+        XCTAssertNil(console.queryErrorMessage)
+        XCTAssertEqual(console.queryResultSets.count, 2)
+        XCTAssertEqual(console.queryResultSets.first?.columns, ["name"])
+        XCTAssertEqual(console.queryResultSets.last?.columns, ["quantity"])
+
+        // The grid follows the selected tab.
+        XCTAssertEqual(console.selectedResultSetIndex, 0)
+        XCTAssertEqual(console.queryResultColumns, ["name"])
+        XCTAssertEqual(console.queryResultRows.first?.originalValues["name"]?.displayString, "Bolt")
+
+        console.selectedResultSetIndex = 1
+        XCTAssertEqual(console.queryResultColumns, ["quantity"])
+        XCTAssertEqual(console.queryResultRows.first?.originalValues["quantity"]?.displayString, "250")
+
+        // Multi-result output is never editable — a row can't be mapped
+        // back to a single table.
+        XCTAssertNil(console.queryEditContext)
+    }
+
+    /// A stale tab index from a previous, wider result must not crash or
+    /// show nothing when the next query returns fewer result sets.
+    func testSelectedResultSetIndexSurvivesAShrinkingResultCount() async throws {
+        let console = makeConsole()
+        console.selectedResultSetIndex = 5
+
+        console.queryText = "SELECT name FROM widgets WHERE name = 'Bolt'"
+        await console.runQuery()
+
+        XCTAssertNil(console.queryErrorMessage)
+        XCTAssertEqual(console.queryResultSets.count, 1)
+        XCTAssertEqual(console.queryResultColumns, ["name"], "must fall back to the first result set")
+    }
+
+    /// The exact reported case: a plain, undelimited multi-statement
+    /// script (`USE db;\ncall proc();`) fails under `runQuery()` — MySQL
+    /// parses the whole two-line string as one statement (no
+    /// `CLIENT_MULTI_STATEMENTS` capability negotiated) and errors on the
+    /// second line — but must succeed under `runAllStatements()`, which
+    /// splits on every top-level `;` with no `DELIMITER` required first.
+    func testRunAllStatementsSplitsAPlainUndelimitedScript() async throws {
+        let console = makeConsole()
+        try await service.rawQuery("""
+            CREATE PROCEDURE console_scratch_proc(IN newQuantity INT)
+            BEGIN
+                UPDATE widgets SET quantity = newQuantity WHERE name = 'Bolt';
+            END
+            """)
+
+        console.queryText = "USE `mysqlmacclient_test`;\ncall console_scratch_proc(777);"
+        await console.runAllStatements()
+
+        XCTAssertNil(console.queryErrorMessage)
+        let check = try await service.query("SELECT quantity FROM widgets WHERE name = 'Bolt'")
+        XCTAssertEqual(check.first?.column("quantity")?.int, 777)
+
+        try await service.rawQuery("DROP PROCEDURE IF EXISTS console_scratch_proc")
     }
 
     func testToggleQueryPanelWithNoTableHintOpensABlankEditor() {

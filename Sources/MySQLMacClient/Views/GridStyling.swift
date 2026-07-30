@@ -133,27 +133,66 @@ func applyGridTextColor(to textField: NSTextField, isSelected: Bool) {
     textField.textColor = isSelected ? SelectedColorRowView.selectedTextColor : SelectedColorRowView.cellTextColor
 }
 
+/// A reusable text cell for the grids (`SpreadsheetGridView`,
+/// `QueryResultGridView`) — one instance per column identifier, recycled by
+/// `NSTableView.makeView(withIdentifier:owner:)` as rows scroll in and out,
+/// instead of a fresh `NSTextField` + Auto Layout constraint pair allocated
+/// for *every* cell on *every* scroll tick. That per-cell allocation was
+/// the main reason large tables scrolled noticeably slower here than in
+/// comparable SQL clients (DBeaver, SQLyog) — Auto Layout solving a new
+/// constraint set per cell dominates the cost, far more than the actual
+/// text drawing.
+///
 /// A plain `NSView`, not `NSTableCellView` — `NSTableCellView` has its own
 /// automatic `backgroundStyle` propagation tied to row selection that kept
 /// re-asserting itself over an explicit text color on the frame a row got
 /// selected (the "flash"), even after forcing `.normal` on the cell.
-/// Nothing in these grids relies on `NSTableCellView`'s outlets, so the
-/// plain container sidesteps that behavior entirely.
-@MainActor
-func wrapInGridCellView(_ subview: NSView, centered: Bool) -> NSView {
-    let cell = NSView()
-    subview.translatesAutoresizingMaskIntoConstraints = false
-    cell.addSubview(subview)
-    NSLayoutConstraint.activate([
-        subview.centerYAnchor.constraint(equalTo: cell.centerYAnchor),
-        centered
-            ? subview.centerXAnchor.constraint(equalTo: cell.centerXAnchor)
-            : subview.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 4),
-    ])
-    if !centered {
-        subview.trailingAnchor.constraint(lessThanOrEqualTo: cell.trailingAnchor, constant: -4).isActive = true
+/// Nothing here relies on `NSTableCellView`'s outlets, so the plain
+/// container sidesteps that behavior entirely — see `SelectedColorRowView`.
+final class GridTextCellView: NSView {
+    let textField = NSTextField()
+
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        textField.isBordered = false
+        textField.drawsBackground = false
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(textField)
+        NSLayoutConstraint.activate([
+            textField.centerYAnchor.constraint(equalTo: centerYAnchor),
+            textField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
+            textField.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -4),
+        ])
     }
-    return cell
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+/// Reusable trash-button cell for the delete column — same reuse rationale
+/// as `GridTextCellView`.
+final class GridButtonCellView: NSView {
+    let button: NSButton
+
+    override init(frame frameRect: NSRect) {
+        button = NSButton(image: NSImage(systemSymbolName: "trash", accessibilityDescription: "Sil") ?? NSImage(), target: nil, action: nil)
+        super.init(frame: frameRect)
+        button.isBordered = false
+        button.bezelStyle = .regularSquare
+        button.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(button)
+        NSLayoutConstraint.activate([
+            button.centerYAnchor.constraint(equalTo: centerYAnchor),
+            button.centerXAnchor.constraint(equalTo: centerXAnchor),
+        ])
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }
 
 /// Shared confirmation before a row's trash button actually deletes it —

@@ -70,6 +70,7 @@ struct MainWindowView: View {
     @State private var tablePendingTruncate: TableInfo?
     @State private var tablePendingDrop: TableInfo?
     @State private var tableToAlter: TableInfo?
+    @State private var procedurePendingDrop: ProcedureInfo?
     @State private var contextActionError: String?
     /// Surfaced from the selected table's grid up to `StatusBarView` — see
     /// `TableDataGridView`'s `onRowCountChange`. `nil` with nothing selected
@@ -131,7 +132,11 @@ struct MainWindowView: View {
                     onAlterView: { view in
                         Task { await alterView(view) }
                     },
-                    onDropView: { tablePendingDrop = $0 }
+                    onDropView: { tablePendingDrop = $0 },
+                    onAlterProcedure: { procedure in
+                        Task { await alterProcedure(procedure) }
+                    },
+                    onDropProcedure: { procedurePendingDrop = $0 }
                 )
                 .navigationSplitViewColumnWidth(min: 200, ideal: 260)
             } detail: {
@@ -284,6 +289,24 @@ struct MainWindowView: View {
                     : "DROP TABLE tabloyu yapısıyla birlikte kalıcı olarak siler, geri alınamaz."
             )
         }
+        .confirmationDialog(
+            "'\(procedurePendingDrop?.name ?? "")' procedure'ü tamamen silinsin mi?",
+            isPresented: Binding(
+                get: { procedurePendingDrop != nil },
+                set: { if !$0 { procedurePendingDrop = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Drop", role: .destructive) {
+                if let procedure = procedurePendingDrop {
+                    Task { await dropProcedure(procedure) }
+                }
+                procedurePendingDrop = nil
+            }
+            Button("İptal", role: .cancel) { procedurePendingDrop = nil }
+        } message: {
+            Text("DROP PROCEDURE procedure'ü kalıcı olarak siler, geri alınamaz.")
+        }
         .alert(
             "Hata",
             isPresented: Binding(
@@ -356,18 +379,7 @@ struct MainWindowView: View {
     private var emptyStatePlaceholder: some View {
         Group {
             if console.isShowingQueryResult {
-                QueryResultGridView(
-                    columnNames: console.queryResultColumns,
-                    rows: console.queryResultRows,
-                    primaryKeyColumns: Set(console.queryEditContext?.primaryKeyColumns ?? []),
-                    isEditable: console.isQueryResultEditable,
-                    onCommitEdit: { rowId, column, newText in
-                        Task { await console.commitQueryResultEdit(rowId: rowId, column: column, newText: newText) }
-                    },
-                    onDeleteRow: { row in
-                        Task { await console.deleteQueryResultRow(row) }
-                    }
-                )
+                QueryResultTabbedView(console: console)
             } else {
                 VStack(spacing: 12) {
                     Image(systemName: "tablecells")
@@ -503,5 +515,43 @@ struct MainWindowView: View {
             view: view.name,
             createView: createView
         )
+    }
+
+    /// "Alter Procedure" context-menu action — same shape as `alterView`.
+    /// MySQL's own `ALTER PROCEDURE` can't change a procedure's body (only
+    /// characteristics like `COMMENT`/`SQL SECURITY`), so "altering" one
+    /// always means drop-and-recreate; see `ProcedureAlterStatement`.
+    private func alterProcedure(_ procedure: ProcedureInfo) async {
+        let createProcedure: String
+        do {
+            createProcedure = try await session.introspectionService.showCreateProcedure(procedure.name, inDatabase: procedure.database)
+        } catch {
+            contextActionError = "Procedure tanımı alınamadı: \(error.localizedDescription)"
+            return
+        }
+
+        insertionBridge.pendingAppend = ProcedureAlterStatement.format(
+            database: procedure.database,
+            name: procedure.name,
+            createProcedure: createProcedure
+        )
+    }
+
+    private func dropProcedure(_ procedure: ProcedureInfo) async {
+        do {
+            let qualified = try SchemaIntrospectionService.qualifiedIdentifier(database: procedure.database, name: procedure.name)
+            // `rawQuery`, not `execute` — `DROP PROCEDURE` is rejected by
+            // the prepared-statement protocol (`ER_UNSUPPORTED_PS`), and
+            // `rawQuery` is the one method that already retries through
+            // the plain-text protocol when that happens.
+            _ = try await session.mysqlService.rawQuery("DROP PROCEDURE \(qualified)")
+        } catch {
+            contextActionError = "Drop başarısız: \(error.localizedDescription)"
+            return
+        }
+
+        if let node = schemaTreeViewModel.databaseNodes.first(where: { $0.info.name == procedure.database }) {
+            await node.reloadProcedures()
+        }
     }
 }
