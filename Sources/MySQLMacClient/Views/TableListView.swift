@@ -1,10 +1,9 @@
 import SwiftUI
 
-/// Sidebar schema tree: Server > Databases > Tablolar/View'lar/Procedure'lar
+/// Sidebar schema tree: Server > Databases > Tablolar/View'lar/Procedure'lar/Function'lar
 /// > table > Kolonlar/İndeksler. Every level below "Databases" loads lazily,
-/// only when that specific row is first expanded. Functions/triggers/events
-/// are still a later phase — their content (source) needs the SQL editor to
-/// be worth showing at all.
+/// only when that specific row is first expanded. Triggers/events are still a
+/// later phase.
 ///
 /// Built on a plain `ScrollView`/`LazyVStack`, not `List`/`DisclosureGroup`:
 /// SwiftUI's native `DisclosureGroup` bakes in enough row padding that
@@ -30,8 +29,8 @@ struct TableListView: View {
     let onShowTableInfo: (TableInfo) -> Void
     let onAlterView: (TableInfo) -> Void
     let onDropView: (TableInfo) -> Void
-    let onAlterProcedure: (ProcedureInfo) -> Void
-    let onDropProcedure: (ProcedureInfo) -> Void
+    let onAlterRoutine: (RoutineInfo) -> Void
+    let onDropRoutine: (RoutineInfo) -> Void
 
     var body: some View {
         Group {
@@ -67,8 +66,8 @@ struct TableListView: View {
                                 onShowTableInfo: onShowTableInfo,
                                 onAlterView: onAlterView,
                                 onDropView: onDropView,
-                                onAlterProcedure: onAlterProcedure,
-                                onDropProcedure: onDropProcedure
+                                onAlterRoutine: onAlterRoutine,
+                                onDropRoutine: onDropRoutine
                             )
                         }
                     }
@@ -165,11 +164,24 @@ private struct RowHeader: View {
     }
 }
 
+/// Schema-tree icon colors are settings-driven. Resolved fresh on every
+/// render for the same reason as `RowHeader`'s `textColor`: `settingsColor`
+/// hands back an appearance-aware `NSColor` per call, so wrapping it here
+/// reflects both the current theme *and* the latest value picked in the
+/// Ayarlar window without anything having to be recreated.
+@MainActor
+private func sidebarIconColor(
+    _ select: @escaping @Sendable (AppSettings) -> AdaptiveColorSetting
+) -> Color {
+    Color(nsColor: .settingsColor(select, fallback: .secondaryLabelColor))
+}
+
 /// A fixed schema category (Tablolar, View'lar, Kolonlar, İndeksler) whose
 /// items load lazily on first expansion.
 private struct CategoryRow<Item: Identifiable, RowContent: View>: View {
     let title: String
     let systemImage: String
+    let iconColor: Color
     let indent: CGFloat
     let items: [Item]
     let isLoading: Bool
@@ -186,7 +198,7 @@ private struct CategoryRow<Item: Identifiable, RowContent: View>: View {
             RowHeader(
                 title: title,
                 systemImage: systemImage,
-                iconColor: .secondary,
+                iconColor: iconColor,
                 indent: indent,
                 isExpandable: true,
                 isExpanded: isExpanded,
@@ -241,8 +253,8 @@ private struct DatabaseRow: View {
     let onShowTableInfo: (TableInfo) -> Void
     let onAlterView: (TableInfo) -> Void
     let onDropView: (TableInfo) -> Void
-    let onAlterProcedure: (ProcedureInfo) -> Void
-    let onDropProcedure: (ProcedureInfo) -> Void
+    let onAlterRoutine: (RoutineInfo) -> Void
+    let onDropRoutine: (RoutineInfo) -> Void
     @State private var isExpanded = false
 
     var body: some View {
@@ -250,7 +262,7 @@ private struct DatabaseRow: View {
             RowHeader(
                 title: node.info.name,
                 systemImage: "cylinder.split.1x2",
-                iconColor: .secondary,
+                iconColor: sidebarIconColor { $0.sidebar.databaseIcon },
                 indent: 0,
                 isExpandable: true,
                 isExpanded: isExpanded,
@@ -265,6 +277,7 @@ private struct DatabaseRow: View {
                 CategoryRow(
                     title: "Tablolar",
                     systemImage: "tablecells",
+                    iconColor: sidebarIconColor { $0.sidebar.tablesGroupIcon },
                     indent: 14,
                     items: node.baseTableNodes,
                     isLoading: node.isLoading,
@@ -291,6 +304,7 @@ private struct DatabaseRow: View {
                 CategoryRow(
                     title: "View'lar",
                     systemImage: "eye",
+                    iconColor: sidebarIconColor { $0.sidebar.viewsGroupIcon },
                     indent: 14,
                     items: node.viewNodes,
                     isLoading: node.isLoading,
@@ -314,23 +328,29 @@ private struct DatabaseRow: View {
                     )
                 }
 
-                CategoryRow(
-                    title: "Procedure'lar",
-                    systemImage: "gearshape.2",
-                    indent: 14,
-                    items: node.procedureNodes,
-                    isLoading: node.isLoadingProcedures,
-                    isLoaded: node.isProceduresLoaded,
-                    errorMessage: node.proceduresErrorMessage,
-                    emptyText: "Procedure yok",
-                    onExpand: { Task { await node.loadProceduresIfNeeded() } }
-                ) { procedure in
-                    ProcedureRow(
-                        procedure: procedure,
-                        indent: 28,
-                        onAlterProcedure: onAlterProcedure,
-                        onDropProcedure: onDropProcedure
-                    )
+                ForEach(RoutineKind.allCases, id: \.self) { kind in
+                    let state = node.routineState(kind)
+                    CategoryRow(
+                        title: kind.categoryTitle,
+                        systemImage: routineIcon(kind),
+                        iconColor: sidebarIconColor { settings in
+                            kind == .procedure ? settings.sidebar.proceduresGroupIcon : settings.sidebar.functionsGroupIcon
+                        },
+                        indent: 14,
+                        items: state.routines,
+                        isLoading: state.isLoading,
+                        isLoaded: state.isLoaded,
+                        errorMessage: state.errorMessage,
+                        emptyText: kind.emptyCategoryText,
+                        onExpand: { Task { await node.loadRoutinesIfNeeded(kind) } }
+                    ) { routine in
+                        RoutineRow(
+                            routine: routine,
+                            indent: 28,
+                            onAlterRoutine: onAlterRoutine,
+                            onDropRoutine: onDropRoutine
+                        )
+                    }
                 }
             }
         }
@@ -384,7 +404,9 @@ private struct TableTreeRow: View {
             RowHeader(
                 title: node.info.name,
                 systemImage: node.info.isView ? "eye" : "tablecells",
-                iconColor: .secondary,
+                iconColor: node.info.isView
+                    ? sidebarIconColor { $0.sidebar.viewIcon }
+                    : sidebarIconColor { $0.sidebar.tableIcon },
                 indent: indent,
                 isExpandable: true,
                 isExpanded: isExpanded,
@@ -410,6 +432,7 @@ private struct TableTreeRow: View {
                 CategoryRow(
                     title: "Kolonlar",
                     systemImage: "list.bullet",
+                    iconColor: sidebarIconColor { $0.sidebar.columnsIcon },
                     indent: indent + 14,
                     items: node.columns,
                     isLoading: node.isLoadingColumns,
@@ -424,6 +447,7 @@ private struct TableTreeRow: View {
                 CategoryRow(
                     title: "İndeksler",
                     systemImage: "arrow.up.arrow.down",
+                    iconColor: sidebarIconColor { $0.sidebar.indexesIcon },
                     indent: indent + 14,
                     items: node.indexes,
                     isLoading: node.isLoadingIndexes,
@@ -499,7 +523,10 @@ private struct ColumnRow: View {
         RowHeader(
             title: column.name,
             systemImage: column.isPrimaryKey ? "key.fill" : "minus",
-            iconColor: column.isPrimaryKey ? .orange : .secondary,
+            // The primary key keeps its orange key deliberately: that's a
+            // semantic highlight, not theming. `columnsIcon` colors the
+            // ordinary columns around it.
+            iconColor: column.isPrimaryKey ? .orange : sidebarIconColor { $0.sidebar.columnsIcon },
             indent: indent,
             isExpandable: false,
             isExpanded: false,
@@ -517,30 +544,42 @@ private struct ColumnRow: View {
     }
 }
 
-/// A leaf row — a procedure has no Kolonlar/İndeksler-style children, just
-/// the Alter/Drop actions, same shape as `viewContextMenu` above.
-private struct ProcedureRow: View {
-    let procedure: ProcedureInfo
+/// The SF Symbol for a routine category/row — shared so the category and
+/// its children can't drift apart.
+private func routineIcon(_ kind: RoutineKind) -> String {
+    switch kind {
+    case .procedure: return "gearshape.2"
+    case .function: return "function"
+    }
+}
+
+/// A leaf row — a stored routine has no Kolonlar/İndeksler-style children,
+/// just the Alter/Drop actions, same shape as `viewContextMenu` above. One
+/// type covers procedures and functions alike; see `RoutineKind`.
+private struct RoutineRow: View {
+    let routine: RoutineInfo
     let indent: CGFloat
-    let onAlterProcedure: (ProcedureInfo) -> Void
-    let onDropProcedure: (ProcedureInfo) -> Void
+    let onAlterRoutine: (RoutineInfo) -> Void
+    let onDropRoutine: (RoutineInfo) -> Void
 
     var body: some View {
         RowHeader(
-            title: procedure.name,
-            systemImage: "gearshape.2",
-            iconColor: .secondary,
+            title: routine.name,
+            systemImage: routineIcon(routine.kind),
+            iconColor: sidebarIconColor { settings in
+                routine.kind == .procedure ? settings.sidebar.procedureIcon : settings.sidebar.functionIcon
+            },
             indent: indent,
             isExpandable: false,
             isExpanded: false
         )
         .contextMenu {
-            Button("Alter Procedure") {
-                onAlterProcedure(procedure)
+            Button("Alter \(routine.kind.displayName)") {
+                onAlterRoutine(routine)
             }
 
-            Button("Drop Procedure", role: .destructive) {
-                onDropProcedure(procedure)
+            Button("Drop \(routine.kind.displayName)", role: .destructive) {
+                onDropRoutine(routine)
             }
         }
     }
@@ -554,7 +593,7 @@ private struct IndexRow: View {
         RowHeader(
             title: index.name,
             systemImage: index.isUnique ? "checkmark.seal" : "number",
-            iconColor: .secondary,
+            iconColor: sidebarIconColor { $0.sidebar.indexesIcon },
             indent: indent,
             isExpandable: false,
             isExpanded: false,

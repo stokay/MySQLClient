@@ -87,7 +87,7 @@ final class SchemaIntrospectionServiceTests: XCTestCase {
         XCTAssertTrue(createView.contains("from `widgets`"))
     }
 
-    func testListStoredProceduresReturnsCreatedProcedure() async throws {
+    func testListRoutinesReturnsCreatedProcedure() async throws {
         _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS introspection_test_proc")
         _ = try await service.rawQuery("""
             CREATE PROCEDURE introspection_test_proc()
@@ -96,9 +96,40 @@ final class SchemaIntrospectionServiceTests: XCTestCase {
             END
             """)
 
-        let procedures = try await introspection.listStoredProcedures(inDatabase: "mysqlmacclient_test")
+        let procedures = try await introspection.listRoutines(.procedure, inDatabase: "mysqlmacclient_test")
         XCTAssertTrue(procedures.contains { $0.name == "introspection_test_proc" && $0.database == "mysqlmacclient_test" })
+        XCTAssertTrue(procedures.allSatisfy { $0.kind == .procedure })
 
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS introspection_test_proc")
+    }
+
+    /// `SHOW FUNCTION STATUS` is a different statement from `SHOW PROCEDURE
+    /// STATUS`, and each must only list its own kind — a function must not
+    /// show up under Procedure'lar or vice versa.
+    func testListRoutinesSeparatesFunctionsFromProcedures() async throws {
+        _ = try await service.rawQuery("DROP FUNCTION IF EXISTS introspection_test_fn")
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS introspection_test_proc")
+        _ = try await service.rawQuery("""
+            CREATE FUNCTION introspection_test_fn(p INT) RETURNS INT READS SQL DATA
+            BEGIN
+                RETURN p * 2;
+            END
+            """)
+        _ = try await service.rawQuery("""
+            CREATE PROCEDURE introspection_test_proc()
+            BEGIN
+                SELECT 1;
+            END
+            """)
+
+        let functions = try await introspection.listRoutines(.function, inDatabase: "mysqlmacclient_test")
+        XCTAssertTrue(functions.contains { $0.name == "introspection_test_fn" && $0.kind == .function })
+        XCTAssertFalse(functions.contains { $0.name == "introspection_test_proc" })
+
+        let procedures = try await introspection.listRoutines(.procedure, inDatabase: "mysqlmacclient_test")
+        XCTAssertFalse(procedures.contains { $0.name == "introspection_test_fn" })
+
+        _ = try await service.rawQuery("DROP FUNCTION IF EXISTS introspection_test_fn")
         _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS introspection_test_proc")
     }
 
@@ -106,7 +137,7 @@ final class SchemaIntrospectionServiceTests: XCTestCase {
     /// here — `SHOW CREATE PROCEDURE` never adds one regardless of whether
     /// the query itself used a qualified or unqualified name (verified
     /// against a real server).
-    func testShowCreateProcedureReturnsVerbatimDefinition() async throws {
+    func testShowCreateRoutineReturnsVerbatimProcedureDefinition() async throws {
         _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS introspection_test_proc")
         _ = try await service.rawQuery("""
             CREATE PROCEDURE introspection_test_proc(IN newQuantity INT)
@@ -115,13 +146,37 @@ final class SchemaIntrospectionServiceTests: XCTestCase {
             END
             """)
 
-        let createProcedure = try await introspection.showCreateProcedure("introspection_test_proc", inDatabase: "mysqlmacclient_test")
+        let createProcedure = try await introspection.showCreateRoutine(
+            RoutineInfo(database: "mysqlmacclient_test", name: "introspection_test_proc", kind: .procedure)
+        )
 
         XCTAssertFalse(createProcedure.contains("`mysqlmacclient_test`."))
         XCTAssertTrue(createProcedure.contains("PROCEDURE `introspection_test_proc`(IN newQuantity INT)"))
         XCTAssertTrue(createProcedure.contains("UPDATE widgets SET quantity = newQuantity WHERE name = 'Bolt';"))
 
         _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS introspection_test_proc")
+    }
+
+    /// A function's definition comes back in a differently-named column
+    /// (`Create Function`, not `Create Procedure`) — reading the wrong one
+    /// silently yields nil and would surface as "tanım alınamadı".
+    func testShowCreateRoutineReadsTheFunctionColumn() async throws {
+        _ = try await service.rawQuery("DROP FUNCTION IF EXISTS introspection_test_fn")
+        _ = try await service.rawQuery("""
+            CREATE FUNCTION introspection_test_fn(p INT) RETURNS INT READS SQL DATA
+            BEGIN
+                RETURN p * 2;
+            END
+            """)
+
+        let createFunction = try await introspection.showCreateRoutine(
+            RoutineInfo(database: "mysqlmacclient_test", name: "introspection_test_fn", kind: .function)
+        )
+
+        XCTAssertTrue(createFunction.contains("FUNCTION `introspection_test_fn`(p INT)"))
+        XCTAssertTrue(createFunction.contains("RETURN p * 2;"))
+
+        _ = try await service.rawQuery("DROP FUNCTION IF EXISTS introspection_test_fn")
     }
 
     func testQuotedIdentifierRejectsBacktick() {

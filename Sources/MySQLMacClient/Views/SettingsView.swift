@@ -51,6 +51,23 @@ struct SettingsView: View {
 
             adaptiveColorRow("Yazı rengi", \.sidebar.textColor)
 
+            // Eleven rows would push the rest of the tab (and the reset
+            // button) off a reasonably-sized window, so they start folded.
+            DisclosureGroup("Ağaç ikon renkleri") {
+                adaptiveColorRow("Veritabanı", \.sidebar.databaseIcon)
+                adaptiveColorRow("Tablolar grubu", \.sidebar.tablesGroupIcon)
+                adaptiveColorRow("Tablo adları", \.sidebar.tableIcon)
+                adaptiveColorRow("Kolonlar", \.sidebar.columnsIcon)
+                adaptiveColorRow("İndeksler", \.sidebar.indexesIcon)
+                adaptiveColorRow("View'lar grubu", \.sidebar.viewsGroupIcon)
+                adaptiveColorRow("View adları", \.sidebar.viewIcon)
+                adaptiveColorRow("Procedure'lar grubu", \.sidebar.proceduresGroupIcon)
+                adaptiveColorRow("Procedure adları", \.sidebar.procedureIcon)
+                adaptiveColorRow("Function'lar grubu", \.sidebar.functionsGroupIcon)
+                adaptiveColorRow("Function adları", \.sidebar.functionIcon)
+            }
+            .padding(.top, 4)
+
             resetSection
         }
         .padding(16)

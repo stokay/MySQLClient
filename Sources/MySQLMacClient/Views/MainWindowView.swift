@@ -70,7 +70,7 @@ struct MainWindowView: View {
     @State private var tablePendingTruncate: TableInfo?
     @State private var tablePendingDrop: TableInfo?
     @State private var tableToAlter: TableInfo?
-    @State private var procedurePendingDrop: ProcedureInfo?
+    @State private var routinePendingDrop: RoutineInfo?
     @State private var contextActionError: String?
     /// Surfaced from the selected table's grid up to `StatusBarView` — see
     /// `TableDataGridView`'s `onRowCountChange`. `nil` with nothing selected
@@ -133,10 +133,10 @@ struct MainWindowView: View {
                         Task { await alterView(view) }
                     },
                     onDropView: { tablePendingDrop = $0 },
-                    onAlterProcedure: { procedure in
-                        Task { await alterProcedure(procedure) }
+                    onAlterRoutine: { routine in
+                        Task { await alterRoutine(routine) }
                     },
-                    onDropProcedure: { procedurePendingDrop = $0 }
+                    onDropRoutine: { routinePendingDrop = $0 }
                 )
                 .navigationSplitViewColumnWidth(min: 200, ideal: 260)
             } detail: {
@@ -290,22 +290,22 @@ struct MainWindowView: View {
             )
         }
         .confirmationDialog(
-            "'\(procedurePendingDrop?.name ?? "")' procedure'ü tamamen silinsin mi?",
+            "'\(routinePendingDrop?.name ?? "")' \(routinePendingDrop?.kind.displayName ?? "")'ü tamamen silinsin mi?",
             isPresented: Binding(
-                get: { procedurePendingDrop != nil },
-                set: { if !$0 { procedurePendingDrop = nil } }
+                get: { routinePendingDrop != nil },
+                set: { if !$0 { routinePendingDrop = nil } }
             ),
             titleVisibility: .visible
         ) {
             Button("Drop", role: .destructive) {
-                if let procedure = procedurePendingDrop {
-                    Task { await dropProcedure(procedure) }
+                if let routine = routinePendingDrop {
+                    Task { await dropRoutine(routine) }
                 }
-                procedurePendingDrop = nil
+                routinePendingDrop = nil
             }
-            Button("İptal", role: .cancel) { procedurePendingDrop = nil }
+            Button("İptal", role: .cancel) { routinePendingDrop = nil }
         } message: {
-            Text("DROP PROCEDURE procedure'ü kalıcı olarak siler, geri alınamaz.")
+            Text("DROP \(routinePendingDrop?.kind.sqlKeyword ?? "") kalıcı olarak siler, geri alınamaz.")
         }
         .alert(
             "Hata",
@@ -517,41 +517,42 @@ struct MainWindowView: View {
         )
     }
 
-    /// "Alter Procedure" context-menu action — same shape as `alterView`.
-    /// MySQL's own `ALTER PROCEDURE` can't change a procedure's body (only
-    /// characteristics like `COMMENT`/`SQL SECURITY`), so "altering" one
-    /// always means drop-and-recreate; see `ProcedureAlterStatement`.
-    private func alterProcedure(_ procedure: ProcedureInfo) async {
-        let createProcedure: String
+    /// "Alter Procedure"/"Alter Function" context-menu action — same shape
+    /// as `alterView`. MySQL's own `ALTER PROCEDURE`/`ALTER FUNCTION` can't
+    /// change a routine's body (only characteristics like `COMMENT`/`SQL
+    /// SECURITY`), so "altering" one always means drop-and-recreate; see
+    /// `RoutineAlterStatement`.
+    private func alterRoutine(_ routine: RoutineInfo) async {
+        let createStatement: String
         do {
-            createProcedure = try await session.introspectionService.showCreateProcedure(procedure.name, inDatabase: procedure.database)
+            createStatement = try await session.introspectionService.showCreateRoutine(routine)
         } catch {
-            contextActionError = "Procedure tanımı alınamadı: \(error.localizedDescription)"
+            contextActionError = "\(routine.kind.displayName) tanımı alınamadı: \(error.localizedDescription)"
             return
         }
 
-        insertionBridge.pendingAppend = ProcedureAlterStatement.format(
-            database: procedure.database,
-            name: procedure.name,
-            createProcedure: createProcedure
+        insertionBridge.pendingAppend = RoutineAlterStatement.format(
+            routine: routine,
+            createStatement: createStatement
         )
     }
 
-    private func dropProcedure(_ procedure: ProcedureInfo) async {
+    private func dropRoutine(_ routine: RoutineInfo) async {
         do {
-            let qualified = try SchemaIntrospectionService.qualifiedIdentifier(database: procedure.database, name: procedure.name)
-            // `rawQuery`, not `execute` — `DROP PROCEDURE` is rejected by
-            // the prepared-statement protocol (`ER_UNSUPPORTED_PS`), and
-            // `rawQuery` is the one method that already retries through
-            // the plain-text protocol when that happens.
-            _ = try await session.mysqlService.rawQuery("DROP PROCEDURE \(qualified)")
+            let qualified = try SchemaIntrospectionService.qualifiedIdentifier(database: routine.database, name: routine.name)
+            // `rawQuery`, not `execute` — `DROP PROCEDURE`/`DROP FUNCTION`
+            // are rejected by the prepared-statement protocol
+            // (`ER_UNSUPPORTED_PS`), and `rawQuery` is the one method that
+            // already retries through the plain-text protocol when that
+            // happens.
+            _ = try await session.mysqlService.rawQuery("DROP \(routine.kind.sqlKeyword) \(qualified)")
         } catch {
             contextActionError = "Drop başarısız: \(error.localizedDescription)"
             return
         }
 
-        if let node = schemaTreeViewModel.databaseNodes.first(where: { $0.info.name == procedure.database }) {
-            await node.reloadProcedures()
+        if let node = schemaTreeViewModel.databaseNodes.first(where: { $0.info.name == routine.database }) {
+            await node.reloadRoutines(routine.kind)
         }
     }
 }

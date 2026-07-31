@@ -119,6 +119,24 @@ struct AppSettings: Codable, Equatable {
         /// with no Settings knob, same gap the grid's `cellTextColor` fixed.
         var textColor = AdaptiveColorSetting(light: "#000000", dark: "#ffffff")
 
+        // Per-kind icon colors for the schema tree — all previously
+        // hardcoded to `.secondary`. The defaults are a hand-picked palette
+        // that gives each kind its own hue (rather than one uniform gray),
+        // with the light/dark pair chosen separately so each stays legible
+        // against both backgrounds. A routine's group row and its children
+        // deliberately share a color, so a category reads as one block.
+        var databaseIcon = AdaptiveColorSetting(light: "#1002e3", dark: "#5fd2f7")
+        var tablesGroupIcon = AdaptiveColorSetting(light: "#00b665", dark: "#15ec82")
+        var tableIcon = AdaptiveColorSetting(light: "#87bb2e", dark: "#8ac43a")
+        var columnsIcon = AdaptiveColorSetting(light: "#ff822c", dark: "#ff822c")
+        var indexesIcon = AdaptiveColorSetting(light: "#ed321c", dark: "#fef12a")
+        var viewsGroupIcon = AdaptiveColorSetting(light: "#3f83ee", dark: "#3cc7ff")
+        var viewIcon = AdaptiveColorSetting(light: "#3f83ee", dark: "#3cc7ff")
+        var proceduresGroupIcon = AdaptiveColorSetting(light: "#e27332", dark: "#fab710")
+        var procedureIcon = AdaptiveColorSetting(light: "#e27332", dark: "#fab710")
+        var functionsGroupIcon = AdaptiveColorSetting(light: "#ff40ec", dark: "#ffabee")
+        var functionIcon = AdaptiveColorSetting(light: "#ff40ec", dark: "#ffabee")
+
         init() {}
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -126,6 +144,17 @@ struct AppSettings: Codable, Equatable {
             fontSize = try container.decodeIfPresent(Double.self, forKey: .fontSize) ?? defaults.fontSize
             rowVerticalPadding = try container.decodeIfPresent(Double.self, forKey: .rowVerticalPadding) ?? defaults.rowVerticalPadding
             textColor = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .textColor) ?? defaults.textColor
+            databaseIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .databaseIcon) ?? defaults.databaseIcon
+            tablesGroupIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .tablesGroupIcon) ?? defaults.tablesGroupIcon
+            tableIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .tableIcon) ?? defaults.tableIcon
+            columnsIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .columnsIcon) ?? defaults.columnsIcon
+            indexesIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .indexesIcon) ?? defaults.indexesIcon
+            viewsGroupIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .viewsGroupIcon) ?? defaults.viewsGroupIcon
+            viewIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .viewIcon) ?? defaults.viewIcon
+            proceduresGroupIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .proceduresGroupIcon) ?? defaults.proceduresGroupIcon
+            procedureIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .procedureIcon) ?? defaults.procedureIcon
+            functionsGroupIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .functionsGroupIcon) ?? defaults.functionsGroupIcon
+            functionIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .functionIcon) ?? defaults.functionIcon
         }
     }
 

@@ -30,13 +30,15 @@ final class SQLConsoleViewModelTests: XCTestCase {
         try await resetWidgets()
         try await service.execute("DROP TABLE IF EXISTS console_scratch")
         try await service.execute("DROP VIEW IF EXISTS console_scratch_view")
-        try await service.rawQuery("DROP PROCEDURE IF EXISTS console_scratch_proc")
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS console_scratch_proc")
+        _ = try await service.rawQuery("DROP FUNCTION IF EXISTS console_scratch_fn")
     }
 
     override func tearDown() async throws {
         try await service.execute("DROP TABLE IF EXISTS console_scratch")
         try await service.execute("DROP VIEW IF EXISTS console_scratch_view")
-        try await service.rawQuery("DROP PROCEDURE IF EXISTS console_scratch_proc")
+        _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS console_scratch_proc")
+        _ = try await service.rawQuery("DROP FUNCTION IF EXISTS console_scratch_fn")
         try await service.disconnect()
     }
 
@@ -116,32 +118,54 @@ final class SQLConsoleViewModelTests: XCTestCase {
 
     /// End-to-end for the "Alter Procedure" context-menu action: a real
     /// `SHOW CREATE PROCEDURE` definition, wrapped by
-    /// `ProcedureAlterStatement` into a `DELIMITER $$ ... DELIMITER ;`
+    /// `RoutineAlterStatement` into a `DELIMITER $$ ... DELIMITER ;`
     /// script, must actually run in the console (drop, then recreate).
     func testRunQueryExecutesDelimiterWrappedAlterProcedureScript() async throws {
         let console = makeConsole()
-        try await service.rawQuery("""
+        _ = try await service.rawQuery("""
             CREATE PROCEDURE console_scratch_proc(IN newQuantity INT)
             BEGIN
                 UPDATE widgets SET quantity = newQuantity WHERE name = 'Bolt';
             END
             """)
-        let createProcedure = try await introspection.showCreateProcedure("console_scratch_proc", inDatabase: "mysqlmacclient_test")
+        let routine = RoutineInfo(database: "mysqlmacclient_test", name: "console_scratch_proc", kind: .procedure)
+        let createProcedure = try await introspection.showCreateRoutine(routine)
 
-        console.queryText = ProcedureAlterStatement.format(
-            database: "mysqlmacclient_test",
-            name: "console_scratch_proc",
-            createProcedure: createProcedure
-        )
+        console.queryText = RoutineAlterStatement.format(routine: routine, createStatement: createProcedure)
         await console.runQuery()
 
         XCTAssertNil(console.queryErrorMessage)
-        let procedures = try await introspection.listStoredProcedures(inDatabase: "mysqlmacclient_test")
+        let procedures = try await introspection.listRoutines(.procedure, inDatabase: "mysqlmacclient_test")
         XCTAssertTrue(procedures.contains { $0.name == "console_scratch_proc" })
 
         _ = try await service.rawQuery("CALL console_scratch_proc(555)")
         let check = try await service.query("SELECT quantity FROM widgets WHERE name = 'Bolt'")
         XCTAssertEqual(check.first?.column("quantity")?.int, 555)
+    }
+
+    /// The same round trip for a function — the kind has to carry through
+    /// `SHOW CREATE FUNCTION`, `DROP FUNCTION` and the recreate, and the
+    /// rebuilt function must still compute the right value.
+    func testRunQueryExecutesDelimiterWrappedAlterFunctionScript() async throws {
+        let console = makeConsole()
+        _ = try await service.rawQuery("""
+            CREATE FUNCTION console_scratch_fn(p INT) RETURNS INT READS SQL DATA
+            BEGIN
+                RETURN p * 3;
+            END
+            """)
+        let routine = RoutineInfo(database: "mysqlmacclient_test", name: "console_scratch_fn", kind: .function)
+        let createFunction = try await introspection.showCreateRoutine(routine)
+
+        console.queryText = RoutineAlterStatement.format(routine: routine, createStatement: createFunction)
+        await console.runQuery()
+
+        XCTAssertNil(console.queryErrorMessage)
+        let functions = try await introspection.listRoutines(.function, inDatabase: "mysqlmacclient_test")
+        XCTAssertTrue(functions.contains { $0.name == "console_scratch_fn" })
+
+        let value = try await service.query("SELECT console_scratch_fn(7) AS result")
+        XCTAssertEqual(value.first?.column("result")?.int, 21)
     }
 
     /// A `CALL` to a procedure with two `SELECT`s must surface as two

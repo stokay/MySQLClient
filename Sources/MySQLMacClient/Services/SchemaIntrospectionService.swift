@@ -115,33 +115,33 @@ struct SchemaIntrospectionService {
         return raw.replacingOccurrences(of: qualifiedPrefix, with: "")
     }
 
-    /// `SHOW PROCEDURE STATUS` is server-wide by default; scoped here with a
+    /// `SHOW <kind> STATUS` is server-wide by default; scoped here with a
     /// `WHERE Db = '...'` literal (same pattern as `collations(forCharset:)`
     /// — `SHOW` statements' patchy prepared-statement support is why this is
     /// a manually-escaped literal, not a bound `?` param) since `database`
     /// only ever comes from `SHOW DATABASES`, never raw user input.
-    func listStoredProcedures(inDatabase database: String) async throws -> [ProcedureInfo] {
+    func listRoutines(_ kind: RoutineKind, inDatabase database: String) async throws -> [RoutineInfo] {
         let escaped = database.replacingOccurrences(of: "'", with: "''")
-        let rows = try await service.query("SHOW PROCEDURE STATUS WHERE Db = '\(escaped)'")
-        return rows.compactMap { row -> ProcedureInfo? in
+        let rows = try await service.query("SHOW \(kind.sqlKeyword) STATUS WHERE Db = '\(escaped)'")
+        return rows.compactMap { row -> RoutineInfo? in
             guard let name = row.column("Name")?.string else { return nil }
-            return ProcedureInfo(database: database, name: name)
+            return RoutineInfo(database: database, name: name, kind: kind)
         }
     }
 
-    /// The procedure's `CREATE PROCEDURE` statement, exactly as MySQL
-    /// stored it. Unlike `showCreateView`, there's no schema-qualifier
-    /// stripping needed — `SHOW CREATE PROCEDURE` never qualifies the
-    /// procedure name or its body regardless of whether the query itself
-    /// used a qualified or unqualified name (verified against a real
-    /// server; a procedure's body is stored close to verbatim, not
-    /// recompiled with fully-qualified references the way a view's
-    /// `SELECT` is).
-    func showCreateProcedure(_ name: String, inDatabase database: String) async throws -> String {
-        let qualifiedProcedure = try Self.qualifiedIdentifier(database: database, name: name)
-        let rows = try await service.query("SHOW CREATE PROCEDURE \(qualifiedProcedure)")
-        guard let raw = rows.first?.column("Create Procedure")?.string else {
-            throw MySQLServiceError.invalidIdentifier(name)
+    /// The routine's `CREATE PROCEDURE`/`CREATE FUNCTION` statement, exactly
+    /// as MySQL stored it. Unlike `showCreateView`, there's no
+    /// schema-qualifier stripping needed — `SHOW CREATE <kind>` never
+    /// qualifies the routine name or its body regardless of whether the
+    /// query itself used a qualified or unqualified name (verified against a
+    /// real server; a routine's body is stored close to verbatim, not
+    /// recompiled with fully-qualified references the way a view's `SELECT`
+    /// is).
+    func showCreateRoutine(_ routine: RoutineInfo) async throws -> String {
+        let qualified = try Self.qualifiedIdentifier(database: routine.database, name: routine.name)
+        let rows = try await service.query("SHOW CREATE \(routine.kind.sqlKeyword) \(qualified)")
+        guard let raw = rows.first?.column(routine.kind.createStatementColumn)?.string else {
+            throw MySQLServiceError.invalidIdentifier(routine.name)
         }
         return raw
     }

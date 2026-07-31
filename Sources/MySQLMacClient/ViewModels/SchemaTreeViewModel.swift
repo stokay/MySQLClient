@@ -13,14 +13,23 @@ final class DatabaseNode: ObservableObject, Identifiable {
     @Published private(set) var isLoaded = false
     @Published var errorMessage: String?
 
-    // Procedures are a separate category from Tablolar/View'lar (which
-    // share one `SHOW FULL TABLES` call) — loaded independently, only when
-    // that category row is itself expanded, same lazy-per-category pattern
-    // as a table's Kolonlar/İndeksler.
-    @Published private(set) var procedureNodes: [ProcedureInfo] = []
-    @Published private(set) var isLoadingProcedures = false
-    @Published private(set) var isProceduresLoaded = false
-    @Published var proceduresErrorMessage: String?
+    /// Per-`RoutineKind` state for the Procedure'lar / Function'lar
+    /// categories. They're separate from Tablolar/View'lar (which share one
+    /// `SHOW FULL TABLES` call) and from each other — each loads only when
+    /// its own category row is expanded, the same lazy-per-category pattern
+    /// as a table's Kolonlar/İndeksler.
+    struct RoutineCategoryState {
+        var routines: [RoutineInfo] = []
+        var isLoading = false
+        var isLoaded = false
+        var errorMessage: String?
+    }
+
+    @Published private(set) var routineStates: [RoutineKind: RoutineCategoryState] = [:]
+
+    func routineState(_ kind: RoutineKind) -> RoutineCategoryState {
+        routineStates[kind] ?? RoutineCategoryState()
+    }
 
     private let introspection: SchemaIntrospectionService
 
@@ -54,24 +63,29 @@ final class DatabaseNode: ObservableObject, Identifiable {
         await loadIfNeeded()
     }
 
-    func loadProceduresIfNeeded() async {
-        guard !isProceduresLoaded, !isLoadingProcedures else { return }
-        isLoadingProcedures = true
-        proceduresErrorMessage = nil
-        defer { isLoadingProcedures = false }
+    func loadRoutinesIfNeeded(_ kind: RoutineKind) async {
+        var state = routineState(kind)
+        guard !state.isLoaded, !state.isLoading else { return }
+        state.isLoading = true
+        state.errorMessage = nil
+        routineStates[kind] = state
         do {
-            procedureNodes = try await introspection.listStoredProcedures(inDatabase: info.name)
-            isProceduresLoaded = true
+            state.routines = try await introspection.listRoutines(kind, inDatabase: info.name)
+            state.isLoaded = true
         } catch {
-            proceduresErrorMessage = "Prosedür listesi alınamadı: \(error.localizedDescription)"
+            state.errorMessage = "\(kind.displayName) listesi alınamadı: \(error.localizedDescription)"
         }
+        state.isLoading = false
+        routineStates[kind] = state
     }
 
     /// See `reload()` — same "force a fresh fetch" need after Alter/Drop
-    /// Procedure changes the list.
-    func reloadProcedures() async {
-        isProceduresLoaded = false
-        await loadProceduresIfNeeded()
+    /// changes the list.
+    func reloadRoutines(_ kind: RoutineKind) async {
+        var state = routineState(kind)
+        state.isLoaded = false
+        routineStates[kind] = state
+        await loadRoutinesIfNeeded(kind)
     }
 }
 
