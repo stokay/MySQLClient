@@ -30,6 +30,133 @@ final class TableDataViewModelTests: XCTestCase {
         try await service.disconnect()
     }
 
+    /// A grid wired to a throwaway history file, so the assertions below
+    /// never touch the real history under Application Support.
+    private func makeViewModelWithHistory(
+        tableName: String = "widgets",
+        profileID: UUID
+    ) -> (viewModel: TableDataViewModel, history: QueryHistoryStore, fileURL: URL) {
+        let fileURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("grid-history-\(UUID().uuidString).json")
+        let history = QueryHistoryStore(fileURL: fileURL)
+        let viewModel = TableDataViewModel(
+            databaseName: "mysqlmacclient_test",
+            tableName: tableName,
+            service: service,
+            introspection: introspection,
+            historyRecorder: QueryHistoryRecorder(
+                store: history,
+                profileID: profileID,
+                isEnabled: { true }
+            )
+        )
+        return (viewModel, history, fileURL)
+    }
+
+    // MARK: - Focusing the inserted row
+
+    /// "Satır Ekle" should leave the user on the new row, so the grid needs
+    /// to be told which one it is.
+    func testInsertBlankRowPointsTheGridAtTheNewRow() async throws {
+        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection)
+        await viewModel.load()
+
+        await viewModel.insertBlankRow()
+        XCTAssertNil(viewModel.errorMessage)
+
+        let focusedID = try XCTUnwrap(viewModel.rowIDToFocus, "eklenen satır işaretlenmeli")
+        let focused = try XCTUnwrap(viewModel.rows.first { $0.id == focusedID })
+        // The seed rows are Bolt/Nut/Washer; the new one is the blank row.
+        XCTAssertEqual(focused.originalValues["name"]?.displayString, "")
+    }
+
+    /// With an auto-increment key the new row sorts to the end, which on a
+    /// paginated table isn't the page being viewed — the view model has to
+    /// move to the last page rather than report "not found".
+    func testInsertBlankRowJumpsToTheLastPageToReachTheNewRow() async throws {
+        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection, pageSize: 2)
+        await viewModel.load()
+        XCTAssertEqual(viewModel.currentOffset, 0, "ilk sayfadayız")
+
+        await viewModel.insertBlankRow()
+        XCTAssertNil(viewModel.errorMessage)
+
+        XCTAssertNotEqual(viewModel.currentOffset, 0, "yeni satır için son sayfaya geçilmeli")
+        let focusedID = try XCTUnwrap(viewModel.rowIDToFocus)
+        XCTAssertTrue(viewModel.rows.contains { $0.id == focusedID }, "işaretlenen satır görünen sayfada olmalı")
+    }
+
+    /// A manually-assigned (non auto-increment) key isn't covered by
+    /// `lastInsertID`; the row still has to be found, using the value the
+    /// insert actually wrote.
+    func testInsertBlankRowFindsTheNewRowWithAManualPrimaryKey() async throws {
+        try await service.execute("DELETE FROM manual_pk_items")
+        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "manual_pk_items", service: service, introspection: introspection)
+        await viewModel.load()
+
+        await viewModel.insertBlankRow()
+        XCTAssertNil(viewModel.errorMessage)
+
+        let focusedID = try XCTUnwrap(viewModel.rowIDToFocus, "manuel PK'lı tabloda da işaretlenmeli")
+        let focused = try XCTUnwrap(viewModel.rows.first { $0.id == focusedID })
+        XCTAssertEqual(focused.originalValues["item_code"]?.displayString, "0")
+    }
+
+    // MARK: - Query history for grid-driven writes
+
+    /// The grid's trash button, "Satır Ekle" and cell editing all run SQL
+    /// on the user's behalf; each has to land in the connection's history
+    /// with its bound values filled in, tagged as app-generated.
+    func testGridWritesAreRecordedInHistoryWithValuesFilledIn() async throws {
+        let profileID = UUID()
+        let (viewModel, history, fileURL) = makeViewModelWithHistory(profileID: profileID)
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+        await viewModel.load()
+
+        // Cell edit -> UPDATE
+        guard let bolt = viewModel.rows.first(where: { $0.originalValues["name"]?.displayString == "Bolt" }) else {
+            return XCTFail("seed row missing")
+        }
+        await viewModel.commitEdit(rowId: bolt.id, column: "quantity", newText: "321")
+        XCTAssertNil(viewModel.errorMessage)
+
+        let updateEntry = history.entries(for: profileID).first
+        XCTAssertEqual(updateEntry?.source, .app)
+        XCTAssertEqual(updateEntry?.database, "mysqlmacclient_test")
+        XCTAssertEqual(updateEntry?.sql.contains("?"), false, "değerler doldurulmuş olmalı")
+        XCTAssertEqual(updateEntry?.sql.contains("'321'"), true)
+
+        // Row insert -> INSERT
+        await viewModel.insertBlankRow()
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertEqual(history.entries(for: profileID).first?.sql.hasPrefix("INSERT INTO"), true)
+
+        // Row delete -> DELETE
+        guard let washer = viewModel.rows.first(where: { $0.originalValues["name"]?.displayString == "Washer" }) else {
+            return XCTFail("seed row missing")
+        }
+        await viewModel.deleteRow(washer)
+        XCTAssertNil(viewModel.errorMessage)
+        let deleteEntry = history.entries(for: profileID).first
+        XCTAssertEqual(deleteEntry?.sql.hasPrefix("DELETE FROM"), true)
+        XCTAssertEqual(deleteEntry?.sql.contains("?"), false)
+    }
+
+    /// Reads must not be logged — the grid re-queries on every page,
+    /// sort and filter, which would bury the history in SELECTs.
+    func testGridReadsAreNotRecorded() async throws {
+        let profileID = UUID()
+        let (viewModel, history, fileURL) = makeViewModelWithHistory(profileID: profileID)
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+
+        await viewModel.load()
+        await viewModel.applySort(column: "name", ascending: true)
+        await viewModel.applyFilter(column: "name", value: "Bolt")
+        await viewModel.reload()
+
+        XCTAssertTrue(history.entries(for: profileID).isEmpty)
+    }
+
     private func resetWidgets() async throws {
         try await service.execute("DELETE FROM widgets")
         try await service.execute("ALTER TABLE widgets AUTO_INCREMENT = 1")

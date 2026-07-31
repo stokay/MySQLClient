@@ -77,6 +77,12 @@ struct MainWindowView: View {
     /// (or before its first load completes).
     @State private var selectedTableRowCount: Int?
 
+    /// One recorder for everything this window runs on the user's behalf
+    /// (truncate/drop here, plus the grid and form view models below).
+    private var historyRecorder: QueryHistoryRecorder {
+        QueryHistoryRecorder(store: .shared, profileID: session.profile.id)
+    }
+
     private static let minPanelHeight: CGFloat = 180
     private static let minGridHeight: CGFloat = 150
     @State private var queryPanelHeight: CGFloat = Self.minPanelHeight
@@ -89,7 +95,11 @@ struct MainWindowView: View {
             wrappedValue: SchemaTreeViewModel(introspection: session.introspectionService)
         )
         _console = StateObject(
-            wrappedValue: SQLConsoleViewModel(service: session.mysqlService, introspection: session.introspectionService)
+            wrappedValue: SQLConsoleViewModel(
+                service: session.mysqlService,
+                introspection: session.introspectionService,
+                historyRecorder: QueryHistoryRecorder(store: .shared, profileID: session.profile.id)
+            )
         )
     }
 
@@ -212,7 +222,8 @@ struct MainWindowView: View {
                 defaultDatabase: createTableDefaultDatabase
                     ?? selectedTable?.database
                     ?? schemaTreeViewModel.databaseNodes.first?.info.name
-                    ?? ""
+                    ?? "",
+                historyRecorder: historyRecorder
             ) { createdTable in
                 Task {
                     if let node = schemaTreeViewModel.databaseNodes.first(where: { $0.info.name == createdTable.database }) {
@@ -233,7 +244,11 @@ struct MainWindowView: View {
             }
         }
         .sheet(item: $tableToAlter) { table in
-            AlterTableView(service: session.mysqlService, table: table) { alteredTable in
+            AlterTableView(
+                service: session.mysqlService,
+                table: table,
+                historyRecorder: historyRecorder
+            ) { alteredTable in
                 Task {
                     if let node = schemaTreeViewModel.databaseNodes.first(where: { $0.info.name == alteredTable.database }) {
                         await node.reload()
@@ -360,6 +375,7 @@ struct MainWindowView: View {
                             introspection: session.introspectionService,
                             console: console,
                             insertionBridge: insertionBridge,
+                            historyRecorder: historyRecorder,
                             onRowCountChange: { selectedTableRowCount = $0 }
                         )
                         .id(selectedTable.id)
@@ -462,7 +478,9 @@ struct MainWindowView: View {
     private func truncateTable(_ table: TableInfo) async {
         do {
             let qualified = try SchemaIntrospectionService.qualifiedIdentifier(database: table.database, name: table.name)
-            try await session.mysqlService.execute("TRUNCATE TABLE \(qualified)")
+            let sql = "TRUNCATE TABLE \(qualified)"
+            historyRecorder.record(sql, database: table.database, source: .app)
+            try await session.mysqlService.execute(sql)
         } catch {
             contextActionError = "Truncate başarısız: \(error.localizedDescription)"
             return
@@ -483,6 +501,7 @@ struct MainWindowView: View {
         do {
             let qualified = try SchemaIntrospectionService.qualifiedIdentifier(database: table.database, name: table.name)
             let statement = table.isView ? "DROP VIEW \(qualified)" : "DROP TABLE \(qualified)"
+            historyRecorder.record(statement, database: table.database, source: .app)
             try await session.mysqlService.execute(statement)
         } catch {
             contextActionError = "Drop başarısız: \(error.localizedDescription)"
@@ -545,7 +564,9 @@ struct MainWindowView: View {
             // (`ER_UNSUPPORTED_PS`), and `rawQuery` is the one method that
             // already retries through the plain-text protocol when that
             // happens.
-            _ = try await session.mysqlService.rawQuery("DROP \(routine.kind.sqlKeyword) \(qualified)")
+            let sql = "DROP \(routine.kind.sqlKeyword) \(qualified)"
+            historyRecorder.record(sql, database: routine.database, source: .app)
+            _ = try await session.mysqlService.rawQuery(sql)
         } catch {
             contextActionError = "Drop başarısız: \(error.localizedDescription)"
             return

@@ -18,11 +18,19 @@ final class TableDataViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published var errorMessage: String?
     @Published private(set) var hasPrimaryKey = true
+    /// One-shot: the row `insertBlankRow()` just added, for the grid to
+    /// select and scroll into view. `SpreadsheetGridView` clears it once
+    /// applied — same consume-then-nil pattern as the SQL editor's
+    /// `pendingQueryInsertion`.
+    @Published var rowIDToFocus: TableRow.ID?
 
     let databaseName: String
     let tableName: String
     private let service: MySQLService
     private let introspection: SchemaIntrospectionService
+    /// Logs the writes this grid performs (cell edit, row insert, row
+    /// delete) into the connection's query history — `nil` in tests.
+    private let historyRecorder: QueryHistoryRecorder?
     private var primaryKeyColumns: [String] = []
 
     /// `pageSize` defaults to the persisted setting; tests pass an explicit
@@ -32,12 +40,14 @@ final class TableDataViewModel: ObservableObject {
         tableName: String,
         service: MySQLService,
         introspection: SchemaIntrospectionService,
-        pageSize: Int? = nil
+        pageSize: Int? = nil,
+        historyRecorder: QueryHistoryRecorder? = nil
     ) {
         self.databaseName = databaseName
         self.tableName = tableName
         self.service = service
         self.introspection = introspection
+        self.historyRecorder = historyRecorder
         // Resolved here (inside @MainActor context) rather than as a
         // default parameter value — Swift 6 strict concurrency forbids
         // referencing @MainActor-isolated properties in default parameters.
@@ -195,6 +205,7 @@ final class TableDataViewModel: ObservableObject {
         }
         let (whereSQL, whereBinds) = try primaryKeyWhereClause(for: row, primaryKeyColumns: primaryKeyColumns)
         let sql = "UPDATE \(try qualifiedTable()) SET \(setClauses.joined(separator: ", ")) WHERE \(whereSQL)"
+        historyRecorder?.record(sql, binds: binds + whereBinds, database: databaseName, source: .app)
         try await service.execute(sql, binds + whereBinds)
     }
 
@@ -213,6 +224,7 @@ final class TableDataViewModel: ObservableObject {
         do {
             let (whereSQL, whereBinds) = try primaryKeyWhereClause(for: row, primaryKeyColumns: primaryKeyColumns)
             let sql = "DELETE FROM \(try qualifiedTable()) WHERE \(whereSQL)"
+            historyRecorder?.record(sql, binds: whereBinds, database: databaseName, source: .app)
             try await service.execute(sql, whereBinds)
             await reload()
         } catch {
@@ -238,23 +250,70 @@ final class TableDataViewModel: ObservableObject {
             var columnNames: [String] = []
             var placeholders: [String] = []
             var binds: [MySQLData] = []
+            // The primary-key values we're about to write, so the new row
+            // can be found again after the reload.
+            var insertedPrimaryKey: [String: String] = [:]
             for column in insertable {
                 columnNames.append(try quoted(column.name))
                 placeholders.append("?")
+                let bind: MySQLData
                 if let defaultValue = column.defaultValue {
-                    binds.append(MySQLData(string: defaultValue))
+                    bind = MySQLData(string: defaultValue)
                 } else if column.isNullable {
-                    binds.append(.null)
+                    bind = .null
                 } else {
-                    binds.append(placeholderValue(for: column))
+                    bind = placeholderValue(for: column)
+                }
+                binds.append(bind)
+                if column.isPrimaryKey, let text = bind.string {
+                    insertedPrimaryKey[column.name] = text
                 }
             }
             let sql = "INSERT INTO \(try qualifiedTable()) (\(columnNames.joined(separator: ", "))) VALUES (\(placeholders.joined(separator: ", ")))"
-            try await service.execute(sql, binds)
+            historyRecorder?.record(sql, binds: binds, database: databaseName, source: .app)
+            let result = try await service.execute(sql, binds)
             await reload()
+            await focusInsertedRow(primaryKey: insertedPrimaryKey, lastInsertID: result.lastInsertID)
         } catch {
             errorMessage = describe(error)
         }
+    }
+
+    /// Points the grid at the row that was just inserted. An
+    /// auto-increment key isn't part of the `INSERT`, so its value comes
+    /// from the server's `lastInsertID`; a manually-assigned key is
+    /// whatever we bound.
+    ///
+    /// With an auto-increment key the new row sorts to the very end, which
+    /// on a paginated table is usually *not* the page being viewed — so if
+    /// it isn't here, jump to the last page and look again before giving
+    /// up. It can still legitimately not be found (an active filter the
+    /// blank row doesn't match), in which case nothing is focused.
+    private func focusInsertedRow(primaryKey: [String: String], lastInsertID: UInt64?) async {
+        var target = primaryKey
+        if let lastInsertID, lastInsertID > 0,
+           let autoColumn = columns.first(where: { $0.isAutoIncrement && $0.isPrimaryKey }) {
+            target[autoColumn.name] = String(lastInsertID)
+        }
+        guard !primaryKeyColumns.isEmpty, target.count == primaryKeyColumns.count else { return }
+
+        func matchingRowID() -> TableRow.ID? {
+            rows.first { row in
+                primaryKeyColumns.allSatisfy { target[$0] == row.originalValues[$0]?.displayString }
+            }?.id
+        }
+
+        if let id = matchingRowID() {
+            rowIDToFocus = id
+            return
+        }
+
+        guard isPaginationEnabled, totalRowCount > 0 else { return }
+        let lastPageOffset = ((totalRowCount - 1) / pageSize) * pageSize
+        guard lastPageOffset != currentOffset else { return }
+        currentOffset = lastPageOffset
+        await reload()
+        rowIDToFocus = matchingRowID()
     }
 
     /// A conservative type sniff off `SHOW COLUMNS`' `Type` string (e.g.

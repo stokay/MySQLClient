@@ -52,6 +52,7 @@ struct SpreadsheetGridView: NSViewRepresentable {
         context.coordinator.rebuildColumnsIfNeeded()
         context.coordinator.refreshHeaderTitles()
         context.coordinator.reloadPreservingActiveEdit()
+        context.coordinator.focusPendingRowIfNeeded()
     }
 
     func makeCoordinator() -> Coordinator {
@@ -131,6 +132,19 @@ struct SpreadsheetGridView: NSViewRepresentable {
         func reloadPreservingActiveEdit() {
             guard currentEditingCell() == nil else { return }
             tableView?.reloadData()
+        }
+
+        /// Selects and scrolls to the row "Satır Ekle" just created, so the
+        /// user lands on it ready to type instead of hunting for it. The
+        /// flag is cleared as it's consumed — writing back into the view
+        /// model from `updateNSView` schedules one more update, which then
+        /// finds nothing to do and settles.
+        func focusPendingRowIfNeeded() {
+            guard let tableView, let rowID = viewModel.rowIDToFocus else { return }
+            viewModel.rowIDToFocus = nil
+            guard let index = viewModel.rows.firstIndex(where: { $0.id == rowID }) else { return }
+            tableView.selectRowIndexes(IndexSet(integer: index), byExtendingSelection: false)
+            tableView.scrollRowToVisible(index)
         }
 
         func rebuildColumnsIfNeeded() {

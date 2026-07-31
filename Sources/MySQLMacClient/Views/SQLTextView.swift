@@ -385,6 +385,9 @@ struct SQLTextView: NSViewRepresentable {
 /// each line's first fragment.
 final class LineNumberRulerView: NSRulerView {
     private weak var textView: NSTextView?
+    /// The line clicked when a gutter drag started — dragging selects from
+    /// here to wherever the pointer is now, in either direction.
+    private var dragAnchorLineRange: NSRange?
 
     init(textView: NSTextView, scrollView: NSScrollView) {
         self.textView = textView
@@ -395,6 +398,55 @@ final class LineNumberRulerView: NSRulerView {
 
     required init(coder: NSCoder) {
         fatalError("init(coder:) is not supported")
+    }
+
+    // MARK: - Click-to-select-line
+
+    /// Clicking a line number selects that whole line; dragging up or down
+    /// extends the selection over the lines in between — the gutter
+    /// behavior of every code editor. The selection goes through the text
+    /// view itself, so `textViewDidChangeSelection` picks it up and ⌘↩ then
+    /// runs exactly the selected lines.
+    override func mouseDown(with event: NSEvent) {
+        guard let textView, let range = lineRange(at: event) else { return }
+        dragAnchorLineRange = range
+        textView.window?.makeFirstResponder(textView)
+        textView.setSelectedRange(range)
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard let textView, let anchor = dragAnchorLineRange, let range = lineRange(at: event) else { return }
+        let union = NSUnionRange(anchor, range)
+        textView.setSelectedRange(union)
+        // Keeps dragging past the top/bottom edge scrolling the document
+        // rather than stopping at whatever was already visible.
+        textView.scrollRangeToVisible(NSRange(location: range.location, length: 0))
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        dragAnchorLineRange = nil
+    }
+
+    /// The character range of the whole line under a gutter event, `nil`
+    /// when the geometry isn't available yet.
+    private func lineRange(at event: NSEvent) -> NSRange? {
+        guard let textView, let layoutManager = textView.layoutManager, let container = textView.textContainer else { return nil }
+
+        let pointInRuler = convert(event.locationInWindow, from: nil)
+        let pointInTextView = convert(pointInRuler, to: textView)
+        // Glyph lookup wants text-container coordinates, which the text
+        // view's inset is offset from.
+        let containerPoint = NSPoint(
+            x: 0,
+            y: pointInTextView.y - textView.textContainerInset.height
+        )
+
+        let content = textView.string as NSString
+        guard content.length > 0 else { return NSRange(location: 0, length: 0) }
+
+        let glyphIndex = layoutManager.glyphIndex(for: containerPoint, in: container)
+        let characterIndex = layoutManager.characterIndexForGlyph(at: glyphIndex)
+        return content.lineRange(for: NSRange(location: min(characterIndex, content.length - 1), length: 0))
     }
 
     override func drawHashMarksAndLabels(in rect: NSRect) {

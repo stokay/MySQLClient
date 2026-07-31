@@ -124,6 +124,21 @@ struct SettingsView: View {
 
             Divider().padding(.vertical, 4)
 
+            Toggle("Sorgu geçmişini kaydet", isOn: $settingsStore.settings.editor.saveQueryHistory)
+            LabeledContent("Sorgu geçmişi") {
+                Button("Tüm Bağlantıların Geçmişini Sil", role: .destructive) {
+                    QueryHistoryStore.shared.clearAll()
+                }
+            }
+            // Queries can carry sensitive literals, and history is kept per
+            // connection — so the opt-out and a way to wipe it belong next
+            // to each other, in plain sight rather than buried.
+            Text("Geçmiş yalnızca bu Mac'te, bağlantı başına en fazla \(QueryHistoryStore.maximumEntriesPerProfile) sorgu olarak saklanır.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Divider().padding(.vertical, 4)
+
             sizeStepper("Durum/hata mesajı yazı boyutu", value: $settingsStore.settings.editor.statusFontSize, range: 10...20)
             adaptiveColorRow("Hata mesajı rengi", \.editor.errorColor)
 

@@ -13,8 +13,17 @@ struct AlterTableView: View {
 
     private var theme: SchemaModalTheme { SchemaModalTheme(colorScheme: colorScheme) }
 
-    init(service: MySQLService, table: TableInfo, onAltered: @escaping (TableInfo) -> Void) {
-        _viewModel = StateObject(wrappedValue: AlterTableViewModel(service: service, table: table))
+    init(
+        service: MySQLService,
+        table: TableInfo,
+        historyRecorder: QueryHistoryRecorder? = nil,
+        onAltered: @escaping (TableInfo) -> Void
+    ) {
+        _viewModel = StateObject(wrappedValue: AlterTableViewModel(
+            service: service,
+            table: table,
+            historyRecorder: historyRecorder
+        ))
         self.onAltered = onAltered
     }
 

@@ -15,8 +15,18 @@ struct CreateTableView: View {
 
     private var theme: SchemaModalTheme { SchemaModalTheme(colorScheme: colorScheme) }
 
-    init(service: MySQLService, schemaTree: SchemaTreeViewModel, defaultDatabase: String, onCreated: @escaping (TableInfo) -> Void) {
-        _viewModel = StateObject(wrappedValue: CreateTableViewModel(service: service, defaultDatabase: defaultDatabase))
+    init(
+        service: MySQLService,
+        schemaTree: SchemaTreeViewModel,
+        defaultDatabase: String,
+        historyRecorder: QueryHistoryRecorder? = nil,
+        onCreated: @escaping (TableInfo) -> Void
+    ) {
+        _viewModel = StateObject(wrappedValue: CreateTableViewModel(
+            service: service,
+            defaultDatabase: defaultDatabase,
+            historyRecorder: historyRecorder
+        ))
         self.schemaTree = schemaTree
         self.onCreated = onCreated
     }

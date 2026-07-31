@@ -16,13 +16,15 @@ final class SettingsStore: ObservableObject {
     private let fileURL: URL
 
     /// `fileURL` is injectable for tests; production uses
-    /// `~/Application Support/MySQL Client/settings.json`.
+    /// `~/Application Support/MySQLMacClient/settings.json`.
     init(fileURL: URL? = nil) {
         if let fileURL {
             self.fileURL = fileURL
         } else {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            let directory = appSupport.appendingPathComponent("MySQL Client", isDirectory: true)
+            // Görünen addan bağımsız, sabit veri klasörü — gerekçe için
+            // `ConnectionStore`'daki nota bakın.
+            let directory = appSupport.appendingPathComponent("MySQLMacClient", isDirectory: true)
             try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             self.fileURL = directory.appendingPathComponent("settings.json")
         }

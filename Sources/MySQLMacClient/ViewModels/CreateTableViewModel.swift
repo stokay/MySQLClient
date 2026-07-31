@@ -68,9 +68,12 @@ final class CreateTableViewModel: ObservableObject {
 
     private let service: MySQLService
     private let introspection: SchemaIntrospectionService
+    /// Logs the DDL this form runs into the connection's query history.
+    private let historyRecorder: QueryHistoryRecorder?
 
-    init(service: MySQLService, defaultDatabase: String) {
+    init(service: MySQLService, defaultDatabase: String, historyRecorder: QueryHistoryRecorder? = nil) {
         self.service = service
+        self.historyRecorder = historyRecorder
         self.introspection = SchemaIntrospectionService(service: service)
         self.database = defaultDatabase
         self.columns = (0..<3).map { _ in DraftColumn() }
@@ -115,6 +118,7 @@ final class CreateTableViewModel: ObservableObject {
         isSubmitting = true
         defer { isSubmitting = false }
         do {
+            historyRecorder?.record(sql, database: database, source: .app)
             try await service.execute(sql)
         } catch {
             errorMessage = "Tablo oluşturulamadı: \(error.localizedDescription)"

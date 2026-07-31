@@ -28,9 +28,12 @@ final class AlterTableViewModel: ObservableObject {
 
     private let service: MySQLService
     private let introspection: SchemaIntrospectionService
+    /// Logs the DDL this form runs into the connection's query history.
+    private let historyRecorder: QueryHistoryRecorder?
 
-    init(service: MySQLService, table: TableInfo) {
+    init(service: MySQLService, table: TableInfo, historyRecorder: QueryHistoryRecorder? = nil) {
         self.service = service
+        self.historyRecorder = historyRecorder
         self.introspection = SchemaIntrospectionService(service: service)
         self.database = table.database
         self.originalTableName = table.name
@@ -89,6 +92,7 @@ final class AlterTableViewModel: ObservableObject {
         isSubmitting = true
         defer { isSubmitting = false }
         do {
+            historyRecorder?.record(sql, database: database, source: .app)
             try await service.execute(sql)
         } catch {
             errorMessage = "Alter başarısız: \(error.localizedDescription)"

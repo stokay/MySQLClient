@@ -99,13 +99,32 @@ final class SQLConsoleViewModel: ObservableObject {
     private let service: MySQLService
     private let introspection: SchemaIntrospectionService
     private let defaultSelectLimit: Int
+    /// Query history is per connection profile; `nil` for a console with no
+    /// profile behind it (tests), which simply doesn't record.
+    private let historyRecorder: QueryHistoryRecorder?
 
     /// `defaultSelectLimit` defaults to the persisted setting; tests pass
     /// an explicit value and never touch the singleton.
-    init(service: MySQLService, introspection: SchemaIntrospectionService, defaultSelectLimit: Int? = nil) {
+    init(
+        service: MySQLService,
+        introspection: SchemaIntrospectionService,
+        defaultSelectLimit: Int? = nil,
+        historyRecorder: QueryHistoryRecorder? = nil
+    ) {
         self.service = service
         self.introspection = introspection
         self.defaultSelectLimit = defaultSelectLimit ?? SettingsStore.shared.settings.editor.defaultSelectLimit
+        self.historyRecorder = historyRecorder
+    }
+
+    /// Newest-first history for this console's profile — what the query
+    /// panel's history menu lists. Empty when there's no profile.
+    var queryHistory: [QueryHistoryEntry] {
+        historyRecorder?.entries() ?? []
+    }
+
+    func clearQueryHistory() {
+        historyRecorder?.clear()
     }
 
     /// `defaultTable`, when given, seeds a first-open empty editor with a
@@ -180,6 +199,10 @@ final class SQLConsoleViewModel: ObservableObject {
         let sqlToRun = selection.isEmpty ? queryText : selection
         let trimmed = sqlToRun.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
+        // Recorded here, before the query runs, so a statement that fails
+        // is remembered too — a long query that failed on a typo is
+        // exactly the one worth recalling to fix.
+        historyRecorder?.record(sqlToRun, database: currentDatabaseHint, source: .console)
         isExecutingQuery = true
         queryErrorMessage = nil
         queryMessage = nil
@@ -296,6 +319,7 @@ final class SQLConsoleViewModel: ObservableObject {
             let (whereSQL, whereBinds) = try primaryKeyWhereClause(for: row, primaryKeyColumns: context.primaryKeyColumns)
             let qualified = try SchemaIntrospectionService.qualifiedIdentifier(database: context.database, name: context.table)
             let sql = "DELETE FROM \(qualified) WHERE \(whereSQL)"
+            historyRecorder?.record(sql, binds: whereBinds, database: context.database, source: .app)
             try await service.execute(sql, whereBinds)
             await runQuery()
         } catch {
@@ -311,7 +335,9 @@ final class SQLConsoleViewModel: ObservableObject {
         let setClause = "\(try SchemaIntrospectionService.quotedIdentifier(changedColumn)) = ?"
         let (whereSQL, whereBinds) = try primaryKeyWhereClause(for: row, primaryKeyColumns: context.primaryKeyColumns)
         let sql = "UPDATE \(qualified) SET \(setClause) WHERE \(whereSQL)"
-        try await service.execute(sql, [value] + whereBinds)
+        let binds = [value] + whereBinds
+        historyRecorder?.record(sql, binds: binds, database: context.database, source: .app)
+        try await service.execute(sql, binds)
     }
 
     /// Deliberately conservative: only recognizes `SELECT ... FROM

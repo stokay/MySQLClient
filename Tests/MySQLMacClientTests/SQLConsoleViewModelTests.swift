@@ -57,6 +57,118 @@ final class SQLConsoleViewModelTests: XCTestCase {
         SQLConsoleViewModel(service: service, introspection: introspection, defaultSelectLimit: defaultSelectLimit ?? 1000)
     }
 
+    /// A console wired to a throwaway history file, so history assertions
+    /// never touch the real one under Application Support.
+    private func makeConsoleWithHistory(
+        profileID: UUID,
+        historyEnabled: Bool = true
+    ) -> (console: SQLConsoleViewModel, history: QueryHistoryStore, fileURL: URL) {
+        let fileURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("console-history-\(UUID().uuidString).json")
+        let history = QueryHistoryStore(fileURL: fileURL)
+        let console = SQLConsoleViewModel(
+            service: service,
+            introspection: introspection,
+            defaultSelectLimit: 1000,
+            historyRecorder: QueryHistoryRecorder(
+                store: history,
+                profileID: profileID,
+                // Explicit, so these tests don't depend on whatever the
+                // user has toggled in their real settings.json.
+                isEnabled: { historyEnabled }
+            )
+        )
+        return (console, history, fileURL)
+    }
+
+    // MARK: - Query history
+
+    func testRunQueryRecordsTheQueryInHistory() async throws {
+        let profileID = UUID()
+        let (console, history, fileURL) = makeConsoleWithHistory(profileID: profileID)
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+
+        console.currentDatabaseHint = "mysqlmacclient_test"
+        console.queryText = "SELECT name FROM widgets WHERE name = 'Bolt'"
+        await console.runQuery()
+
+        XCTAssertNil(console.queryErrorMessage)
+        let entries = history.entries(for: profileID)
+        XCTAssertEqual(entries.first?.sql, "SELECT name FROM widgets WHERE name = 'Bolt'")
+        XCTAssertEqual(entries.first?.database, "mysqlmacclient_test")
+        XCTAssertEqual(console.queryHistory.first?.sql, entries.first?.sql)
+    }
+
+    /// A query that fails is recorded too — recalling the long statement
+    /// you just typo'd is the main reason to have history at all.
+    func testFailedQueryIsStillRecorded() async throws {
+        let profileID = UUID()
+        let (console, history, fileURL) = makeConsoleWithHistory(profileID: profileID)
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+
+        console.queryText = "SELEKT * FROM widgets"
+        await console.runQuery()
+
+        XCTAssertNotNil(console.queryErrorMessage, "sorgu gerçekten başarısız olmalı")
+        XCTAssertEqual(history.entries(for: profileID).first?.sql, "SELEKT * FROM widgets")
+    }
+
+    /// Only the text actually sent is recorded — with a selection, that's
+    /// the selection, not the whole editor.
+    func testOnlyTheExecutedSelectionIsRecorded() async throws {
+        let profileID = UUID()
+        let (console, history, fileURL) = makeConsoleWithHistory(profileID: profileID)
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+
+        console.currentDatabaseHint = "mysqlmacclient_test"
+        console.queryText = "UPDATE widgets SET quantity = 42 WHERE name = 'Bolt'"
+        console.querySelectedText = "SELECT name FROM widgets WHERE name = 'Nut'"
+        await console.runQuery()
+
+        XCTAssertEqual(history.entries(for: profileID).map(\.sql), ["SELECT name FROM widgets WHERE name = 'Nut'"])
+    }
+
+    func testClearQueryHistoryEmptiesThisProfilesHistory() async throws {
+        let profileID = UUID()
+        let (console, history, fileURL) = makeConsoleWithHistory(profileID: profileID)
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+
+        console.queryText = "SELECT 1"
+        await console.runQuery()
+        XCTAssertFalse(console.queryHistory.isEmpty)
+
+        console.clearQueryHistory()
+        XCTAssertTrue(console.queryHistory.isEmpty)
+        XCTAssertTrue(history.entries(for: profileID).isEmpty)
+    }
+
+    /// The "Sorgu geçmişini kaydet" opt-out has to actually stop recording
+    /// — queries can carry sensitive literals, so this must be a real
+    /// switch, not just a hidden list.
+    func testHistoryIsNotRecordedWhenTheSettingIsOff() async throws {
+        let profileID = UUID()
+        let (console, history, fileURL) = makeConsoleWithHistory(profileID: profileID, historyEnabled: false)
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+
+        console.queryText = "SELECT name FROM widgets"
+        await console.runQuery()
+
+        XCTAssertNil(console.queryErrorMessage, "sorgu yine de çalışmalı")
+        XCTAssertTrue(history.entries(for: profileID).isEmpty)
+        XCTAssertTrue(console.queryHistory.isEmpty)
+    }
+
+    /// A console with no profile behind it (the test default) must not
+    /// crash or try to record anywhere.
+    func testConsoleWithoutAProfileRecordsNothing() async throws {
+        let console = makeConsole()
+        console.queryText = "SELECT 1"
+        await console.runQuery()
+
+        XCTAssertNil(console.queryErrorMessage)
+        XCTAssertTrue(console.queryHistory.isEmpty)
+    }
+
     // MARK: - No table selected at all (the reported bug)
 
     func testCreatesATableWithNoCurrentDatabaseHintAtAllUsingAFullyQualifiedStatement() async throws {

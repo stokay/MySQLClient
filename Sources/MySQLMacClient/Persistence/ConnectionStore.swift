@@ -13,7 +13,13 @@ final class ConnectionStore: ObservableObject {
             self.fileURL = fileURL
         } else {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            let directory = appSupport.appendingPathComponent("MySQL Client", isDirectory: true)
+            // Kullanıcı verisinin klasör adı — görünen ada ("MySQL Client")
+            // BAĞLI DEĞİL, kasıtlı olarak eski hedef adında kalıyor. Yeniden
+            // adlandırma sırasında burası da değiştirilince mevcut kurulumlar
+            // kayıtlı bağlantılarını/geçmişini/ayarlarını "kaybetti"; container
+            // klasörü zaten Bundle ID'den (com.sedattokay.MySQLMacClient)
+            // geliyor, dolayısıyla bu ad kullanıcıya hiçbir yerde görünmüyor.
+            let directory = appSupport.appendingPathComponent("MySQLMacClient", isDirectory: true)
             try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             self.fileURL = directory.appendingPathComponent("connections.json")
         }

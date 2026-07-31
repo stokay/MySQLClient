@@ -70,6 +70,10 @@ struct AppSettings: Codable, Equatable {
         var autoUppercaseKeywords = true
         var showLineNumbers = true
         var defaultSelectLimit = 1000
+        /// Whether the SQL console remembers what it runs. Queries can
+        /// carry sensitive literals, so this is a real opt-out rather than
+        /// something only reachable by deleting the file by hand.
+        var saveQueryHistory = true
         // Hex equivalents of the systemBlue/Green/Gray the editor shipped
         // with — stored as single values (syntax colors read fine on both
         // themes).
@@ -88,6 +92,7 @@ struct AppSettings: Codable, Equatable {
             autoUppercaseKeywords = try container.decodeIfPresent(Bool.self, forKey: .autoUppercaseKeywords) ?? defaults.autoUppercaseKeywords
             showLineNumbers = try container.decodeIfPresent(Bool.self, forKey: .showLineNumbers) ?? defaults.showLineNumbers
             defaultSelectLimit = try container.decodeIfPresent(Int.self, forKey: .defaultSelectLimit) ?? defaults.defaultSelectLimit
+            saveQueryHistory = try container.decodeIfPresent(Bool.self, forKey: .saveQueryHistory) ?? defaults.saveQueryHistory
             keywordColor = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .keywordColor) ?? defaults.keywordColor
             stringColor = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .stringColor) ?? defaults.stringColor
             commentColor = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .commentColor) ?? defaults.commentColor

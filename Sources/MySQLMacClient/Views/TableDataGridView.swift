@@ -30,13 +30,15 @@ struct TableDataGridView: View {
         introspection: SchemaIntrospectionService,
         console: SQLConsoleViewModel,
         insertionBridge: SQLInsertionBridge,
+        historyRecorder: QueryHistoryRecorder? = nil,
         onRowCountChange: @escaping (Int) -> Void
     ) {
         _viewModel = StateObject(wrappedValue: TableDataViewModel(
             databaseName: databaseName,
             tableName: tableName,
             service: service,
-            introspection: introspection
+            introspection: introspection,
+            historyRecorder: historyRecorder
         ))
         self.console = console
         self.insertionBridge = insertionBridge
