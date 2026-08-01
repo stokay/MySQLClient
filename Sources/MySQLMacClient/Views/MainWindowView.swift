@@ -48,6 +48,10 @@ struct MainWindowView: View {
     let session: AppSession
     let onDisconnect: () -> Void
 
+    /// Observed for the toolbar icon size — the store is injected at the
+    /// app root, this view just needs to redraw when it changes.
+    @EnvironmentObject private var settingsStore: SettingsStore
+
     @StateObject private var schemaTreeViewModel: SchemaTreeViewModel
     @StateObject private var insertionBridge = SQLInsertionBridge()
     /// One SQL console for the whole session — shared by every table's
@@ -190,10 +194,11 @@ struct MainWindowView: View {
                     Label {
                         Text("Yeni Tablo")
                     } icon: {
-                        Image.bundled("create_table", fallbackSystemImage: "rectangle.badge.plus")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 30, height: 30)
+                        Image.bundled(
+                            "create_table",
+                            fallbackSystemImage: "rectangle.badge.plus",
+                            pointSize: settingsStore.settings.general.toolbarIconSize
+                        )
                     }
                 }
                 .help("Yeni Tablo Oluştur")
@@ -203,13 +208,17 @@ struct MainWindowView: View {
                     Label {
                         Text("Ayarlar")
                     } icon: {
-                        Image.bundled("settings", fallbackSystemImage: "gearshape")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 30, height: 30)
+                        Image.bundled(
+                            "settings",
+                            fallbackSystemImage: "gearshape",
+                            pointSize: settingsStore.settings.general.toolbarIconSize
+                        )
                     }
                 }
                 .help("Ayarlar (⌘,)")
+            }
+            ToolbarItem(placement: .navigation) {
+                QueryHistoryMenu(console: console)
             }
             ToolbarItem(placement: .primaryAction) {
                 AppearancePickerView()

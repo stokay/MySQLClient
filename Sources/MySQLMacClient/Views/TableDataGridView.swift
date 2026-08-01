@@ -186,10 +186,11 @@ struct TableDataGridView: View {
 
     private func viewModeButton(icon: String, fallbackSystemImage: String, help: String, isActive: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Image.bundled(icon, fallbackSystemImage: fallbackSystemImage)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 22, height: 22)
+            Image.bundled(
+                icon,
+                fallbackSystemImage: fallbackSystemImage,
+                pointSize: settingsStore.settings.general.gridToolbarIconSize
+            )
         }
         .buttonStyle(.plain)
         .padding(3)
@@ -240,7 +241,7 @@ struct TableDataGridView: View {
                         .lineLimit(1)
                 }
                 Button {
-                    Task { await viewModel.insertBlankRow() }
+                    viewModel.addDraftRow()
                 } label: {
                     Label("Satır Ekle", systemImage: "plus")
                         .lineLimit(1)

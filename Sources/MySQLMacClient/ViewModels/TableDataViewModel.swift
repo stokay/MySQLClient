@@ -18,11 +18,19 @@ final class TableDataViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published var errorMessage: String?
     @Published private(set) var hasPrimaryKey = true
-    /// One-shot: the row `insertBlankRow()` just added, for the grid to
-    /// select and scroll into view. `SpreadsheetGridView` clears it once
-    /// applied — same consume-then-nil pattern as the SQL editor's
-    /// `pendingQueryInsertion`.
+    /// One-shot: the row "Satır Ekle" just added (or the real row a draft
+    /// turned into), for the grid to select and scroll into view.
+    /// `SpreadsheetGridView` clears it once applied — same consume-then-nil
+    /// pattern as the SQL editor's `pendingQueryInsertion`.
     @Published var rowIDToFocus: TableRow.ID?
+    /// The pending, not-yet-INSERTed row, if any. At most one exists at a
+    /// time; `nil` means everything in `rows` is a real database row.
+    @Published private(set) var draftRowID: TableRow.ID?
+    /// Bumped every time `rows` is refetched, so the grid can tell a
+    /// wholesale refresh (new `TableRow` instances for the same records —
+    /// its selection has to be re-found) from an in-place change like a
+    /// committed cell edit (where its own selection is still valid).
+    @Published private(set) var dataVersion: Int = 0
 
     let databaseName: String
     let tableName: String
@@ -32,6 +40,8 @@ final class TableDataViewModel: ObservableObject {
     /// delete) into the connection's query history — `nil` in tests.
     private let historyRecorder: QueryHistoryRecorder?
     private var primaryKeyColumns: [String] = []
+    /// True while the draft row's INSERT is in flight — see `insertDraftRow`.
+    private var isInsertingDraftRow = false
 
     /// `pageSize` defaults to the persisted setting; tests pass an explicit
     /// value and never touch the singleton.
@@ -70,6 +80,7 @@ final class TableDataViewModel: ObservableObject {
     }
 
     func reload() async {
+        guard await flushDraftRow() else { return }
         errorMessage = nil
         do {
             try await reloadOrThrow()
@@ -81,6 +92,7 @@ final class TableDataViewModel: ObservableObject {
     private func reloadOrThrow() async throws {
         totalRowCount = try await fetchTotalCount()
         rows = try await fetchPage()
+        dataVersion += 1
     }
 
     // MARK: - Fetching
@@ -132,6 +144,7 @@ final class TableDataViewModel: ObservableObject {
     }
 
     func applyFilter(column: String?, value: String) async {
+        guard await flushDraftRow() else { return }
         filterColumn = column
         filterValue = value
         currentOffset = 0
@@ -143,6 +156,7 @@ final class TableDataViewModel: ObservableObject {
     /// which AppKit already flips for same-column re-clicks and resets to
     /// ascending when a different column header is clicked.
     func applySort(column: String, ascending: Bool) async {
+        guard await flushDraftRow() else { return }
         sortColumn = column
         sortAscending = ascending
         currentOffset = 0
@@ -152,18 +166,21 @@ final class TableDataViewModel: ObservableObject {
     // MARK: - Pagination
 
     func nextPage() async {
+        guard await flushDraftRow() else { return }
         guard currentOffset + pageSize < totalRowCount else { return }
         currentOffset += pageSize
         await reload()
     }
 
     func previousPage() async {
+        guard await flushDraftRow() else { return }
         guard currentOffset > 0 else { return }
         currentOffset = max(0, currentOffset - pageSize)
         await reload()
     }
 
     func changePageSize(_ newSize: Int) async {
+        guard await flushDraftRow() else { return }
         guard newSize > 0, newSize != pageSize else { return }
         pageSize = newSize
         currentOffset = 0
@@ -173,6 +190,7 @@ final class TableDataViewModel: ObservableObject {
     /// The "Sınırlı" checkbox: off loads every row in the table, ignoring
     /// `pageSize` entirely.
     func setPaginationEnabled(_ enabled: Bool) async {
+        guard await flushDraftRow() else { return }
         guard enabled != isPaginationEnabled else { return }
         isPaginationEnabled = enabled
         currentOffset = 0
@@ -183,6 +201,12 @@ final class TableDataViewModel: ObservableObject {
 
     func commitEdit(rowId: TableRow.ID, column: String, newText: String) async {
         guard hasPrimaryKey, let index = rows.firstIndex(where: { $0.id == rowId }) else { return }
+        // The draft row has nothing to UPDATE yet: what's typed is held in
+        // memory and goes out as a single INSERT when the row is left.
+        guard !rows[index].isDraft else {
+            rows[index].editedText[column] = newText
+            return
+        }
         rows[index].editedText[column] = newText
         guard rows[index].isDirty(column) else { return }
 
@@ -220,6 +244,13 @@ final class TableDataViewModel: ObservableObject {
     }
 
     func deleteRow(_ row: TableRow) async {
+        // The trash button on the draft row just throws the pending row
+        // away — there's nothing in the database to DELETE.
+        if row.isDraft {
+            rows.removeAll { $0.id == row.id }
+            if draftRowID == row.id { draftRowID = nil }
+            return
+        }
         guard hasPrimaryKey else { return }
         do {
             let (whereSQL, whereBinds) = try primaryKeyWhereClause(for: row, primaryKeyColumns: primaryKeyColumns)
@@ -232,51 +263,116 @@ final class TableDataViewModel: ObservableObject {
         }
     }
 
-    /// Inserts a row of DEFAULT/NULL values (skipping auto-increment columns)
-    /// so the user can then edit cells in place, matching common SQL GUI UX.
-    /// A NOT NULL column with no default (including a manually-assigned,
-    /// non-auto-increment primary key — common on imported/legacy schemas)
-    /// used to get `NULL` here regardless, which MySQL always rejects: the
-    /// insert failed every time on that first, unavoidable NULL rather than
-    /// on anything the user actually did. A type-appropriate placeholder
-    /// (0 / '' / now()) lets the insert succeed instead, so the row exists
-    /// and the user fixes the placeholder value via ordinary, already
-    /// PK-aware cell editing — same as fixing any other value.
-    func insertBlankRow() async {
-        guard hasPrimaryKey else { return }
+    // MARK: - Adding a row
+
+    /// "Satır Ekle": appends an empty row **to the grid only**, the way
+    /// other SQL clients do it. Nothing is written until the user leaves
+    /// the row (`commitDraftRow()`).
+    ///
+    /// This used to INSERT a row of placeholder values (`0` / `''` /
+    /// `now()` for NOT NULL columns) on the spot, which meant a click alone
+    /// left a junk row behind whenever the user changed their mind, burned
+    /// an AUTO_INCREMENT id every time, and could trip UNIQUE constraints
+    /// or insert triggers on values nobody asked for.
+    func addDraftRow() {
+        guard hasPrimaryKey, !columns.isEmpty else { return }
+        // One pending row at a time: a second click just goes back to it.
+        if let draftRowID {
+            rowIDToFocus = draftRowID
+            return
+        }
+        let draft = TableRow(draftColumns: columns.map(\.name))
+        rows.append(draft)
+        draftRowID = draft.id
+        rowIDToFocus = draft.id
+    }
+
+    /// Called when the user leaves the draft row — Enter, Tab past its last
+    /// column, or selecting another row — the same moment an edit to an
+    /// existing row commits. On success the page is refetched, so the row
+    /// picks up AUTO_INCREMENT ids, DEFAULTs and anything a trigger wrote.
+    ///
+    /// `focusingInsertedRow` is what Enter and Tab want (they leave the user
+    /// on the row they just filled in); a click on a *different* row passes
+    /// `false`, since moving the highlight would override the row the user
+    /// deliberately picked.
+    func commitDraftRow(focusingInsertedRow: Bool = true) async {
+        guard let inserted = await insertDraftRow() else { return }
+        await reload()
+        if focusingInsertedRow {
+            await focusInsertedRow(primaryKey: inserted.primaryKey, lastInsertID: inserted.lastInsertID)
+        }
+    }
+
+    /// The INSERT itself, without the refetch — `nil` when nothing was
+    /// written.
+    ///
+    /// Only columns the user actually typed into are listed, so everything
+    /// else gets the server's own DEFAULT / AUTO_INCREMENT instead of a
+    /// value guessed here; an empty cell on a nullable column still writes
+    /// NULL through `bindValue`. A draft nothing was typed into is dropped
+    /// silently — clicking "Satır Ekle" and changing your mind must not
+    /// write anything.
+    ///
+    /// If the INSERT fails (NOT NULL without a default, UNIQUE, FK …) the
+    /// row stays a draft with the server's message in `errorMessage`, so
+    /// the user can fix the value instead of losing what they typed.
+    private func insertDraftRow() async -> (primaryKey: [String: String], lastInsertID: UInt64?)? {
+        // One gesture can reach here twice — leaving the row by clicking
+        // another one both changes the selection and ends the cell's edit,
+        // and the INSERT is awaited in between — which would insert the row
+        // twice. `draftRowID` alone can't guard that: it's only cleared once
+        // the INSERT comes back.
+        guard !isInsertingDraftRow else { return nil }
+        guard let draftRowID, let index = rows.firstIndex(where: { $0.id == draftRowID }) else { return nil }
+        isInsertingDraftRow = true
+        defer { isInsertingDraftRow = false }
+        let draft = rows[index]
+        let filledColumns = columns.filter { draft.isDirty($0.name) }
+        guard !filledColumns.isEmpty else {
+            rows.remove(at: index)
+            self.draftRowID = nil
+            return nil
+        }
+
         do {
-            let insertable = columns.filter { !$0.isAutoIncrement }
-            guard !insertable.isEmpty else { return }
             var columnNames: [String] = []
             var placeholders: [String] = []
             var binds: [MySQLData] = []
             // The primary-key values we're about to write, so the new row
             // can be found again after the reload.
             var insertedPrimaryKey: [String: String] = [:]
-            for column in insertable {
+            for column in filledColumns {
+                let text = draft.editedText[column.name] ?? ""
                 columnNames.append(try quoted(column.name))
                 placeholders.append("?")
-                let bind: MySQLData
-                if let defaultValue = column.defaultValue {
-                    bind = MySQLData(string: defaultValue)
-                } else if column.isNullable {
-                    bind = .null
-                } else {
-                    bind = placeholderValue(for: column)
-                }
-                binds.append(bind)
-                if column.isPrimaryKey, let text = bind.string {
+                binds.append(bindValue(text: text, column: column.name))
+                if column.isPrimaryKey {
                     insertedPrimaryKey[column.name] = text
                 }
             }
             let sql = "INSERT INTO \(try qualifiedTable()) (\(columnNames.joined(separator: ", "))) VALUES (\(placeholders.joined(separator: ", ")))"
             historyRecorder?.record(sql, binds: binds, database: databaseName, source: .app)
             let result = try await service.execute(sql, binds)
-            await reload()
-            await focusInsertedRow(primaryKey: insertedPrimaryKey, lastInsertID: result.lastInsertID)
+            self.draftRowID = nil
+            errorMessage = nil
+            return (insertedPrimaryKey, result.lastInsertID)
         } catch {
             errorMessage = describe(error)
+            return nil
         }
+    }
+
+    /// Every refetch (Yenile, sort, filter, page change) replaces `rows`,
+    /// which would drop a pending draft on the floor — so it's committed
+    /// first, exactly as leaving the row would. Returns `false` when a
+    /// draft is still there because its INSERT failed: the caller then
+    /// abandons its own operation, leaving the error on screen and the
+    /// half-typed row in place to be fixed.
+    private func flushDraftRow() async -> Bool {
+        guard draftRowID != nil else { return true }
+        _ = await insertDraftRow()
+        return draftRowID == nil
     }
 
     /// Points the grid at the row that was just inserted. An
@@ -314,21 +410,6 @@ final class TableDataViewModel: ObservableObject {
         currentOffset = lastPageOffset
         await reload()
         rowIDToFocus = matchingRowID()
-    }
-
-    /// A conservative type sniff off `SHOW COLUMNS`' `Type` string (e.g.
-    /// `int(11)`, `varchar(255)`, `datetime`) — good enough to avoid an
-    /// outright type-mismatch error, not a claim of picking a *meaningful*
-    /// value. The user is expected to overwrite this immediately.
-    private func placeholderValue(for column: ColumnInfo) -> MySQLData {
-        let type = column.mysqlType.lowercased()
-        if type.contains("int") || type.contains("decimal") || type.contains("float") || type.contains("double") {
-            return MySQLData(string: "0")
-        }
-        if type.contains("date") || type.contains("time") {
-            return MySQLData(string: RowValue.dateFormatter.string(from: Date()))
-        }
-        return MySQLData(string: "")
     }
 
     // MARK: - Table info ("İnfo" context-menu action)

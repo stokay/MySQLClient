@@ -26,11 +26,22 @@ struct AdaptiveColorSetting: Codable, Equatable {
 struct AppSettings: Codable, Equatable {
     struct General: Codable, Equatable {
         var confirmRowDeletion = true
+        /// The bundled PNGs in the window's own toolbar (Yeni Bağlantı,
+        /// Yeni Tablo, Ayarlar, Sorgu Geçmişi).
+        var toolbarIconSize: Double = 30
+        /// The view-mode buttons in the table's toolbar row. Separate from
+        /// `toolbarIconSize` on purpose: that row is a dense, horizontally
+        /// scrolling strip next to text labels, so it needs its own, smaller
+        /// setting rather than following the window toolbar's.
+        var gridToolbarIconSize: Double = 22
 
         init() {}
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            confirmRowDeletion = try container.decodeIfPresent(Bool.self, forKey: .confirmRowDeletion) ?? true
+            let defaults = General()
+            confirmRowDeletion = try container.decodeIfPresent(Bool.self, forKey: .confirmRowDeletion) ?? defaults.confirmRowDeletion
+            toolbarIconSize = try container.decodeIfPresent(Double.self, forKey: .toolbarIconSize) ?? defaults.toolbarIconSize
+            gridToolbarIconSize = try container.decodeIfPresent(Double.self, forKey: .gridToolbarIconSize) ?? defaults.gridToolbarIconSize
         }
     }
 

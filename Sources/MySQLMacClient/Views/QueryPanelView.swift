@@ -9,11 +9,6 @@ struct QueryPanelView: View {
     @ObservedObject var console: SQLConsoleViewModel
     @StateObject private var undoProxy = SQLEditorUndoProxy()
     @EnvironmentObject private var settingsStore: SettingsStore
-    /// The history list lives in the store, not in `console`, so observing
-    /// only `console` would leave the menu showing a stale list until some
-    /// unrelated published change happened to redraw this view. Observed
-    /// here so a newly recorded query shows up on its own.
-    @ObservedObject private var queryHistoryStore = QueryHistoryStore.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -78,50 +73,6 @@ struct QueryPanelView: View {
             .opacity(color == .clear ? 0 : 1)
     }
 
-    /// Recent queries for this connection, newest first. Selecting one
-    /// *appends* it to the editor (rather than replacing the contents), so
-    /// recalling a query can never discard something half-written — the
-    /// same non-destructive behavior the sidebar's SQL templates use.
-    ///
-    /// Capped at 20 here: the full 200 live in the store, but a menu that
-    /// long is unusable, and the older entries are better served by a
-    /// searchable list if one is ever added.
-    private var historyMenu: some View {
-        let entries = Array(console.queryHistory.prefix(20))
-        return Menu {
-            if entries.isEmpty {
-                Text("Geçmiş boş")
-            } else {
-                ForEach(entries) { entry in
-                    Button {
-                        console.isQueryPanelVisible = true
-                        console.pendingQueryAppend = entry.sql
-                    } label: {
-                        // The icon separates queries you typed from the
-                        // statements the app ran for a UI action — they
-                        // read very differently in a mixed list.
-                        Label(entry.singleLinePreview(), systemImage: entry.sourceSymbolName)
-                    }
-                }
-
-                Divider()
-
-                Button("Geçmişi Temizle", role: .destructive) {
-                    console.clearQueryHistory()
-                }
-            }
-        } label: {
-            // Icon-only: this toolbar is a horizontal scroller, and a wider
-            // row can push "Tablo Görünümüne Dön" — the only way back to the
-            // table's own Yenile/Satır Ekle/Sayfa boyutu controls — off the
-            // right edge on a narrow window.
-            Image(systemName: "clock.arrow.circlepath")
-        }
-        .menuStyle(.borderlessButton)
-        .fixedSize()
-        .help("Geçmiş: bu bağlantıda çalıştırılan son sorgular — seçilen sorgu editörün sonuna eklenir")
-    }
-
     /// See the identical treatment (and the reasoning in its comment) on
     /// `TableDataGridView.gridToolbar` — same dense-row-in-a-narrow-window
     /// problem, same fix: scroll instead of wrap/recenter. `.lineLimit(1)`
@@ -174,10 +125,6 @@ struct QueryPanelView: View {
                             .lineLimit(1)
                     }
                 }
-
-                Divider().frame(height: 16)
-
-                historyMenu
 
                 Divider().frame(height: 16)
 

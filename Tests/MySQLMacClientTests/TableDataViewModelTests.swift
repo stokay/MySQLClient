@@ -53,32 +53,149 @@ final class TableDataViewModelTests: XCTestCase {
         return (viewModel, history, fileURL)
     }
 
-    // MARK: - Focusing the inserted row
+    // MARK: - The draft row
 
-    /// "Satır Ekle" should leave the user on the new row, so the grid needs
-    /// to be told which one it is.
-    func testInsertBlankRowPointsTheGridAtTheNewRow() async throws {
+    /// "Satır Ekle" only adds a row to the grid: until the user leaves it,
+    /// the table must be untouched.
+    func testAddDraftRowWritesNothingUntilTheRowIsLeft() async throws {
         let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection)
         await viewModel.load()
 
-        await viewModel.insertBlankRow()
+        viewModel.addDraftRow()
+
+        XCTAssertEqual(viewModel.rows.count, 4, "taslak satır ızgarada görünmeli")
+        XCTAssertEqual(viewModel.rows.last?.isDraft, true)
+        XCTAssertEqual(viewModel.rowIDToFocus, viewModel.draftRowID, "taslak satır seçili hale getirilmeli")
+        let rows = try await service.query("SELECT COUNT(*) AS cnt FROM widgets")
+        XCTAssertEqual(rows.first?.column("cnt")?.int, 3, "veritabanına henüz hiçbir şey yazılmamalı")
+    }
+
+    /// A second click shouldn't stack up pending rows.
+    func testAddDraftRowTwiceKeepsASinglePendingRow() async throws {
+        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection)
+        await viewModel.load()
+
+        viewModel.addDraftRow()
+        viewModel.addDraftRow()
+
+        XCTAssertEqual(viewModel.rows.filter(\.isDraft).count, 1)
+    }
+
+    /// Leaving the row is what inserts it — and only the columns actually
+    /// typed into are sent, so `id` keeps its AUTO_INCREMENT value and
+    /// untouched columns keep their DEFAULT.
+    func testCommitDraftRowInsertsOnlyTheFilledColumns() async throws {
+        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection)
+        await viewModel.load()
+
+        viewModel.addDraftRow()
+        let draftID = try XCTUnwrap(viewModel.draftRowID)
+        await viewModel.commitEdit(rowId: draftID, column: "name", newText: "Gear")
+        XCTAssertEqual(viewModel.rows.count, 4, "düzenleme sırasında satır hâlâ taslak")
+
+        await viewModel.commitDraftRow()
         XCTAssertNil(viewModel.errorMessage)
+        XCTAssertNil(viewModel.draftRowID, "taslak gerçek satıra dönüşmeli")
+
+        let rows = try await service.query("SELECT name, quantity FROM widgets WHERE name = 'Gear'")
+        XCTAssertEqual(rows.count, 1)
+        XCTAssertNil(rows.first?.column("quantity")?.int, "dokunulmayan kolon INSERT'e girmemeli")
+    }
+
+    /// The row that was just written is the one the grid should land on.
+    func testCommitDraftRowPointsTheGridAtTheInsertedRow() async throws {
+        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection)
+        await viewModel.load()
+
+        viewModel.addDraftRow()
+        let draftID = try XCTUnwrap(viewModel.draftRowID)
+        await viewModel.commitEdit(rowId: draftID, column: "name", newText: "Gear")
+        await viewModel.commitDraftRow()
 
         let focusedID = try XCTUnwrap(viewModel.rowIDToFocus, "eklenen satır işaretlenmeli")
         let focused = try XCTUnwrap(viewModel.rows.first { $0.id == focusedID })
-        // The seed rows are Bolt/Nut/Washer; the new one is the blank row.
-        XCTAssertEqual(focused.originalValues["name"]?.displayString, "")
+        XCTAssertFalse(focused.isDraft)
+        XCTAssertEqual(focused.originalValues["name"]?.displayString, "Gear")
+    }
+
+    /// Clicking "Satır Ekle" and changing your mind must not write anything.
+    func testCommitDraftRowDiscardsAnUntouchedDraft() async throws {
+        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection)
+        await viewModel.load()
+
+        viewModel.addDraftRow()
+        await viewModel.commitDraftRow()
+
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertNil(viewModel.draftRowID)
+        XCTAssertFalse(viewModel.rows.contains(where: \.isDraft), "boş taslak ızgaradan da kalkmalı")
+        let rows = try await service.query("SELECT COUNT(*) AS cnt FROM widgets")
+        XCTAssertEqual(rows.first?.column("cnt")?.int, 3)
+    }
+
+    /// A failing INSERT (here: a duplicate primary key) has to leave the
+    /// typed row on screen to be fixed, not swallow it.
+    func testFailedDraftInsertKeepsTheRowAndReportsTheError() async throws {
+        try await service.execute("DELETE FROM manual_pk_items")
+        try await service.execute("INSERT INTO manual_pk_items (item_code, label) VALUES (42, 'existing')")
+        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "manual_pk_items", service: service, introspection: introspection)
+        await viewModel.load()
+
+        viewModel.addDraftRow()
+        let draftID = try XCTUnwrap(viewModel.draftRowID)
+        await viewModel.commitEdit(rowId: draftID, column: "item_code", newText: "42")
+        await viewModel.commitEdit(rowId: draftID, column: "label", newText: "duplicate")
+        await viewModel.commitDraftRow()
+
+        XCTAssertNotNil(viewModel.errorMessage, "sunucunun hatası gösterilmeli")
+        XCTAssertEqual(viewModel.draftRowID, draftID, "satır düzeltilebilmek için taslak kalmalı")
+        XCTAssertEqual(viewModel.rows.first { $0.id == draftID }?.editedText["label"], "duplicate", "yazılanlar korunmalı")
+    }
+
+    /// The trash button on a pending row drops it locally — no DELETE.
+    func testDeletingADraftRowJustRemovesItFromTheGrid() async throws {
+        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection)
+        await viewModel.load()
+
+        viewModel.addDraftRow()
+        let draft = try XCTUnwrap(viewModel.rows.last)
+        await viewModel.deleteRow(draft)
+
+        XCTAssertNil(viewModel.draftRowID)
+        XCTAssertEqual(viewModel.rows.count, 3)
+        let rows = try await service.query("SELECT COUNT(*) AS cnt FROM widgets")
+        XCTAssertEqual(rows.first?.column("cnt")?.int, 3)
+    }
+
+    /// Sorting/filtering/paging all refetch `rows`, which would drop the
+    /// pending row silently — it's committed first instead.
+    func testRefetchCommitsThePendingRowFirst() async throws {
+        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection)
+        await viewModel.load()
+
+        viewModel.addDraftRow()
+        let draftID = try XCTUnwrap(viewModel.draftRowID)
+        await viewModel.commitEdit(rowId: draftID, column: "name", newText: "Gear")
+        await viewModel.applySort(column: "name", ascending: true)
+
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertNil(viewModel.draftRowID)
+        let rows = try await service.query("SELECT COUNT(*) AS cnt FROM widgets WHERE name = 'Gear'")
+        XCTAssertEqual(rows.first?.column("cnt")?.int, 1)
     }
 
     /// With an auto-increment key the new row sorts to the end, which on a
     /// paginated table isn't the page being viewed — the view model has to
     /// move to the last page rather than report "not found".
-    func testInsertBlankRowJumpsToTheLastPageToReachTheNewRow() async throws {
+    func testCommitDraftRowJumpsToTheLastPageToReachTheNewRow() async throws {
         let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection, pageSize: 2)
         await viewModel.load()
         XCTAssertEqual(viewModel.currentOffset, 0, "ilk sayfadayız")
 
-        await viewModel.insertBlankRow()
+        viewModel.addDraftRow()
+        let draftID = try XCTUnwrap(viewModel.draftRowID)
+        await viewModel.commitEdit(rowId: draftID, column: "name", newText: "Gear")
+        await viewModel.commitDraftRow()
         XCTAssertNil(viewModel.errorMessage)
 
         XCTAssertNotEqual(viewModel.currentOffset, 0, "yeni satır için son sayfaya geçilmeli")
@@ -89,17 +206,21 @@ final class TableDataViewModelTests: XCTestCase {
     /// A manually-assigned (non auto-increment) key isn't covered by
     /// `lastInsertID`; the row still has to be found, using the value the
     /// insert actually wrote.
-    func testInsertBlankRowFindsTheNewRowWithAManualPrimaryKey() async throws {
+    func testCommitDraftRowFindsTheNewRowWithAManualPrimaryKey() async throws {
         try await service.execute("DELETE FROM manual_pk_items")
         let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "manual_pk_items", service: service, introspection: introspection)
         await viewModel.load()
 
-        await viewModel.insertBlankRow()
+        viewModel.addDraftRow()
+        let draftID = try XCTUnwrap(viewModel.draftRowID)
+        await viewModel.commitEdit(rowId: draftID, column: "item_code", newText: "42")
+        await viewModel.commitEdit(rowId: draftID, column: "label", newText: "Gear")
+        await viewModel.commitDraftRow()
         XCTAssertNil(viewModel.errorMessage)
 
         let focusedID = try XCTUnwrap(viewModel.rowIDToFocus, "manuel PK'lı tabloda da işaretlenmeli")
         let focused = try XCTUnwrap(viewModel.rows.first { $0.id == focusedID })
-        XCTAssertEqual(focused.originalValues["item_code"]?.displayString, "0")
+        XCTAssertEqual(focused.originalValues["item_code"]?.displayString, "42")
     }
 
     // MARK: - Query history for grid-driven writes
@@ -126,10 +247,15 @@ final class TableDataViewModelTests: XCTestCase {
         XCTAssertEqual(updateEntry?.sql.contains("?"), false, "değerler doldurulmuş olmalı")
         XCTAssertEqual(updateEntry?.sql.contains("'321'"), true)
 
-        // Row insert -> INSERT
-        await viewModel.insertBlankRow()
+        // Row insert -> INSERT, logged when the draft row is committed
+        viewModel.addDraftRow()
+        let draftID = try XCTUnwrap(viewModel.draftRowID)
+        await viewModel.commitEdit(rowId: draftID, column: "name", newText: "Gear")
+        await viewModel.commitDraftRow()
         XCTAssertNil(viewModel.errorMessage)
-        XCTAssertEqual(history.entries(for: profileID).first?.sql.hasPrefix("INSERT INTO"), true)
+        let insertEntry = history.entries(for: profileID).first
+        XCTAssertEqual(insertEntry?.sql.hasPrefix("INSERT INTO"), true)
+        XCTAssertEqual(insertEntry?.sql.contains("'Gear'"), true, "değerler doldurulmuş olmalı")
 
         // Row delete -> DELETE
         guard let washer = viewModel.rows.first(where: { $0.originalValues["name"]?.displayString == "Washer" }) else {
@@ -228,54 +354,22 @@ final class TableDataViewModelTests: XCTestCase {
         XCTAssertEqual(rows.first?.column("cnt")?.int, 2)
     }
 
-    func testInsertBlankRowAddsRowToDatabase() async throws {
-        // `tags` has only an auto-increment PK and a nullable column, so a
-        // blank insert (all NULL/DEFAULT) is guaranteed to succeed.
+    func testCommitDraftRowAddsRowToDatabase() async throws {
+        // `tags` has only an auto-increment PK and a nullable `name`, so a
+        // one-column draft is guaranteed to insert cleanly.
         try await service.execute("DELETE FROM tags")
         let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "tags", service: service, introspection: introspection)
         await viewModel.load()
 
-        await viewModel.insertBlankRow()
+        viewModel.addDraftRow()
+        let draftID = try XCTUnwrap(viewModel.draftRowID)
+        let editableColumn = try XCTUnwrap(viewModel.columns.first { !$0.isAutoIncrement })
+        await viewModel.commitEdit(rowId: draftID, column: editableColumn.name, newText: "urgent")
+        await viewModel.commitDraftRow()
         XCTAssertNil(viewModel.errorMessage)
 
         let rows = try await service.query("SELECT COUNT(*) AS cnt FROM tags")
         XCTAssertEqual(rows.first?.column("cnt")?.int, 1)
-    }
-
-    func testInsertBlankRowOnRequiredTextColumnUsesEmptyStringInsteadOfFailing() async throws {
-        // `widgets.name` is NOT NULL with no default. Sending NULL for it
-        // (the old behavior) made every blank insert fail immediately —
-        // not because of anything the user did, just because the column is
-        // required. An empty string is a valid VARCHAR NOT NULL value, so
-        // the insert now succeeds and the user fixes the placeholder via
-        // ordinary cell editing, same as any other value.
-        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "widgets", service: service, introspection: introspection)
-        await viewModel.load()
-
-        await viewModel.insertBlankRow()
-        XCTAssertNil(viewModel.errorMessage)
-
-        let rows = try await service.query("SELECT COUNT(*) AS cnt FROM widgets WHERE name = ''")
-        XCTAssertEqual(rows.first?.column("cnt")?.int, 1)
-    }
-
-    func testInsertBlankRowOnTableWithManuallyAssignedPrimaryKeySucceeds() async throws {
-        // A non-auto-increment PRIMARY KEY (common on imported/legacy
-        // schemas) is itself NOT NULL with no default — this is exactly
-        // the case the user hit: every blank insert failed with "Column
-        // 'item_code' cannot be null" before the row even reached the
-        // grid for editing.
-        try await service.execute("DELETE FROM manual_pk_items")
-        let viewModel = TableDataViewModel(databaseName: "mysqlmacclient_test", tableName: "manual_pk_items", service: service, introspection: introspection)
-        await viewModel.load()
-
-        await viewModel.insertBlankRow()
-        XCTAssertNil(viewModel.errorMessage)
-
-        let rows = try await service.query("SELECT item_code, label FROM manual_pk_items")
-        XCTAssertEqual(rows.count, 1)
-        XCTAssertEqual(rows.first?.column("item_code")?.int, 0)
-        XCTAssertEqual(rows.first?.column("label")?.string, "")
     }
 
     func testPaginationLimitsRowsPerPage() async throws {

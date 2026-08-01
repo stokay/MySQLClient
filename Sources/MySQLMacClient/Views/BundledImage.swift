@@ -15,7 +15,12 @@ extension Image {
     /// the PNGs flat into `Contents/Resources` with no subfolder. Both
     /// locations are tried so the same call works under `swift run` and
     /// under an Xcode/Release build.
-    static func bundled(_ name: String, fallbackSystemImage: String) -> Image {
+    /// `pointSize` stamps the size onto the `NSImage` itself instead of
+    /// relying on a SwiftUI `.frame` around it. Some containers — a
+    /// `Menu`'s label in the window toolbar, notably — lay their label out
+    /// from the image's *natural* size and ignore the frame, which drew
+    /// these 500 px PNGs at full size. Setting it here can't be overruled.
+    static func bundled(_ name: String, fallbackSystemImage: String, pointSize: CGFloat? = nil) -> Image {
         #if SWIFT_PACKAGE
         let bundle = Bundle.module
         #else
@@ -26,7 +31,21 @@ extension Image {
                 ?? bundle.url(forResource: name, withExtension: "png"),
             let nsImage = NSImage(contentsOf: url)
         else {
-            return Image(systemName: fallbackSystemImage)
+            // The SF Symbol stand-in follows the same size, otherwise a
+            // missing PNG would show up as a tiny text-sized glyph among
+            // full-size neighbours. 0.8 keeps the symbol's own padding from
+            // making it read larger than the artwork it replaces.
+            guard let pointSize,
+                  let symbol = NSImage(systemSymbolName: fallbackSystemImage, accessibilityDescription: nil),
+                  let sized = symbol.withSymbolConfiguration(.init(pointSize: pointSize * 0.8, weight: .regular))
+            else {
+                return Image(systemName: fallbackSystemImage)
+            }
+            return Image(nsImage: sized)
+        }
+        if let pointSize {
+            let aspect = nsImage.size.height > 0 ? nsImage.size.width / nsImage.size.height : 1
+            nsImage.size = NSSize(width: pointSize * min(aspect, 1), height: pointSize / max(aspect, 1))
         }
         return Image(nsImage: nsImage)
     }

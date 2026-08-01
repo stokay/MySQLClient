@@ -35,6 +35,11 @@ struct SettingsView: View {
 
             Toggle("Satır silmeden önce onay iste", isOn: $settingsStore.settings.general.confirmRowDeletion)
 
+            Divider().padding(.vertical, 4)
+
+            sizeStepper("Üst araç çubuğu ikon boyutu", value: $settingsStore.settings.general.toolbarIconSize, range: 20...36)
+            sizeStepper("Tablo araç çubuğu ikon boyutu", value: $settingsStore.settings.general.gridToolbarIconSize, range: 20...36)
+
             resetSection
         }
         .padding(16)

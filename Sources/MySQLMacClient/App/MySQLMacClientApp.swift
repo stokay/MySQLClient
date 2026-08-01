@@ -64,10 +64,11 @@ struct MySQLMacClientApp: App {
                         Label {
                             Text("Yeni Bağlantı")
                         } icon: {
-                            Image.bundled("new_connection", fallbackSystemImage: "plus.circle")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 30, height: 30)
+                            Image.bundled(
+                                "new_connection",
+                                fallbackSystemImage: "plus.circle",
+                                pointSize: settingsStore.settings.general.toolbarIconSize
+                            )
                         }
                     }
                     .help("Yeni Bağlantı")
