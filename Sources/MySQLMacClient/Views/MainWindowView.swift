@@ -74,6 +74,7 @@ struct MainWindowView: View {
     @State private var tablePendingTruncate: TableInfo?
     @State private var tablePendingDrop: TableInfo?
     @State private var tableToAlter: TableInfo?
+    @State private var tableToExport: TableInfo?
     @State private var routinePendingDrop: RoutineInfo?
     @State private var contextActionError: String?
     /// Surfaced from the selected table's grid up to `StatusBarView` — see
@@ -139,6 +140,7 @@ struct MainWindowView: View {
                         Task { await insertQueryTemplate(for: table, kind: kind) }
                     },
                     onAlterTable: { tableToAlter = $0 },
+                    onExportTable: { tableToExport = $0 },
                     onShowTableInfo: { table in
                         selectedTable = table
                         insertionBridge.pendingShowInfo = true
@@ -270,6 +272,9 @@ struct MainWindowView: View {
                     selectedTable = alteredTable
                 }
             }
+        }
+        .sheet(item: $tableToExport) { table in
+            TableExportView(service: session.mysqlService, table: table)
         }
         .confirmationDialog(
             "'\(tablePendingTruncate?.name ?? "")' tablosundaki TÜM satırlar silinsin mi?",

@@ -115,6 +115,20 @@ struct SchemaIntrospectionService {
         return raw.replacingOccurrences(of: qualifiedPrefix, with: "")
     }
 
+    /// The table's `CREATE TABLE` statement, exactly as MySQL would print it
+    /// from `SHOW CREATE TABLE table_name` — the schema half of the SQL
+    /// export format (`SQLExporter`). Same schema-qualifier-stripping
+    /// rationale as `showCreateView` above.
+    func showCreateTable(_ table: String, inDatabase database: String) async throws -> String {
+        let qualifiedTable = try Self.qualifiedIdentifier(database: database, name: table)
+        let rows = try await service.query("SHOW CREATE TABLE \(qualifiedTable)")
+        guard let raw = rows.first?.column("Create Table")?.string else {
+            throw MySQLServiceError.invalidIdentifier(table)
+        }
+        let qualifiedPrefix = "\(try Self.quotedIdentifier(database))."
+        return raw.replacingOccurrences(of: qualifiedPrefix, with: "")
+    }
+
     /// `SHOW <kind> STATUS` is server-wide by default; scoped here with a
     /// `WHERE Db = '...'` literal (same pattern as `collations(forCharset:)`
     /// — `SHOW` statements' patchy prepared-statement support is why this is

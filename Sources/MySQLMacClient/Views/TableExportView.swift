@@ -1,0 +1,268 @@
+import SwiftUI
+
+/// The "Export..." sheet, opened from a table's (or view's) context menu in
+/// the sidebar. Modeled on HeidiSQL's "Export data" dialog: format tabs,
+/// CSV-specific delimiter fields, a column checklist, and a file-path row.
+/// Shares `SchemaModalTheme`'s visual language with Create/Alter Table.
+///
+/// Read-only — nothing here mutates schema or data, so unlike Alter Table's
+/// `onAltered` there's no completion closure for the caller to react to.
+struct TableExportView: View {
+    @StateObject private var viewModel: TableExportViewModel
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var theme: SchemaModalTheme { SchemaModalTheme(colorScheme: colorScheme) }
+
+    init(service: MySQLService, table: TableInfo) {
+        _viewModel = StateObject(wrappedValue: TableExportViewModel(service: service, table: table))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            titleRow
+
+            if viewModel.isLoadingColumns {
+                ProgressView("Kolonlar yükleniyor…")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        formatTabs
+                        formatOptionsSection
+                        fieldsToExportSection
+                        saveToFileRow
+                    }
+                }
+            }
+
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundStyle(.red)
+                    .font(.callout)
+            }
+
+            HStack {
+                Spacer()
+                Button("Kapat") { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+                    .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
+                Button {
+                    Task {
+                        if await viewModel.runExport() {
+                            dismiss()
+                        }
+                    }
+                } label: {
+                    if viewModel.isExporting {
+                        ProgressView().controlSize(.small)
+                    } else {
+                        Text("Dışa Aktar")
+                    }
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(!canExport)
+                .buttonStyle(SchemaPrimaryButtonStyle(theme: theme))
+            }
+        }
+        .padding(24)
+        .frame(minWidth: 480, idealWidth: 560, minHeight: 520, idealHeight: 620)
+        .background(theme.windowBackground)
+        .task { await viewModel.loadColumns() }
+    }
+
+    private var canExport: Bool {
+        !viewModel.isExporting
+            && !viewModel.isLoadingColumns
+            && viewModel.outputFileURL != nil
+            && !viewModel.selectedColumnNames.isEmpty
+    }
+
+    private var titleRow: some View {
+        (
+            Text("Dışa Aktar ")
+                .font(.title2.bold())
+                .foregroundColor(theme.textPrimary)
+            + Text("— ")
+                .font(.title2.bold())
+                .foregroundColor(theme.textSecondary)
+            + Text(viewModel.table.name)
+                .font(.system(size: 17, weight: .semibold, design: .monospaced))
+                .foregroundColor(theme.amber)
+        )
+    }
+
+    // MARK: - Format tabs
+
+    private var formatTabs: some View {
+        HStack(spacing: 6) {
+            ForEach(TableExportFormat.allCases) { format in
+                formatTabButton(format)
+            }
+        }
+    }
+
+    private func formatTabButton(_ format: TableExportFormat) -> some View {
+        let isActive = viewModel.options.format == format
+        return Button {
+            viewModel.options.format = format
+        } label: {
+            Text(format.displayName)
+                .font(.system(size: 13, weight: isActive ? .semibold : .regular))
+                .foregroundStyle(isActive ? .white : theme.textPrimary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+                .background(RoundedRectangle(cornerRadius: 8).fill(isActive ? theme.accent : theme.fieldBackground))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(theme.fieldBorder, lineWidth: isActive ? 0 : 1))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Format-specific options
+
+    @ViewBuilder
+    private var formatOptionsSection: some View {
+        switch viewModel.options.format {
+        case .csv:
+            csvOptions
+        case .sql where viewModel.table.isView:
+            formatNote("View tanımı (CREATE OR REPLACE VIEW) dışa aktarılır — bir view'ın kendine ait satırları olmadığından veri ayrıca yazılmaz.")
+        case .sql:
+            formatNote("Şema (CREATE TABLE IF NOT EXISTS) ve veri (INSERT INTO) birlikte dışa aktarılır.")
+        case .html, .json, .xlsx:
+            EmptyView()
+        }
+    }
+
+    private func formatNote(_ text: String) -> some View {
+        Text(text)
+            .font(.callout)
+            .foregroundStyle(theme.textSecondary)
+    }
+
+    private var csvOptions: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 16) {
+                labeledField("Ayraç", text: Binding(
+                    get: { viewModel.options.csv.fieldTerminator },
+                    set: { viewModel.options.csv.fieldTerminator = $0 }
+                ))
+                labeledField("Çevreleme", text: Binding(
+                    get: { viewModel.options.csv.fieldEnclosure },
+                    set: { viewModel.options.csv.fieldEnclosure = $0 }
+                ))
+                labeledField("Kaçış Karakteri", text: Binding(
+                    get: { viewModel.options.csv.fieldEscape },
+                    set: { viewModel.options.csv.fieldEscape = $0 }
+                ))
+            }
+            HStack(spacing: 8) {
+                Toggle("", isOn: Binding(
+                    get: { viewModel.options.csv.includeHeaderRow },
+                    set: { viewModel.options.csv.includeHeaderRow = $0 }
+                ))
+                .labelsHidden()
+                .toggleStyle(SchemaCheckboxToggleStyle(theme: theme))
+                Text("Üstte kolon adları")
+                    .foregroundStyle(theme.textPrimary)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture { viewModel.options.csv.includeHeaderRow.toggle() }
+        }
+        .padding(12)
+        .schemaCard(theme: theme)
+    }
+
+    private func labeledField(_ title: String, text: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title.uppercased())
+                .font(.system(size: 10, weight: .semibold))
+                .tracking(0.4)
+                .foregroundStyle(theme.textSecondary)
+            TextField("", text: text)
+                .schemaFieldBorder(theme: theme, padding: 4, cornerRadius: 5)
+                .frame(width: 100)
+        }
+    }
+
+    // MARK: - Fields to export
+
+    private var fieldsToExportSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("DIŞA AKTARILACAK ALANLAR")
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(0.6)
+                    .foregroundStyle(theme.textSecondary)
+                Spacer()
+                Button("Tümünü Seç") { viewModel.selectAllColumns() }
+                    .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
+                Button("Tümünü Kaldır") { viewModel.deselectAllColumns() }
+                    .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                ForEach(viewModel.allColumns) { column in
+                    // `SchemaCheckboxToggleStyle` only ever draws the
+                    // checkbox square itself — it doesn't render
+                    // `configuration.label` at all (see every other use of
+                    // it: always an empty-string `Toggle("", ...)` plus a
+                    // separately-drawn `Text` next to it, e.g.
+                    // `DraftColumnsEditor`). A label passed straight into
+                    // the `Toggle` here would silently never appear.
+                    HStack(spacing: 8) {
+                        Toggle("", isOn: binding(for: column.name))
+                            .labelsHidden()
+                            .toggleStyle(SchemaCheckboxToggleStyle(theme: theme))
+                        Text(column.name)
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundStyle(theme.textPrimary)
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        let isSelected = viewModel.selectedColumnNames.contains(column.name)
+                        binding(for: column.name).wrappedValue = !isSelected
+                    }
+                }
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .schemaCard(theme: theme)
+        }
+    }
+
+    private func binding(for columnName: String) -> Binding<Bool> {
+        Binding(
+            get: { viewModel.selectedColumnNames.contains(columnName) },
+            set: { isOn in
+                if isOn {
+                    viewModel.selectedColumnNames.insert(columnName)
+                } else {
+                    viewModel.selectedColumnNames.remove(columnName)
+                }
+            }
+        )
+    }
+
+    // MARK: - Save to file
+
+    private var saveToFileRow: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("DOSYAYA KAYDET")
+                .font(.system(size: 11, weight: .semibold))
+                .tracking(0.6)
+                .foregroundStyle(theme.textSecondary)
+            HStack(spacing: 8) {
+                Text(viewModel.outputFileURL?.path ?? "")
+                    .font(.system(size: 12))
+                    .foregroundStyle(theme.textPrimary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .schemaFieldBorder(theme: theme)
+                Button("…") { viewModel.chooseOutputFile() }
+                    .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
+            }
+        }
+    }
+}

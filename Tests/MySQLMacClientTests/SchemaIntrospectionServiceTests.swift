@@ -87,6 +87,14 @@ final class SchemaIntrospectionServiceTests: XCTestCase {
         XCTAssertTrue(createView.contains("from `widgets`"))
     }
 
+    func testShowCreateTableReturnsCreateTableStatement() async throws {
+        let createTable = try await introspection.showCreateTable("widgets", inDatabase: "mysqlmacclient_test")
+
+        XCTAssertTrue(createTable.contains("CREATE TABLE `widgets`"))
+        XCTAssertTrue(createTable.contains("`id`"))
+        XCTAssertTrue(createTable.contains("PRIMARY KEY"))
+    }
+
     func testListRoutinesReturnsCreatedProcedure() async throws {
         _ = try await service.rawQuery("DROP PROCEDURE IF EXISTS introspection_test_proc")
         _ = try await service.rawQuery("""
