@@ -143,16 +143,45 @@ final class TableExportViewModel: ObservableObject {
     /// `SELECT` only the checked columns, in their display order — this
     /// both avoids fetching columns nobody wants and guarantees the row
     /// arrays line up with `exportColumns` for free.
+    ///
+    /// Fetched a page at a time for the same reason `DatabaseBackupViewModel
+    /// .dumpTableData` does: one un-LIMITed `SELECT` over a very large table
+    /// makes the server hold (and ship) the whole result at once, which is
+    /// what dropped the connection on a real multi-million-row table. Note
+    /// this bounds the *server* side only — every page still accumulates
+    /// here, because the format serializers take the complete row set (and
+    /// `.xlsx`, being a zip, genuinely needs it all before it can write
+    /// anything). Making the textual formats stream page-by-page to disk is
+    /// a separate change.
     private func fetchRows(columns: [ColumnInfo]) async throws -> [[RowValue]] {
         let qualifiedTable = try SchemaIntrospectionService.qualifiedIdentifier(database: table.database, name: table.name)
         let columnList = try columns.map { try SchemaIntrospectionService.quotedIdentifier($0.name) }.joined(separator: ", ")
-        let mysqlRows = try await service.query("SELECT \(columnList) FROM \(qualifiedTable)")
-        return mysqlRows.map { row in
-            columns.map { column in
-                row.column(column.name).map(RowValue.init(mysqlData:)) ?? .null
-            }
+        let keyColumns = allColumns.filter(\.isPrimaryKey).map(\.name)
+        // `LIMIT`/`OFFSET` across separate queries has no row-order
+        // guarantee without an `ORDER BY` — without one, rows could repeat
+        // or go missing between pages.
+        let orderClause = keyColumns.isEmpty
+            ? ""
+            : " ORDER BY " + (try keyColumns.map { try SchemaIntrospectionService.quotedIdentifier($0) }.joined(separator: ", "))
+
+        var rows: [[RowValue]] = []
+        var offset = 0
+        while true {
+            let sql = "SELECT \(columnList) FROM \(qualifiedTable)\(orderClause) LIMIT \(Self.fetchPageSize) OFFSET \(offset)"
+            let mysqlRows = try await service.query(sql)
+            guard !mysqlRows.isEmpty else { break }
+            rows.append(contentsOf: mysqlRows.map { row in
+                columns.map { column in
+                    row.column(column.name).map(RowValue.init(mysqlData:)) ?? .null
+                }
+            })
+            offset += mysqlRows.count
+            if mysqlRows.count < Self.fetchPageSize { break }
         }
+        return rows
     }
+
+    private static let fetchPageSize = 1000
 
     private func describe(_ error: Error) -> String {
         if let mysqlError = error as? MySQLError {

@@ -75,6 +75,7 @@ struct MainWindowView: View {
     @State private var tablePendingDrop: TableInfo?
     @State private var tableToAlter: TableInfo?
     @State private var tableToExport: TableInfo?
+    @State private var databaseToBackUp: DatabaseInfo?
     @State private var routinePendingDrop: RoutineInfo?
     @State private var contextActionError: String?
     /// Surfaced from the selected table's grid up to `StatusBarView` — see
@@ -134,6 +135,7 @@ struct MainWindowView: View {
                     onCreateEvent: { database in
                         namedObjectCreationRequest = NamedObjectCreationRequest(kind: .event, database: database)
                     },
+                    onBackupDatabase: { databaseToBackUp = $0 },
                     onTruncateTable: { tablePendingTruncate = $0 },
                     onDropTable: { tablePendingDrop = $0 },
                     onInsertQueryTemplate: { table, kind in
@@ -275,6 +277,9 @@ struct MainWindowView: View {
         }
         .sheet(item: $tableToExport) { table in
             TableExportView(service: session.mysqlService, table: table)
+        }
+        .sheet(item: $databaseToBackUp) { database in
+            DatabaseBackupView(service: session.mysqlService, database: database)
         }
         .confirmationDialog(
             "'\(tablePendingTruncate?.name ?? "")' tablosundaki TÜM satırlar silinsin mi?",

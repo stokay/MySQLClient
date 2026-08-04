@@ -52,7 +52,10 @@ enum SQLExporter {
         return "INSERT INTO \(qualified) (\(columnList)) VALUES (\(valueList));"
     }
 
-    private static func sqlLiteral(_ value: RowValue) -> String {
+    /// One value as a SQL literal. Also used outside INSERT building — the
+    /// backup's keyset pagination embeds a page's last primary-key values
+    /// into the next page's `WHERE` clause.
+    static func sqlLiteral(_ value: RowValue) -> String {
         switch value {
         case .null: return "NULL"
         case .int(let value): return String(value)
@@ -93,5 +96,79 @@ enum SQLExporter {
             let statement = insertStatement(database: database, table: table, columns: columns, values: row)
             fileHandle.write(Data((statement + "\n").utf8))
         }
+    }
+
+    // MARK: - Database Backup
+
+    static func dropTableStatement(database: String, table: String) -> String {
+        "DROP TABLE IF EXISTS `\(database)`.`\(table)`;"
+    }
+
+    static func dropViewStatement(database: String, view: String) -> String {
+        "DROP VIEW IF EXISTS `\(database)`.`\(view)`;"
+    }
+
+    /// Works for both procedures and functions via `RoutineInfo.kind
+    /// .sqlKeyword` — same "one type instead of two" principle
+    /// `RoutineKind`'s own doc comment describes.
+    static func dropRoutineStatement(_ routine: RoutineInfo) -> String {
+        "DROP \(routine.kind.sqlKeyword) IF EXISTS `\(routine.database)`.`\(routine.name)`;"
+    }
+
+    /// Wraps a routine's raw `SHOW CREATE <kind>` output (from
+    /// `SchemaIntrospectionService.showCreateRoutine`) in the same
+    /// `DELIMITER $$ ... $$ DELIMITER ;` shape `SQLTemplate
+    /// .createStoredProcedure`/`createFunction`'s skeletons already use —
+    /// without it, a routine body's own internal `;`s would prematurely
+    /// end the statement if the dump is ever replayed one-`;`-at-a-time
+    /// (see `DelimiterScript.swift`'s doc comment for the same problem
+    /// from the opposite direction).
+    static func delimiterWrappedRoutineStatement(rawShowCreateRoutine: String) -> String {
+        "DELIMITER $$\n\n\(rawShowCreateRoutine)$$\n\nDELIMITER ;"
+    }
+
+    /// mysqldump's `--extended-insert`: batches rows into as few multi-row
+    /// `INSERT ... VALUES (...), (...), ...;` statements as possible,
+    /// starting a new statement whenever the next row would exceed either
+    /// cap. A single row that alone exceeds the byte budget is still
+    /// emitted alone rather than looping forever trying to make it fit —
+    /// forward progress is guaranteed either way.
+    static func extendedInsertStatements(
+        database: String,
+        table: String,
+        columns: [ColumnInfo],
+        rows: [[RowValue]],
+        maxRowsPerStatement: Int = 500,
+        maxStatementByteBudget: Int = 512_000
+    ) -> [String] {
+        guard !rows.isEmpty else { return [] }
+        let qualified = "`\(database)`.`\(table)`"
+        let columnList = columns.map { "`\($0.name)`" }.joined(separator: ", ")
+        let prefix = "INSERT INTO \(qualified) (\(columnList)) VALUES "
+
+        var statements: [String] = []
+        var currentTuples: [String] = []
+        var currentByteCount = prefix.utf8.count
+
+        func flush() {
+            guard !currentTuples.isEmpty else { return }
+            statements.append(prefix + currentTuples.joined(separator: ", ") + ";")
+            currentTuples = []
+            currentByteCount = prefix.utf8.count
+        }
+
+        for row in rows {
+            let tuple = "(" + row.map(sqlLiteral).joined(separator: ", ") + ")"
+            let tupleBytes = tuple.utf8.count + (currentTuples.isEmpty ? 0 : 2) // ", " separator
+            let wouldExceedRowCap = currentTuples.count >= maxRowsPerStatement
+            let wouldExceedByteCap = !currentTuples.isEmpty && currentByteCount + tupleBytes > maxStatementByteBudget
+            if wouldExceedRowCap || wouldExceedByteCap {
+                flush()
+            }
+            currentTuples.append(tuple)
+            currentByteCount += tupleBytes
+        }
+        flush()
+        return statements
     }
 }
