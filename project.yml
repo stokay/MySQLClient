@@ -33,8 +33,8 @@ targets:
       path: Info.plist
       properties:
         CFBundleDisplayName: "MySQL Client"
-        CFBundleShortVersionString: "1.0.1"
-        CFBundleVersion: "5"
+        CFBundleShortVersionString: "1.1.0"
+        CFBundleVersion: "6"
         LSApplicationCategoryType: "public.app-category.developer-tools"
         CFBundleIconName: AppIcon
         NSHumanReadableCopyright: "Copyright © 2025 Sedat Tokay. All rights reserved."
@@ -70,11 +70,35 @@ targets:
         # ve CFBundleName'i (Info.plist'te $(PRODUCT_NAME) olarak zaten
         # bağlı) "MySQL Client" yapar, Bundle ID'ye dokunmaz.
         PRODUCT_NAME: "MySQL Client"
-        MARKETING_VERSION: "1.0.1"
-        CURRENT_PROJECT_VERSION: "5"
+        MARKETING_VERSION: "1.1.0"
+        CURRENT_PROJECT_VERSION: "6"
         ENABLE_HARDENED_RUNTIME: YES
         CODE_SIGN_STYLE: Automatic
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        # Debug (Xcode's own Run/Test) keeps Automatic + the free Apple
+        # Development identity — fine for local testing on this Mac.
+        # Release (what `scripts/build-dmg.sh` builds) must be signed with
+        # a Developer ID Application certificate instead: an app signed
+        # only with Apple Development is rejected by Gatekeeper on any
+        # *other* Mac once quarantined (downloaded) — "is damaged and
+        # can't be opened" — regardless of notarization. Developer ID +
+        # notarization is the only combination that lets a direct-download
+        # DMG run cleanly for someone who isn't this machine/account.
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Developer ID Application"
+          # Automatic/Development-style signing defaults to `--timestamp=none`
+          # (faster local builds) — notarization rejects a signature without
+          # a secure timestamp, so Release has to force a real one.
+          OTHER_CODE_SIGN_FLAGS: "--timestamp"
+          # `xcodebuild build` (as opposed to `archive`) auto-injects
+          # com.apple.security.get-task-allow — a debugger-attach
+          # entitlement — into the signed binary regardless of
+          # configuration. Apple's notary service rejects any submission
+          # that has it ("Archive contains critical validation errors").
+          # This setting is what actually stops the injection.
+          CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
     # Belt-and-braces for ITMS-91109: strips quarantine/metadata xattrs
     # from everything inside the built .app before Xcode signs it, so a
     # freshly-downloaded icon can never poison an archive again.
