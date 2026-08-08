@@ -86,6 +86,13 @@ final class DatabaseBackupViewModel: ObservableObject {
     /// `errorMessage` so it can't be mistaken for (or overwritten by) a
     /// failure of the backup run itself.
     @Published private(set) var loadWarning: String?
+    /// Flips to `true` once the file is genuinely, atomically on disk —
+    /// after `AtomicFileWriter`'s commit inside `performBackup` succeeds,
+    /// never on cancellation or failure — so the view can show a
+    /// completion alert. A plain settable `@Published`, not `private(set)`:
+    /// SwiftUI's `.alert(isPresented:)` needs a two-way binding and sets
+    /// this back to `false` itself once the alert is dismissed.
+    @Published var didFinishSuccessfully = false
 
     /// Zero in production (no behavior change); overridable only by the
     /// cancellation test, so it can deterministically catch a running
@@ -257,6 +264,16 @@ final class DatabaseBackupViewModel: ObservableObject {
 
     /// `isRunning`/`errorMessage` are set by `startBackup()` before this is
     /// scheduled — see the note there.
+    ///
+    /// Routed entirely through `AtomicFileWriter`: nothing here opens
+    /// `outputFileURL` directly. Previously this truncated the target with
+    /// `FileManager.createFile` before writing a single byte and deleted it
+    /// on any failure or cancellation — fine the first time a path is used,
+    /// but destroyed a pre-existing file (a backup tool's most common
+    /// case: overwriting yesterday's dump) the second. `AtomicFileWriter`
+    /// writes to a temp sibling throughout and only replaces the real
+    /// target on a clean finish, so a failed or cancelled run now leaves
+    /// whatever was already there completely untouched.
     private func performBackup() async {
         defer { isRunning = false; backupTask = nil }
 
@@ -271,55 +288,44 @@ final class DatabaseBackupViewModel: ObservableObject {
             currentObjectDescription: ""
         )
 
-        FileManager.default.createFile(atPath: outputFileURL.path, contents: nil)
-        guard let fileHandle = try? FileHandle(forWritingTo: outputFileURL) else {
-            errorMessage = "Dosya açılamadı."
-            progress = nil
-            return
-        }
-
-        // A dump cut short — by cancellation or by a mid-run error — must
-        // not leave a file behind that looks complete but isn't; `didFinish`
-        // only flips to `true` once every object and the footer are
-        // written.
-        var didFinish = false
-        defer {
-            try? fileHandle.close()
-            if !didFinish { try? FileManager.default.removeItem(at: outputFileURL) }
-        }
-
         do {
-            try await beginSourceSession()
-            do {
-                try await writeHeader(to: fileHandle)
-                for (index, object) in objects.enumerated() {
-                    try Task.checkCancellation()
-                    progress = Progress(
-                        completedObjects: index, totalObjects: objects.count,
-                        completedUnits: unitsBeforeCurrentObject, totalUnits: totalUnits,
-                        currentObjectDescription: object.description
-                    )
-                    try await dump(object, to: fileHandle)
-                    unitsBeforeCurrentObject += weights[index]
-                    if interObjectDelay != .zero {
-                        try await Task.sleep(for: interObjectDelay)
+            try await AtomicFileWriter.write(to: outputFileURL) { fileHandle in
+                try await self.beginSourceSession()
+                do {
+                    try await self.writeHeader(to: fileHandle)
+                    for (index, object) in objects.enumerated() {
+                        try Task.checkCancellation()
+                        self.progress = Progress(
+                            completedObjects: index, totalObjects: objects.count,
+                            completedUnits: self.unitsBeforeCurrentObject, totalUnits: self.totalUnits,
+                            currentObjectDescription: object.description
+                        )
+                        try await self.dump(object, to: fileHandle)
+                        self.unitsBeforeCurrentObject += weights[index]
+                        if self.interObjectDelay != .zero {
+                            try await Task.sleep(for: self.interObjectDelay)
+                        }
                     }
+                    try Task.checkCancellation()
+                    try await self.writeFooter(to: fileHandle)
+                    try await self.endSourceSession()
+                    self.progress = Progress(
+                        completedObjects: objects.count, totalObjects: objects.count,
+                        completedUnits: self.totalUnits, totalUnits: self.totalUnits,
+                        currentObjectDescription: "Tamamlandı"
+                    )
+                } catch {
+                    // Best-effort: release whatever `beginSourceSession`
+                    // took, even though the backup itself failed or was
+                    // cancelled.
+                    try? await self.endSourceSession()
+                    throw error
                 }
-                try Task.checkCancellation()
-                try await writeFooter(to: fileHandle)
-                try await endSourceSession()
-                progress = Progress(
-                    completedObjects: objects.count, totalObjects: objects.count,
-                    completedUnits: totalUnits, totalUnits: totalUnits,
-                    currentObjectDescription: "Tamamlandı"
-                )
-                didFinish = true
-            } catch {
-                // Best-effort: release whatever `beginSourceSession` took,
-                // even though the backup itself failed or was cancelled.
-                try? await endSourceSession()
-                throw error
             }
+            // Only reached once `AtomicFileWriter` has actually performed
+            // its atomic replace — the file is genuinely on disk, not just
+            // "the last statement inside the closure ran".
+            didFinishSuccessfully = true
         } catch is CancellationError {
             // User-initiated — not an error to surface.
         } catch {

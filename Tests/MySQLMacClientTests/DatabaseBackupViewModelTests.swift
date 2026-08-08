@@ -170,6 +170,7 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         XCTAssertTrue(contents.contains("INSERT INTO `mysqlmacclient_test`.`widgets`"))
         XCTAssertTrue(contents.contains("CREATE OR REPLACE"))
         XCTAssertTrue(contents.contains("VIEW `widget_view`"))
+        XCTAssertTrue(viewModel.didFinishSuccessfully, "başarılı bir yedekleme tamamlanma uyarısını tetiklemeli")
     }
 
     func testRunBackupIncludesRoutinesWhenCatalogIsAvailable() async throws {
@@ -413,6 +414,29 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         while viewModel.isRunning { await Task.yield() }
 
         XCTAssertFalse(FileManager.default.fileExists(atPath: tempFileURL.path))
+        XCTAssertFalse(viewModel.didFinishSuccessfully, "iptal edilen bir yedekleme tamamlanma uyarısını tetiklememeli")
+    }
+
+    /// The regression guard for the data-loss bug this app's own
+    /// `AtomicFileWriter` fixed: a backup cancelled mid-run must not touch
+    /// whatever was already sitting at `outputFileURL` — e.g. yesterday's
+    /// backup, if the user picked the same path to overwrite it.
+    func testCancelledBackupLeavesAPreexistingFileAtOutputPathUntouched() async throws {
+        try Data("dünkü yedek — bozulmamalı".utf8).write(to: tempFileURL)
+
+        let viewModel = makeViewModel()
+        await viewModel.loadDatabasesAndObjects()
+        viewModel.outputFileURL = tempFileURL
+        viewModel.interObjectDelay = .milliseconds(200)
+
+        viewModel.startBackup()
+        while viewModel.progress == nil { await Task.yield() }
+        viewModel.cancelBackup()
+        while viewModel.isRunning { await Task.yield() }
+
+        XCTAssertEqual(try String(contentsOf: tempFileURL, encoding: .utf8), "dünkü yedek — bozulmamalı")
+        let siblings = (try? FileManager.default.contentsOfDirectory(atPath: tempFileURL.deletingLastPathComponent().path)) ?? []
+        XCTAssertTrue(siblings.filter { $0.hasPrefix(".\(tempFileURL.lastPathComponent).tmp-") }.isEmpty, "geçici dosya artık kalmamalı")
     }
 
     func testRunBackupToUnwritablePathSetsErrorMessageInsteadOfCrashing() async throws {

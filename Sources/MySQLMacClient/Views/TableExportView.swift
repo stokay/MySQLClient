@@ -42,33 +42,17 @@ struct TableExportView: View {
                     .font(.callout)
             }
 
-            HStack {
-                Spacer()
-                Button("Kapat") { dismiss() }
-                    .keyboardShortcut(.cancelAction)
-                    .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
-                Button {
-                    Task {
-                        if await viewModel.runExport() {
-                            dismiss()
-                        }
-                    }
-                } label: {
-                    if viewModel.isExporting {
-                        ProgressView().controlSize(.small)
-                    } else {
-                        Text("Dışa Aktar")
-                    }
-                }
-                .keyboardShortcut(.defaultAction)
-                .disabled(!canExport)
-                .buttonStyle(SchemaPrimaryButtonStyle(theme: theme))
-            }
+            statusFooter
         }
         .padding(24)
         .frame(minWidth: 480, idealWidth: 560, minHeight: 520, idealHeight: 620)
         .background(theme.windowBackground)
         .task { await viewModel.loadColumns() }
+        .alert("Dışa Aktarma Tamamlandı", isPresented: $viewModel.didFinishSuccessfully) {
+            Button("Tamam") {}
+        } message: {
+            Text("\(viewModel.table.name) başarıyla dışa aktarıldı.")
+        }
     }
 
     private var canExport: Bool {
@@ -262,6 +246,51 @@ struct TableExportView: View {
                     .schemaFieldBorder(theme: theme)
                 Button("…") { viewModel.chooseOutputFile() }
                     .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
+            }
+        }
+    }
+
+    // MARK: - Status footer
+
+    /// Mirrors `DatabaseBackupView.statusFooter` — same progress-bar shape,
+    /// same "Kapat cancels a running operation before dismissing, Aktar/
+    /// Dışa Aktar starts one" wiring. Deliberately does **not** auto-dismiss
+    /// on success, matching `DatabaseBackupView`: the completed progress
+    /// bar stays visible until the user closes it themselves, rather than
+    /// the sheet vanishing the instant a (possibly minutes-long) export
+    /// finishes.
+    private var statusFooter: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if let progress = viewModel.progress {
+                ProgressView(value: progress.percentage)
+                HStack {
+                    Text("\(progress.completedRows)/\(progress.totalRows) satır")
+                    Spacer()
+                    Text("\(Int(progress.percentage * 100))%")
+                }
+                .font(.caption)
+                .foregroundStyle(theme.textSecondary)
+            }
+            HStack {
+                Spacer()
+                Button("Kapat") {
+                    if viewModel.isExporting { viewModel.cancelExport() }
+                    dismiss()
+                }
+                .keyboardShortcut(.cancelAction)
+                .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
+                Button {
+                    viewModel.startExport()
+                } label: {
+                    if viewModel.isExporting {
+                        ProgressView().controlSize(.small)
+                    } else {
+                        Text("Dışa Aktar")
+                    }
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(!canExport)
+                .buttonStyle(SchemaPrimaryButtonStyle(theme: theme))
             }
         }
     }

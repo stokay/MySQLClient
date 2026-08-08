@@ -14,6 +14,16 @@ import Foundation
 /// elsewhere (`TableDataViewModel.fetchPage()` with pagination off does the
 /// same un-limited `SELECT *`).
 enum XLSXExporter {
+    /// Excel's hard per-worksheet row ceiling — `XFD1048576` is the last
+    /// valid cell address in the `.xlsx` format itself, not a limitation of
+    /// this writer. Row/cell references beyond it aren't spec-valid, and
+    /// Excel doesn't just warn on open — it flags the whole file as
+    /// damaged and offers to "recover" it (silently dropping the excess).
+    /// A real 1.15M-row table exceeded this by ~100,000 rows and produced
+    /// exactly that dialog before callers started checking against this
+    /// constant first.
+    static let maxRowsPerSheet = 1_048_576
+
     static func write(
         columns: [ColumnInfo],
         rows: [[RowValue]],

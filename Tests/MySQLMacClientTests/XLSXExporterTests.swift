@@ -25,6 +25,17 @@ final class XLSXExporterTests: XCTestCase {
         [.int(2), .null],
     ]
 
+    // MARK: - Row limit
+
+    /// Locks the constant against silent drift — `TableExportViewModel`
+    /// relies on this exact value to reject an over-the-limit export
+    /// before wasting a fetch on it (see `XLSXExporter.maxRowsPerSheet`'s
+    /// own doc comment for why: `XFD1048576` is Excel's actual last valid
+    /// cell address).
+    func testMaxRowsPerSheetMatchesExcelsDocumentedLimit() {
+        XCTAssertEqual(XLSXExporter.maxRowsPerSheet, 1_048_576)
+    }
+
     // MARK: - CRC-32
 
     func testCRC32MatchesKnownTestVector() {

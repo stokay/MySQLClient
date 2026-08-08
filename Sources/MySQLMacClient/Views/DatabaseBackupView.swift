@@ -57,6 +57,11 @@ struct DatabaseBackupView: View {
         .frame(minWidth: 720, idealWidth: 820, minHeight: 640, idealHeight: 720)
         .background(theme.windowBackground)
         .task { await viewModel.loadDatabasesAndObjects() }
+        .alert("Yedekleme Tamamlandı", isPresented: $viewModel.didFinishSuccessfully) {
+            Button("Tamam") {}
+        } message: {
+            Text("\(viewModel.database.name) başarıyla yedeklendi.")
+        }
     }
 
     private var titleRow: some View {
