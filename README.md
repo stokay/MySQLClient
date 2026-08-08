@@ -1,5 +1,8 @@
 # MySQL Client
 
+[![version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fstokay%2FMySQLClient%2Fmain%2Fproject.yml&query=%24.targets.MySQLMacClient.settings.base.MARKETING_VERSION&label=version&color=blue)](project.yml)
+[![build](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fstokay%2FMySQLClient%2Fmain%2Fproject.yml&query=%24.targets.MySQLMacClient.settings.base.CURRENT_PROJECT_VERSION&label=build&color=blue)](project.yml)
+
 A native macOS MySQL management tool built with **Swift 6 / SwiftUI**. Designed as a personal desktop client for managing MySQL databases — local (XAMPP) or remote (cPanel shared hosting, etc.).
 
 > **Status:** Active development · Full-featured desktop client · App-sandboxed, packaged as a signed macOS app (DMG)
