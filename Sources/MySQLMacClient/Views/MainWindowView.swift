@@ -75,6 +75,7 @@ struct MainWindowView: View {
     @State private var tablePendingDrop: TableInfo?
     @State private var tableToAlter: TableInfo?
     @State private var tableToExport: TableInfo?
+    @State private var tableToImport: TableInfo?
     @State private var databaseToBackUp: DatabaseInfo?
     @State private var routinePendingDrop: RoutineInfo?
     @State private var contextActionError: String?
@@ -143,6 +144,7 @@ struct MainWindowView: View {
                     },
                     onAlterTable: { tableToAlter = $0 },
                     onExportTable: { tableToExport = $0 },
+                    onImportTable: { tableToImport = $0 },
                     onShowTableInfo: { table in
                         selectedTable = table
                         insertionBridge.pendingShowInfo = true
@@ -277,6 +279,9 @@ struct MainWindowView: View {
         }
         .sheet(item: $tableToExport) { table in
             TableExportView(service: session.mysqlService, table: table)
+        }
+        .sheet(item: $tableToImport) { table in
+            TableImportView(service: session.mysqlService, table: table)
         }
         .sheet(item: $databaseToBackUp) { database in
             DatabaseBackupView(service: session.mysqlService, database: database)

@@ -28,6 +28,7 @@ struct TableListView: View {
     let onInsertQueryTemplate: (TableInfo, SQLTemplate.Kind) -> Void
     let onAlterTable: (TableInfo) -> Void
     let onExportTable: (TableInfo) -> Void
+    let onImportTable: (TableInfo) -> Void
     let onShowTableInfo: (TableInfo) -> Void
     let onAlterView: (TableInfo) -> Void
     let onDropView: (TableInfo) -> Void
@@ -67,6 +68,7 @@ struct TableListView: View {
                                 onInsertQueryTemplate: onInsertQueryTemplate,
                                 onAlterTable: onAlterTable,
                                 onExportTable: onExportTable,
+                                onImportTable: onImportTable,
                                 onShowTableInfo: onShowTableInfo,
                                 onAlterView: onAlterView,
                                 onDropView: onDropView,
@@ -256,6 +258,7 @@ private struct DatabaseRow: View {
     let onInsertQueryTemplate: (TableInfo, SQLTemplate.Kind) -> Void
     let onAlterTable: (TableInfo) -> Void
     let onExportTable: (TableInfo) -> Void
+    let onImportTable: (TableInfo) -> Void
     let onShowTableInfo: (TableInfo) -> Void
     let onAlterView: (TableInfo) -> Void
     let onDropView: (TableInfo) -> Void
@@ -302,6 +305,7 @@ private struct DatabaseRow: View {
                         onInsertQueryTemplate: onInsertQueryTemplate,
                         onAlterTable: onAlterTable,
                         onExportTable: onExportTable,
+                        onImportTable: onImportTable,
                         onShowTableInfo: onShowTableInfo,
                         onAlterView: onAlterView,
                         onDropView: onDropView
@@ -330,6 +334,7 @@ private struct DatabaseRow: View {
                         onInsertQueryTemplate: onInsertQueryTemplate,
                         onAlterTable: onAlterTable,
                         onExportTable: onExportTable,
+                        onImportTable: onImportTable,
                         onShowTableInfo: onShowTableInfo,
                         onAlterView: onAlterView,
                         onDropView: onDropView
@@ -409,6 +414,7 @@ private struct TableTreeRow: View {
     let onInsertQueryTemplate: (TableInfo, SQLTemplate.Kind) -> Void
     let onAlterTable: (TableInfo) -> Void
     let onExportTable: (TableInfo) -> Void
+    let onImportTable: (TableInfo) -> Void
     let onShowTableInfo: (TableInfo) -> Void
     let onAlterView: (TableInfo) -> Void
     let onDropView: (TableInfo) -> Void
@@ -506,6 +512,10 @@ private struct TableTreeRow: View {
 
         Button("Export...") {
             onExportTable(node.info)
+        }
+
+        Button("Import...") {
+            onImportTable(node.info)
         }
 
         Divider()
