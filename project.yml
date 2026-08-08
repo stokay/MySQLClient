@@ -51,6 +51,11 @@ targets:
         # Dışarıya TCP (MySQL sunucularına bağlantı) — sandbox altında bu
         # izin olmadan hiçbir bağlantı kurulamaz.
         com.apple.security.network.client: true
+        # NSOpenPanel/NSSavePanel ile kullanıcının seçtiği dosyalara (Table
+        # Export/Import, DB Backup) erişim — bu izin olmadan sandbox'lı bir
+        # build'de Powerbox paneli hiç açılmıyor (swift run'da fark
+        # edilmiyor çünkü o build gerçekten sandbox'lı değil).
+        com.apple.security.files.user-selected.read-write: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.sedattokay.MySQLMacClient
