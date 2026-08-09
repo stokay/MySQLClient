@@ -9,13 +9,13 @@ enum CreateTableError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .emptyTableName:
-            return "Tablo adı boş olamaz."
+            return String(localized: "Table name cannot be empty.")
         case .noColumns:
-            return "En az bir kolon eklemelisiniz."
+            return String(localized: "You must add at least one column.")
         case .invalidLength(let column, let value):
-            return "\"\(column)\" kolonunun uzunluğu geçersiz: \(value)"
+            return String(localized: "Invalid length for column \"\(column)\": \(value)")
         case .noChanges:
-            return "Değişiklik yapılmadı."
+            return String(localized: "No changes were made.")
         }
     }
 }
@@ -63,7 +63,7 @@ final class CreateTableViewModel: ObservableObject {
     /// reflects the current form state without needing its own `@Published`
     /// wiring to every field it depends on.
     var previewSQL: String {
-        (try? buildSQL()) ?? "-- Tablo adı ve en az bir kolon adı girildiğinde SQL burada görünecek --"
+        (try? buildSQL()) ?? String(localized: "-- SQL will appear here once you enter a table name and at least one column name --")
     }
 
     private let service: MySQLService
@@ -121,7 +121,7 @@ final class CreateTableViewModel: ObservableObject {
             historyRecorder?.record(sql, database: database, source: .app)
             try await service.execute(sql)
         } catch {
-            errorMessage = "Tablo oluşturulamadı: \(error.localizedDescription)"
+            errorMessage = String(localized: "Could not create table: \(error.localizedDescription)")
             return nil
         }
 

@@ -52,7 +52,7 @@ final class ConnectionFormViewModel: ObservableObject {
     func connect() async -> AppSession? {
         errorMessage = nil
         guard let portNumber = Int(port) else {
-            errorMessage = "Port sayısal olmalı."
+            errorMessage = String(localized: "Port must be numeric.")
             return nil
         }
 
@@ -70,7 +70,7 @@ final class ConnectionFormViewModel: ObservableObject {
                 database: trimmedDatabase.isEmpty ? nil : trimmedDatabase
             )
         } catch {
-            errorMessage = "Bağlanılamadı: \(error.localizedDescription)"
+            errorMessage = String(localized: "Could not connect: \(error.localizedDescription)")
             return nil
         }
 

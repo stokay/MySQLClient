@@ -16,7 +16,7 @@ struct DraftColumnsEditor: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 12) {
-                Text("KOLONLAR")
+                Text("COLUMNS")
                     .font(.system(size: 11, weight: .semibold))
                     .tracking(0.6)
                     .foregroundStyle(theme.textSecondary)
@@ -43,7 +43,7 @@ struct DraftColumnsEditor: View {
                 Button {
                     columns.append(DraftColumn())
                 } label: {
-                    Label("Kolon Ekle", systemImage: "plus")
+                    Label("Add Column", systemImage: "plus")
                 }
                 .buttonStyle(SchemaPrimaryButtonStyle(theme: theme))
             }
@@ -88,15 +88,15 @@ struct DraftColumnsEditor: View {
     private var headerRow: some View {
         HStack(spacing: 6) {
             Color.clear.frame(width: 16)
-            Text("KOLON ADI").frame(width: 150, alignment: .leading)
-            Text("TİP").frame(width: 110, alignment: .leading)
-            Text("UZUNLUK").frame(width: 64, alignment: .leading)
-            Text("VARSAYILAN").frame(width: 90, alignment: .leading)
+            Text("COLUMN NAME").frame(width: 150, alignment: .leading)
+            Text("TYPE").frame(width: 110, alignment: .leading)
+            Text("LENGTH").frame(width: 64, alignment: .leading)
+            Text("DEFAULT").frame(width: 90, alignment: .leading)
             Text("PK").frame(width: 24, alignment: .center)
-            Text("NULL\nDEĞİL").multilineTextAlignment(.center).frame(width: 58, alignment: .center)
+            Text("NOT\nNULL").multilineTextAlignment(.center).frame(width: 58, alignment: .center)
             Text("UNSIGNED").frame(width: 58, alignment: .center)
-            Text("OTO ARTIŞ").frame(width: 58, alignment: .center)
-            Text("AÇIKLAMA").frame(minWidth: 100, alignment: .leading)
+            Text("AUTO\nINC").frame(width: 58, alignment: .center)
+            Text("COMMENT").frame(minWidth: 100, alignment: .leading)
             Spacer(minLength: 20)
         }
         .font(.system(size: 10, weight: .semibold))

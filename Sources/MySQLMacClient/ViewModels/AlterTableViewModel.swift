@@ -40,11 +40,16 @@ final class AlterTableViewModel: ObservableObject {
         self.tableName = table.name
     }
 
+    /// Shown in place of the DDL while the form is untouched. Named
+    /// (rather than inlined) so tests can assert against it without
+    /// hardcoding a translated string.
+    static var noChangesPreview: String { String(localized: "-- No changes yet --") }
+
     var previewSQL: String {
         do {
             return try buildSQL()
         } catch CreateTableError.noChanges {
-            return "-- Henüz bir değişiklik yok --"
+            return Self.noChangesPreview
         } catch {
             return "-- \(error.localizedDescription) --"
         }
@@ -72,7 +77,7 @@ final class AlterTableViewModel: ObservableObject {
             }
             availableDataTypes = types
         } catch {
-            errorMessage = "Tablo yapısı okunamadı: \(error.localizedDescription)"
+            errorMessage = String(localized: "Could not read table structure: \(error.localizedDescription)")
         }
     }
 
@@ -95,7 +100,7 @@ final class AlterTableViewModel: ObservableObject {
             historyRecorder?.record(sql, database: database, source: .app)
             try await service.execute(sql)
         } catch {
-            errorMessage = "Alter başarısız: \(error.localizedDescription)"
+            errorMessage = String(localized: "Alter failed: \(error.localizedDescription)")
             return nil
         }
 

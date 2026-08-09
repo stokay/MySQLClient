@@ -3,6 +3,11 @@ import PackageDescription
 
 let package = Package(
     name: "MySQLMacClient",
+    // Required the moment a target ships a localized resource — SwiftPM
+    // fails the manifest outright without it. "en" matches the String
+    // Catalog's own source language and Info.plist's
+    // CFBundleDevelopmentRegion.
+    defaultLocalization: "en",
     platforms: [
         .macOS(.v15)
     ],
@@ -27,7 +32,13 @@ let package = Package(
                 .product(name: "MySQLNIO", package: "mysql-nio")
             ],
             resources: [
-                .copy("Resources")
+                .copy("Resources"),
+                // `.process`, not `.copy` — a copied .xcstrings would ship as
+                // raw JSON and localize nothing; processing runs it through
+                // the String Catalog compiler. It also has to live *outside*
+                // the `Resources/` folder above, since that whole directory
+                // is copied verbatim.
+                .process("Localizable.xcstrings")
             ]
         ),
         .testTarget(

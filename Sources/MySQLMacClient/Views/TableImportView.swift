@@ -21,7 +21,7 @@ struct TableImportView: View {
             titleRow
 
             if viewModel.isLoadingColumns {
-                ProgressView("Kolonlar yükleniyor…")
+                ProgressView("Loading columns…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
@@ -47,10 +47,10 @@ struct TableImportView: View {
         .task { await viewModel.loadColumns() }
         .onChange(of: viewModel.csvOptions) { _, _ in Task { await viewModel.refreshColumnMappings() } }
         .onChange(of: viewModel.hasHeaderRow) { _, _ in Task { await viewModel.refreshColumnMappings() } }
-        .alert("İçe Aktarma Tamamlandı", isPresented: $viewModel.didFinishSuccessfully) {
-            Button("Tamam") {}
+        .alert("Import Complete", isPresented: $viewModel.didFinishSuccessfully) {
+            Button("OK") {}
         } message: {
-            Text("\(viewModel.table.name) tablosuna başarıyla veri aktarıldı.")
+            Text("Data was imported into \(viewModel.table.name) successfully.")
         }
     }
 
@@ -63,7 +63,7 @@ struct TableImportView: View {
 
     private var titleRow: some View {
         (
-            Text("İçe Aktar ")
+            Text("Import ")
                 .font(.title2.bold())
                 .foregroundColor(theme.textPrimary)
             + Text("— ")
@@ -79,7 +79,7 @@ struct TableImportView: View {
 
     private var chooseFileRow: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("DOSYADAN OKU")
+            Text("READ FROM FILE")
                 .font(.system(size: 11, weight: .semibold))
                 .tracking(0.6)
                 .foregroundStyle(theme.textSecondary)
@@ -102,15 +102,15 @@ struct TableImportView: View {
     private var csvOptionsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 16) {
-                labeledField("Ayraç", text: Binding(
+                labeledField("DELIMITER", text: Binding(
                     get: { viewModel.csvOptions.fieldTerminator },
                     set: { viewModel.csvOptions.fieldTerminator = $0 }
                 ))
-                labeledField("Çevreleme", text: Binding(
+                labeledField("ENCLOSURE", text: Binding(
                     get: { viewModel.csvOptions.fieldEnclosure },
                     set: { viewModel.csvOptions.fieldEnclosure = $0 }
                 ))
-                labeledField("Kaçış Karakteri", text: Binding(
+                labeledField("ESCAPE CHARACTER", text: Binding(
                     get: { viewModel.csvOptions.fieldEscape },
                     set: { viewModel.csvOptions.fieldEscape = $0 }
                 ))
@@ -119,7 +119,7 @@ struct TableImportView: View {
                 Toggle("", isOn: $viewModel.hasHeaderRow)
                     .labelsHidden()
                     .toggleStyle(SchemaCheckboxToggleStyle(theme: theme))
-                Text("İlk satır başlık")
+                Text("First row is a header")
                     .foregroundStyle(theme.textPrimary)
             }
             .contentShape(Rectangle())
@@ -129,9 +129,9 @@ struct TableImportView: View {
         .schemaCard(theme: theme)
     }
 
-    private func labeledField(_ title: String, text: Binding<String>) -> some View {
+    private func labeledField(_ title: LocalizedStringKey, text: Binding<String>) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title.uppercased())
+            Text(title)
                 .font(.system(size: 10, weight: .semibold))
                 .tracking(0.4)
                 .foregroundStyle(theme.textSecondary)
@@ -154,21 +154,21 @@ struct TableImportView: View {
     private var columnMappingSection: some View {
         if viewModel.sourceFileURL != nil {
             VStack(alignment: .leading, spacing: 8) {
-                Text("KOLON EŞLEME")
+                Text("COLUMN MAPPING")
                     .font(.system(size: 11, weight: .semibold))
                     .tracking(0.6)
                     .foregroundStyle(theme.textSecondary)
 
                 if viewModel.columnMappings.isEmpty {
-                    Text("Dosyada veri bulunamadı.")
+                    Text("No data found in the file.")
                         .font(.callout)
                         .foregroundStyle(theme.textSecondary)
                 } else {
                     VStack(alignment: .leading, spacing: 0) {
                         HStack(spacing: 12) {
-                            Text("TABLO BAŞLIKLARI")
+                            Text("TABLE COLUMNS")
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            Text("CSV BAŞLIKLARI")
+                            Text("CSV COLUMNS")
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .font(.system(size: 10, weight: .semibold))
@@ -196,7 +196,7 @@ struct TableImportView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Picker("", selection: sourceHeaderBinding(for: tableColumn)) {
-                Text("Yok").tag(Int?.none)
+                Text("None").tag(Int?.none)
                 ForEach(viewModel.columnMappings) { mapping in
                     Text(mapping.sourceHeaderName).tag(Int?.some(mapping.id))
                 }
@@ -238,7 +238,7 @@ struct TableImportView: View {
             if let progress = viewModel.progress {
                 ProgressView(value: progress.percentage)
                 HStack {
-                    Text("\(progress.completedRows)/\(progress.totalRows) satır")
+                    Text("\(progress.completedRows)/\(progress.totalRows) rows")
                     Spacer()
                     Text("\(Int(progress.percentage * 100))%")
                 }
@@ -247,7 +247,7 @@ struct TableImportView: View {
             }
             HStack {
                 Spacer()
-                Button("Kapat") {
+                Button("Close") {
                     if viewModel.isImporting { viewModel.cancelImport() }
                     dismiss()
                 }
@@ -259,7 +259,7 @@ struct TableImportView: View {
                     if viewModel.isImporting {
                         ProgressView().controlSize(.small)
                     } else {
-                        Text("İçe Aktar")
+                        Text("Import")
                     }
                 }
                 .keyboardShortcut(.defaultAction)

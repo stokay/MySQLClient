@@ -435,7 +435,7 @@ final class TableDataViewModel: ObservableObject {
             if let firstRow = ddlResult.rows.first, firstRow.columnDefinitions.count >= 2 {
                 ddl = Self.reportString(firstRow.column(firstRow.columnDefinitions[1].name))
             } else {
-                ddl = "(alınamadı)"
+                ddl = String(localized: "(unavailable)")
             }
 
             tableInfoText = TableInfoReport.assemble(
@@ -445,7 +445,7 @@ final class TableDataViewModel: ObservableObject {
                 ddl: ddl
             )
         } catch {
-            tableInfoText = "Tablo bilgisi alınamadı: \(error.localizedDescription)"
+            tableInfoText = String(localized: "Could not load table info: \(error.localizedDescription)")
         }
     }
 

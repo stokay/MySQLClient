@@ -21,14 +21,14 @@ struct StatusBarView: View {
                 Text("•")
                     .font(.system(size: 14))
                     .foregroundStyle(.tertiary)
-                Text("\(rowCount) Satır")
+                Text("\(rowCount) rows")
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
             }
 
             Spacer()
-            Button("Bağlantıyı Kes", action: onDisconnect)
+            Button("Disconnect", action: onDisconnect)
                 .font(.system(size: 14))
                 .buttonStyle(.plain)
                 .foregroundStyle(.blue)

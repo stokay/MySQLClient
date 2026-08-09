@@ -22,7 +22,7 @@ struct CreateNamedSchemaObjectView: View {
                 .font(.title2.bold())
 
             Form {
-                LabeledContent("Veritabanı") {
+                LabeledContent("Database") {
                     Text(database)
                         .foregroundStyle(.secondary)
                 }
@@ -44,9 +44,9 @@ struct CreateNamedSchemaObjectView: View {
 
             HStack {
                 Spacer()
-                Button("İptal") { dismiss() }
+                Button("Cancel") { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button("Oluştur") { submit() }
+                Button("Create") { submit() }
                     .keyboardShortcut(.defaultAction)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
             }
@@ -58,7 +58,7 @@ struct CreateNamedSchemaObjectView: View {
     private func submit() {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
         guard (try? SchemaIntrospectionService.quotedIdentifier(trimmed)) != nil else {
-            errorMessage = "Geçersiz \(nameFieldLabel.lowercased())."
+            errorMessage = String(localized: "Invalid \(nameFieldLabel.lowercased()).")
             return
         }
         onCreate(trimmed)

@@ -42,7 +42,7 @@ struct AlterTableView: View {
             )
 
             if viewModel.isLoading {
-                ProgressView("Tablo yapısı yükleniyor…")
+                ProgressView("Loading table structure…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
@@ -65,7 +65,7 @@ struct AlterTableView: View {
 
             HStack {
                 Spacer()
-                Button("İptal") { dismiss() }
+                Button("Cancel") { dismiss() }
                     .keyboardShortcut(.cancelAction)
                     .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
                 Button {
@@ -79,7 +79,7 @@ struct AlterTableView: View {
                     if viewModel.isSubmitting {
                         ProgressView().controlSize(.small)
                     } else {
-                        Text("Uygula")
+                        Text("Apply")
                     }
                 }
                 .keyboardShortcut(.defaultAction)
@@ -97,11 +97,11 @@ struct AlterTableView: View {
 
     private var header: some View {
         Form {
-            LabeledContent("Tablo Adı") {
+            LabeledContent("Table Name") {
                 TextField("", text: $viewModel.tableName)
                     .schemaFieldBorder(theme: theme)
             }
-            LabeledContent("Veritabanı") {
+            LabeledContent("Database") {
                 Text(viewModel.database)
                     .foregroundStyle(theme.textSecondary)
             }
@@ -113,7 +113,7 @@ struct AlterTableView: View {
 
     private var sqlPreviewSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("SQL ÖNİZLEME")
+            Text("SQL PREVIEW")
                 .font(.system(size: 11, weight: .semibold))
                 .tracking(0.6)
                 .foregroundStyle(theme.textSecondary)

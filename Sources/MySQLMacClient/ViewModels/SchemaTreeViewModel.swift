@@ -51,7 +51,7 @@ final class DatabaseNode: ObservableObject, Identifiable {
             tableNodes = tables.map { TableNode(info: $0, introspection: introspection) }
             isLoaded = true
         } catch {
-            errorMessage = "Tablo listesi alınamadı: \(error.localizedDescription)"
+            errorMessage = String(localized: "Could not load table list: \(error.localizedDescription)")
         }
     }
 
@@ -73,7 +73,7 @@ final class DatabaseNode: ObservableObject, Identifiable {
             state.routines = try await introspection.listRoutines(kind, inDatabase: info.name)
             state.isLoaded = true
         } catch {
-            state.errorMessage = "\(kind.displayName) listesi alınamadı: \(error.localizedDescription)"
+            state.errorMessage = String(localized: "Could not load \(kind.displayName) list: \(error.localizedDescription)")
         }
         state.isLoading = false
         routineStates[kind] = state
@@ -123,7 +123,7 @@ final class TableNode: ObservableObject, Identifiable {
             columns = try await introspection.columns(forTable: info.name, inDatabase: info.database)
             isColumnsLoaded = true
         } catch {
-            columnsErrorMessage = "Kolonlar alınamadı: \(error.localizedDescription)"
+            columnsErrorMessage = String(localized: "Could not load columns: \(error.localizedDescription)")
         }
     }
 
@@ -136,7 +136,7 @@ final class TableNode: ObservableObject, Identifiable {
             indexes = try await introspection.indexes(forTable: info.name, inDatabase: info.database)
             isIndexesLoaded = true
         } catch {
-            indexesErrorMessage = "İndeksler alınamadı: \(error.localizedDescription)"
+            indexesErrorMessage = String(localized: "Could not load indexes: \(error.localizedDescription)")
         }
     }
 }
@@ -161,7 +161,7 @@ final class SchemaTreeViewModel: ObservableObject {
             let databases = try await introspection.listDatabases()
             databaseNodes = databases.map { DatabaseNode(info: $0, introspection: introspection) }
         } catch {
-            errorMessage = "Veritabanı listesi alınamadı: \(error.localizedDescription)"
+            errorMessage = String(localized: "Could not load database list: \(error.localizedDescription)")
         }
     }
 }

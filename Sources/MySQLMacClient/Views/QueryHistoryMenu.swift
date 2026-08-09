@@ -26,7 +26,7 @@ struct QueryHistoryMenu: View {
         let entries = Array(console.queryHistory.prefix(20))
         return Menu {
             if entries.isEmpty {
-                Text("Geçmiş boş")
+                Text("History is empty")
             } else {
                 ForEach(entries) { entry in
                     Button {
@@ -42,7 +42,7 @@ struct QueryHistoryMenu: View {
 
                 Divider()
 
-                Button("Geçmişi Temizle", role: .destructive) {
+                Button("Clear History", role: .destructive) {
                     console.clearQueryHistory()
                 }
             }
@@ -59,6 +59,6 @@ struct QueryHistoryMenu: View {
         }
         .menuIndicator(.hidden)
         .fixedSize()
-        .help("Geçmiş: bu bağlantıda çalıştırılan son sorgular — seçilen sorgu editörün sonuna eklenir")
+        .help("History: recent queries run on this connection — the selected query is appended to the editor")
     }
 }

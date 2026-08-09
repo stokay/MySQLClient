@@ -23,7 +23,7 @@ struct TableExportView: View {
             titleRow
 
             if viewModel.isLoadingColumns {
-                ProgressView("Kolonlar yükleniyor…")
+                ProgressView("Loading columns…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
@@ -48,10 +48,10 @@ struct TableExportView: View {
         .frame(minWidth: 480, idealWidth: 560, minHeight: 520, idealHeight: 620)
         .background(theme.windowBackground)
         .task { await viewModel.loadColumns() }
-        .alert("Dışa Aktarma Tamamlandı", isPresented: $viewModel.didFinishSuccessfully) {
-            Button("Tamam") {}
+        .alert("Export Complete", isPresented: $viewModel.didFinishSuccessfully) {
+            Button("OK") {}
         } message: {
-            Text("\(viewModel.table.name) başarıyla dışa aktarıldı.")
+            Text("\(viewModel.table.name) was exported successfully.")
         }
     }
 
@@ -64,7 +64,7 @@ struct TableExportView: View {
 
     private var titleRow: some View {
         (
-            Text("Dışa Aktar ")
+            Text("Export ")
                 .font(.title2.bold())
                 .foregroundColor(theme.textPrimary)
             + Text("— ")
@@ -110,15 +110,15 @@ struct TableExportView: View {
         case .csv:
             csvOptions
         case .sql where viewModel.table.isView:
-            formatNote("View tanımı (CREATE OR REPLACE VIEW) dışa aktarılır — bir view'ın kendine ait satırları olmadığından veri ayrıca yazılmaz.")
+            formatNote("The view definition (CREATE OR REPLACE VIEW) is exported — a view has no rows of its own, so no data is written separately.")
         case .sql:
-            formatNote("Şema (CREATE TABLE IF NOT EXISTS) ve veri (INSERT INTO) birlikte dışa aktarılır.")
+            formatNote("Schema (CREATE TABLE IF NOT EXISTS) and data (INSERT INTO) are exported together.")
         case .html, .json, .xlsx:
             EmptyView()
         }
     }
 
-    private func formatNote(_ text: String) -> some View {
+    private func formatNote(_ text: LocalizedStringKey) -> some View {
         Text(text)
             .font(.callout)
             .foregroundStyle(theme.textSecondary)
@@ -127,15 +127,15 @@ struct TableExportView: View {
     private var csvOptions: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 16) {
-                labeledField("Ayraç", text: Binding(
+                labeledField("DELIMITER", text: Binding(
                     get: { viewModel.options.csv.fieldTerminator },
                     set: { viewModel.options.csv.fieldTerminator = $0 }
                 ))
-                labeledField("Çevreleme", text: Binding(
+                labeledField("ENCLOSURE", text: Binding(
                     get: { viewModel.options.csv.fieldEnclosure },
                     set: { viewModel.options.csv.fieldEnclosure = $0 }
                 ))
-                labeledField("Kaçış Karakteri", text: Binding(
+                labeledField("ESCAPE CHARACTER", text: Binding(
                     get: { viewModel.options.csv.fieldEscape },
                     set: { viewModel.options.csv.fieldEscape = $0 }
                 ))
@@ -147,7 +147,7 @@ struct TableExportView: View {
                 ))
                 .labelsHidden()
                 .toggleStyle(SchemaCheckboxToggleStyle(theme: theme))
-                Text("Üstte kolon adları")
+                Text("Column names on first row")
                     .foregroundStyle(theme.textPrimary)
             }
             .contentShape(Rectangle())
@@ -157,9 +157,9 @@ struct TableExportView: View {
         .schemaCard(theme: theme)
     }
 
-    private func labeledField(_ title: String, text: Binding<String>) -> some View {
+    private func labeledField(_ title: LocalizedStringKey, text: Binding<String>) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title.uppercased())
+            Text(title)
                 .font(.system(size: 10, weight: .semibold))
                 .tracking(0.4)
                 .foregroundStyle(theme.textSecondary)
@@ -174,14 +174,14 @@ struct TableExportView: View {
     private var fieldsToExportSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("DIŞA AKTARILACAK ALANLAR")
+                Text("FIELDS TO EXPORT")
                     .font(.system(size: 11, weight: .semibold))
                     .tracking(0.6)
                     .foregroundStyle(theme.textSecondary)
                 Spacer()
-                Button("Tümünü Seç") { viewModel.selectAllColumns() }
+                Button("Select All") { viewModel.selectAllColumns() }
                     .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
-                Button("Tümünü Kaldır") { viewModel.deselectAllColumns() }
+                Button("Deselect All") { viewModel.deselectAllColumns() }
                     .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
             }
 
@@ -232,7 +232,7 @@ struct TableExportView: View {
 
     private var saveToFileRow: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("DOSYAYA KAYDET")
+            Text("SAVE TO FILE")
                 .font(.system(size: 11, weight: .semibold))
                 .tracking(0.6)
                 .foregroundStyle(theme.textSecondary)
@@ -264,7 +264,7 @@ struct TableExportView: View {
             if let progress = viewModel.progress {
                 ProgressView(value: progress.percentage)
                 HStack {
-                    Text("\(progress.completedRows)/\(progress.totalRows) satır")
+                    Text("\(progress.completedRows)/\(progress.totalRows) rows")
                     Spacer()
                     Text("\(Int(progress.percentage * 100))%")
                 }
@@ -273,7 +273,7 @@ struct TableExportView: View {
             }
             HStack {
                 Spacer()
-                Button("Kapat") {
+                Button("Close") {
                     if viewModel.isExporting { viewModel.cancelExport() }
                     dismiss()
                 }
@@ -285,7 +285,7 @@ struct TableExportView: View {
                     if viewModel.isExporting {
                         ProgressView().controlSize(.small)
                     } else {
-                        Text("Dışa Aktar")
+                        Text("Export")
                     }
                 }
                 .keyboardShortcut(.defaultAction)

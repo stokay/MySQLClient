@@ -198,7 +198,7 @@ final class TableExportViewModel: ObservableObject {
                 // failing loudly up front.
                 let maxDataRows = xlsxRowLimit - 1 // one row reserved for the header this call always writes
                 guard totalRows <= maxDataRows else {
-                    errorMessage = "Bu tablo (\(totalRows) satır) Excel'in \(maxDataRows) satır sınırını aşıyor. Lütfen CSV, SQL ya da HTML formatını kullanın."
+                    errorMessage = String(localized: "This table (\(totalRows) rows) exceeds Excel's limit of \(maxDataRows) rows. Please use the CSV, SQL or HTML format instead.")
                     progress = nil
                     return
                 }

@@ -38,10 +38,10 @@ final class DatabaseBackupViewModel: ObservableObject {
 
         var description: String {
             switch self {
-            case .table(let table): return "Tablo: \(table.name)"
-            case .view(let view): return "View: \(view.name)"
-            case .procedure(let routine): return "Procedure: \(routine.name)"
-            case .function(let routine): return "Function: \(routine.name)"
+            case .table(let table): return String(localized: "Table: \(table.name)")
+            case .view(let view): return String(localized: "View: \(view.name)")
+            case .procedure(let routine): return String(localized: "Procedure: \(routine.name)")
+            case .function(let routine): return String(localized: "Function: \(routine.name)")
             }
         }
     }
@@ -197,7 +197,7 @@ final class DatabaseBackupViewModel: ObservableObject {
             allFunctions = []
             selectedProcedures = []
             selectedFunctions = []
-            loadWarning = "Procedure/Function listesi alınamadı, tablo ve view'lar yüklendi: \(describe(error))"
+            loadWarning = String(localized: "Could not load the procedure/function list; tables and views were loaded: \(describe(error))")
         }
     }
 
@@ -312,7 +312,7 @@ final class DatabaseBackupViewModel: ObservableObject {
                     self.progress = Progress(
                         completedObjects: objects.count, totalObjects: objects.count,
                         completedUnits: self.totalUnits, totalUnits: self.totalUnits,
-                        currentObjectDescription: "Tamamlandı"
+                        currentObjectDescription: String(localized: "Completed")
                     )
                 } catch {
                     // Best-effort: release whatever `beginSourceSession`
@@ -562,7 +562,7 @@ final class DatabaseBackupViewModel: ObservableObject {
                 totalObjects: progress?.totalObjects ?? 0,
                 completedUnits: unitsBeforeCurrentObject + rowsWritten,
                 totalUnits: totalUnits,
-                currentObjectDescription: "Tablo: \(table.name) (\(rowsWritten) satır)"
+                currentObjectDescription: String(localized: "Table: \(table.name) (\(rowsWritten) rows)")
             )
 
             // A short page means the table ended — no need for one more

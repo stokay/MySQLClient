@@ -32,6 +32,7 @@ struct MySQLMacClientApp: App {
     @StateObject private var connectionStore = ConnectionStore()
     @StateObject private var appState = AppState()
     @StateObject private var appearanceStore = AppearanceStore()
+    @StateObject private var languageStore = LanguageStore()
     /// Wraps the shared singleton (AppKit drawing code reads
     /// `SettingsStore.shared` directly), observed here so SwiftUI reacts.
     @StateObject private var settingsStore = SettingsStore.shared
@@ -62,7 +63,7 @@ struct MySQLMacClientApp: App {
                         Task { await appState.disconnect() }
                     } label: {
                         Label {
-                            Text("Yeni Bağlantı")
+                            Text("New Connection")
                         } icon: {
                             Image.bundled(
                                 "new_connection",
@@ -71,7 +72,7 @@ struct MySQLMacClientApp: App {
                             )
                         }
                     }
-                    .help("Yeni Bağlantı")
+                    .help("New Connection")
                 }
             }
         }
@@ -82,6 +83,7 @@ struct MySQLMacClientApp: App {
             SettingsView()
                 .environmentObject(appearanceStore)
                 .environmentObject(settingsStore)
+                .environmentObject(languageStore)
                 .preferredColorScheme(appearanceStore.mode.colorScheme)
         }
     }

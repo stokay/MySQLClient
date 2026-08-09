@@ -71,7 +71,7 @@ final class SQLConsoleViewModel: ObservableObject {
     /// current result doesn't qualify, so the toggle doesn't look broken.
     var queryResultEditabilityNote: String? {
         guard isShowingQueryResult, isQueryResultEditableRequested, queryEditContext == nil else { return nil }
-        return "Bu sonuç düzenlenemez (tek tablo + sonuçta primary key sütunu gerekir)."
+        return String(localized: "This result is not editable (requires a single table and a primary key column in the result).")
     }
 
     /// Live selection inside the SQL editor, kept up to date by
@@ -215,17 +215,24 @@ final class SQLConsoleViewModel: ObservableObject {
     /// server has no notion of the script as a whole to roll back. Only the
     /// last statement's result populates the grid, matching what running
     /// just that one statement by itself would have shown.
+    /// The "N rows affected" status line. Named (rather than inlined) so
+    /// tests can assert against it without hardcoding a translated string —
+    /// it also carries the plural variation, which a literal wouldn't.
+    static func affectedRowsMessage(_ count: UInt64) -> String {
+        String(localized: "\(count) rows affected.")
+    }
+
     private func runStatements(_ statements: [String]) async {
         for (index, statement) in statements.enumerated() {
             do {
                 let result = try await service.rawQuery(statement)
                 if index == statements.count - 1 {
                     await applyResult(result, executedSQL: statement)
-                    queryMessage = "\(statements.count) ifade çalıştırıldı. \(queryMessage ?? "")"
+                    queryMessage = String(localized: "\(statements.count) statements executed. \(queryMessage ?? "")")
                         .trimmingCharacters(in: .whitespaces)
                 }
             } catch {
-                queryErrorMessage = "İfade \(index + 1)/\(statements.count) başarısız: \(describe(error))"
+                queryErrorMessage = String(localized: "Statement \(index + 1)/\(statements.count) failed: \(describe(error))")
                 isShowingQueryResult = false
                 queryEditContext = nil
                 return
@@ -258,9 +265,9 @@ final class SQLConsoleViewModel: ObservableObject {
             isShowingQueryResult = false
             queryEditContext = nil
             if let affected = result.affectedRows {
-                queryMessage = "\(affected) satır etkilendi."
+                queryMessage = Self.affectedRowsMessage(affected)
             } else {
-                queryMessage = "Sorgu tamamlandı, sonuç yok."
+                queryMessage = String(localized: "Query completed, no results.")
             }
             return
         }
@@ -270,9 +277,9 @@ final class SQLConsoleViewModel: ObservableObject {
         isShowingQueryResult = true
         if sets.count > 1 {
             let total = sets.reduce(0) { $0 + $1.rows.count }
-            queryMessage = "\(sets.count) sonuç kümesi, toplam \(total) satır döndürüldü."
+            queryMessage = String(localized: "\(sets.count) result sets returned, \(total) rows in total.")
         } else {
-            queryMessage = "\(first.rows.count) satır döndürüldü."
+            queryMessage = String(localized: "\(first.rows.count) rows returned.")
         }
         // Editing is only ever offered for a single, simple single-table
         // SELECT — a multi-result `CALL` can't map a row back to one table.

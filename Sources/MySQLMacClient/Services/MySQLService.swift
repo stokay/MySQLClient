@@ -43,9 +43,9 @@ enum MySQLServiceError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notConnected:
-            return "Veritabanına bağlı değil."
+            return String(localized: "Not connected to a database.")
         case .invalidIdentifier(let identifier):
-            return "Geçersiz tablo/sütun adı: \(identifier)"
+            return String(localized: "Invalid table/column name: \(identifier)")
         }
     }
 }

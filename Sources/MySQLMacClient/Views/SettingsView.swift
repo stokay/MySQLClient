@@ -6,17 +6,18 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject private var settingsStore: SettingsStore
     @EnvironmentObject private var appearanceStore: AppearanceStore
+    @EnvironmentObject private var languageStore: LanguageStore
 
     var body: some View {
         TabView {
             generalTab
-                .tabItem { Label("Genel", systemImage: "gearshape") }
+                .tabItem { Label("General", systemImage: "gearshape") }
             sidebarTab
-                .tabItem { Label("Kenar Çubuğu", systemImage: "sidebar.leading") }
+                .tabItem { Label("Sidebar", systemImage: "sidebar.leading") }
             gridTab
-                .tabItem { Label("Veri Izgarası", systemImage: "tablecells") }
+                .tabItem { Label("Data Grid", systemImage: "tablecells") }
             editorTab
-                .tabItem { Label("SQL Editörü", systemImage: "terminal") }
+                .tabItem { Label("SQL Editor", systemImage: "terminal") }
         }
         .scenePadding()
         .frame(minWidth: 520, idealWidth: 560)
@@ -26,19 +27,23 @@ struct SettingsView: View {
 
     private var generalTab: some View {
         Form {
-            Picker("Tema", selection: $appearanceStore.mode) {
+            Picker("Theme", selection: $appearanceStore.mode) {
                 ForEach(AppearanceMode.allCases) { mode in
                     Label(mode.label, systemImage: mode.systemImage).tag(mode)
                 }
             }
             .pickerStyle(.inline)
 
-            Toggle("Satır silmeden önce onay iste", isOn: $settingsStore.settings.general.confirmRowDeletion)
+            Toggle("Ask for confirmation before deleting a row", isOn: $settingsStore.settings.general.confirmRowDeletion)
 
             Divider().padding(.vertical, 4)
 
-            sizeStepper("Üst araç çubuğu ikon boyutu", value: $settingsStore.settings.general.toolbarIconSize, range: 20...36)
-            sizeStepper("Tablo araç çubuğu ikon boyutu", value: $settingsStore.settings.general.gridToolbarIconSize, range: 20...36)
+            languagePicker
+
+            Divider().padding(.vertical, 4)
+
+            sizeStepper("Main toolbar icon size", value: $settingsStore.settings.general.toolbarIconSize, range: 20...36)
+            sizeStepper("Table toolbar icon size", value: $settingsStore.settings.general.gridToolbarIconSize, range: 20...36)
 
             resetSection
         }
@@ -49,27 +54,27 @@ struct SettingsView: View {
 
     private var sidebarTab: some View {
         Form {
-            sizeStepper("Yazı boyutu", value: $settingsStore.settings.sidebar.fontSize, range: 10...20)
-            sizeStepper("Satır aralığı", value: $settingsStore.settings.sidebar.rowVerticalPadding, range: 0...12)
+            sizeStepper("Font size", value: $settingsStore.settings.sidebar.fontSize, range: 10...20)
+            sizeStepper("Row spacing", value: $settingsStore.settings.sidebar.rowVerticalPadding, range: 0...12)
 
             Divider().padding(.vertical, 4)
 
-            adaptiveColorRow("Yazı rengi", \.sidebar.textColor)
+            adaptiveColorRow("Text color", \.sidebar.textColor)
 
             // Eleven rows would push the rest of the tab (and the reset
             // button) off a reasonably-sized window, so they start folded.
-            DisclosureGroup("Ağaç ikon renkleri") {
-                adaptiveColorRow("Veritabanı", \.sidebar.databaseIcon)
-                adaptiveColorRow("Tablolar grubu", \.sidebar.tablesGroupIcon)
-                adaptiveColorRow("Tablo adları", \.sidebar.tableIcon)
-                adaptiveColorRow("Kolonlar", \.sidebar.columnsIcon)
-                adaptiveColorRow("İndeksler", \.sidebar.indexesIcon)
-                adaptiveColorRow("View'lar grubu", \.sidebar.viewsGroupIcon)
-                adaptiveColorRow("View adları", \.sidebar.viewIcon)
-                adaptiveColorRow("Procedure'lar grubu", \.sidebar.proceduresGroupIcon)
-                adaptiveColorRow("Procedure adları", \.sidebar.procedureIcon)
-                adaptiveColorRow("Function'lar grubu", \.sidebar.functionsGroupIcon)
-                adaptiveColorRow("Function adları", \.sidebar.functionIcon)
+            DisclosureGroup("Tree icon colors") {
+                adaptiveColorRow("Database", \.sidebar.databaseIcon)
+                adaptiveColorRow("Tables group", \.sidebar.tablesGroupIcon)
+                adaptiveColorRow("Table names", \.sidebar.tableIcon)
+                adaptiveColorRow("Columns", \.sidebar.columnsIcon)
+                adaptiveColorRow("Indexes", \.sidebar.indexesIcon)
+                adaptiveColorRow("Views group", \.sidebar.viewsGroupIcon)
+                adaptiveColorRow("View names", \.sidebar.viewIcon)
+                adaptiveColorRow("Procedures group", \.sidebar.proceduresGroupIcon)
+                adaptiveColorRow("Procedure names", \.sidebar.procedureIcon)
+                adaptiveColorRow("Functions group", \.sidebar.functionsGroupIcon)
+                adaptiveColorRow("Function names", \.sidebar.functionIcon)
             }
             .padding(.top, 4)
 
@@ -82,11 +87,11 @@ struct SettingsView: View {
 
     private var gridTab: some View {
         Form {
-            sizeStepper("Satır yüksekliği", value: $settingsStore.settings.grid.rowHeight, range: 16...40)
-            sizeStepper("Hücre yazı boyutu", value: $settingsStore.settings.grid.cellFontSize, range: 9...20)
-            sizeStepper("Başlık yazı boyutu", value: $settingsStore.settings.grid.headerFontSize, range: 10...22)
+            sizeStepper("Row height", value: $settingsStore.settings.grid.rowHeight, range: 16...40)
+            sizeStepper("Cell font size", value: $settingsStore.settings.grid.cellFontSize, range: 9...20)
+            sizeStepper("Header font size", value: $settingsStore.settings.grid.headerFontSize, range: 10...22)
 
-            LabeledContent("Varsayılan sayfa boyutu") {
+            LabeledContent("Default page size") {
                 TextField("", value: $settingsStore.settings.grid.defaultPageSize, format: .number)
                     .frame(width: 80)
                     .multilineTextAlignment(.trailing)
@@ -94,19 +99,19 @@ struct SettingsView: View {
 
             Divider().padding(.vertical, 4)
 
-            adaptiveColorRow("Başlık zemin rengi", \.grid.headerBackground)
-            adaptiveColorRow("Başlık yazı rengi", \.grid.headerText)
-            adaptiveColorRow("Izgara çizgi rengi", \.grid.gridLine)
-            adaptiveColorRow("Hücre yazı rengi", \.grid.cellTextColor)
-            adaptiveColorRow("Seçili satır zemin rengi", \.grid.selectedRowBackground)
-            adaptiveColorRow("Seçili satır yazı rengi", \.grid.selectedRowText)
+            adaptiveColorRow("Header background color", \.grid.headerBackground)
+            adaptiveColorRow("Header text color", \.grid.headerText)
+            adaptiveColorRow("Grid line color", \.grid.gridLine)
+            adaptiveColorRow("Cell text color", \.grid.cellTextColor)
+            adaptiveColorRow("Selected row background color", \.grid.selectedRowBackground)
+            adaptiveColorRow("Selected row text color", \.grid.selectedRowText)
 
             Divider().padding(.vertical, 4)
 
-            Text("İnfo Görünümü")
+            Text("Info View")
                 .font(.headline)
-            sizeStepper("Yazı boyutu", value: $settingsStore.settings.info.fontSize, range: 9...20)
-            adaptiveColorRow("Yazı rengi", \.info.textColor)
+            sizeStepper("Font size", value: $settingsStore.settings.info.fontSize, range: 9...20)
+            adaptiveColorRow("Text color", \.info.textColor)
 
             resetSection
         }
@@ -117,11 +122,11 @@ struct SettingsView: View {
 
     private var editorTab: some View {
         Form {
-            sizeStepper("Yazı boyutu", value: $settingsStore.settings.editor.fontSize, range: 9...24)
-            Toggle("Anahtar kelimeleri otomatik BÜYÜK yaz", isOn: $settingsStore.settings.editor.autoUppercaseKeywords)
-            Toggle("Satır numaralarını göster", isOn: $settingsStore.settings.editor.showLineNumbers)
+            sizeStepper("Font size", value: $settingsStore.settings.editor.fontSize, range: 9...24)
+            Toggle("Automatically UPPERCASE keywords", isOn: $settingsStore.settings.editor.autoUppercaseKeywords)
+            Toggle("Show line numbers", isOn: $settingsStore.settings.editor.showLineNumbers)
 
-            LabeledContent("Varsayılan SELECT LIMIT") {
+            LabeledContent("Default SELECT LIMIT") {
                 TextField("", value: $settingsStore.settings.editor.defaultSelectLimit, format: .number)
                     .frame(width: 80)
                     .multilineTextAlignment(.trailing)
@@ -129,38 +134,59 @@ struct SettingsView: View {
 
             Divider().padding(.vertical, 4)
 
-            Toggle("Sorgu geçmişini kaydet", isOn: $settingsStore.settings.editor.saveQueryHistory)
-            LabeledContent("Sorgu geçmişi") {
-                Button("Tüm Bağlantıların Geçmişini Sil", role: .destructive) {
+            Toggle("Save query history", isOn: $settingsStore.settings.editor.saveQueryHistory)
+            LabeledContent("Query history") {
+                Button("Clear History for All Connections", role: .destructive) {
                     QueryHistoryStore.shared.clearAll()
                 }
             }
             // Queries can carry sensitive literals, and history is kept per
             // connection — so the opt-out and a way to wipe it belong next
             // to each other, in plain sight rather than buried.
-            Text("Geçmiş yalnızca bu Mac'te, bağlantı başına en fazla \(QueryHistoryStore.maximumEntriesPerProfile) sorgu olarak saklanır.")
+            Text("History is kept only on this Mac, up to \(QueryHistoryStore.maximumEntriesPerProfile) queries per connection.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
             Divider().padding(.vertical, 4)
 
-            sizeStepper("Durum/hata mesajı yazı boyutu", value: $settingsStore.settings.editor.statusFontSize, range: 10...20)
-            adaptiveColorRow("Hata mesajı rengi", \.editor.errorColor)
+            sizeStepper("Status/error message font size", value: $settingsStore.settings.editor.statusFontSize, range: 10...20)
+            adaptiveColorRow("Error message color", \.editor.errorColor)
 
             Divider().padding(.vertical, 4)
 
-            adaptiveColorRow("Anahtar kelime rengi", \.editor.keywordColor)
-            adaptiveColorRow("Metin ('...') rengi", \.editor.stringColor)
-            adaptiveColorRow("Yorum (--) rengi", \.editor.commentColor)
+            adaptiveColorRow("Keyword color", \.editor.keywordColor)
+            adaptiveColorRow("String ('...') color", \.editor.stringColor)
+            adaptiveColorRow("Comment (--) color", \.editor.commentColor)
 
             resetSection
         }
         .padding(16)
     }
 
+    // MARK: - Language
+
+    /// The relaunch hint is shown only after the selection diverges from
+    /// what the running process actually loaded — including when the user
+    /// changes their mind and picks the original language back, at which
+    /// point it correctly disappears again.
+    @ViewBuilder
+    private var languagePicker: some View {
+        Picker("Language", selection: $languageStore.language) {
+            ForEach(AppLanguage.allCases) { language in
+                Text(language.label).tag(language)
+            }
+        }
+
+        if languageStore.needsRelaunch {
+            Text("Restart the app for the language change to take effect.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+        }
+    }
+
     // MARK: - Shared pieces
 
-    private func sizeStepper(_ title: String, value: Binding<Double>, range: ClosedRange<Double>) -> some View {
+    private func sizeStepper(_ title: LocalizedStringKey, value: Binding<Double>, range: ClosedRange<Double>) -> some View {
         LabeledContent(title) {
             HStack(spacing: 6) {
                 Stepper(
@@ -176,11 +202,11 @@ struct SettingsView: View {
         }
     }
 
-    private func adaptiveColorRow(_ title: String, _ keyPath: WritableKeyPath<AppSettings, AdaptiveColorSetting>) -> some View {
+    private func adaptiveColorRow(_ title: LocalizedStringKey, _ keyPath: WritableKeyPath<AppSettings, AdaptiveColorSetting>) -> some View {
         LabeledContent(title) {
             HStack(spacing: 14) {
-                ColorPicker("Açık", selection: AdaptiveColorSetting.binding(settingsStore, keyPath, dark: false))
-                ColorPicker("Koyu", selection: AdaptiveColorSetting.binding(settingsStore, keyPath, dark: true))
+                ColorPicker("Light", selection: AdaptiveColorSetting.binding(settingsStore, keyPath, dark: false))
+                ColorPicker("Dark", selection: AdaptiveColorSetting.binding(settingsStore, keyPath, dark: true))
             }
             .font(.callout)
         }
@@ -189,7 +215,7 @@ struct SettingsView: View {
     private var resetSection: some View {
         HStack {
             Spacer()
-            Button("Varsayılanlara Sıfırla", role: .destructive) {
+            Button("Reset to Defaults", role: .destructive) {
                 settingsStore.resetToDefaults()
             }
             .padding(.top, 8)

@@ -56,7 +56,7 @@ struct TableDataGridView: View {
             Divider()
 
             if !viewModel.hasPrimaryKey && !viewModel.isLoading && !console.isShowingQueryResult && viewModel.tableInfoText == nil {
-                Label("Bu tabloda primary key yok, düzenleme kapalı.", systemImage: "exclamationmark.triangle.fill")
+                Label("This table has no primary key; editing is disabled.", systemImage: "exclamationmark.triangle.fill")
                     .padding(8)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.yellow.opacity(0.2))
@@ -164,11 +164,11 @@ struct TableDataGridView: View {
                     Button {
                         viewModel.tableInfoText = nil
                     } label: {
-                        Label("Tablo Görünümüne Dön", systemImage: "tablecells")
+                        Label("Back to Table View", systemImage: "tablecells")
                             .lineLimit(1)
                     }
 
-                    Text("İnfo — \(viewModel.tableName)")
+                    Text("Info — \(viewModel.tableName)")
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -184,7 +184,7 @@ struct TableDataGridView: View {
         .background(Color(nsColor: .controlBackgroundColor))
     }
 
-    private func viewModeButton(icon: String, fallbackSystemImage: String, help: String, isActive: Bool, action: @escaping () -> Void) -> some View {
+    private func viewModeButton(icon: String, fallbackSystemImage: String, help: LocalizedStringKey, isActive: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image.bundled(
                 icon,
@@ -208,7 +208,7 @@ struct TableDataGridView: View {
             viewModeButton(
                 icon: "grid_view",
                 fallbackSystemImage: "tablecells",
-                help: "Izgara Görünümü",
+                help: "Grid View",
                 isActive: !isTextViewMode
             ) {
                 isTextViewMode = false
@@ -216,7 +216,7 @@ struct TableDataGridView: View {
             viewModeButton(
                 icon: "text_view",
                 fallbackSystemImage: "text.justify.left",
-                help: "Metin Görünümü",
+                help: "Text View",
                 isActive: isTextViewMode
             ) {
                 isTextViewMode = true
@@ -227,7 +227,7 @@ struct TableDataGridView: View {
             Button {
                 console.toggleQueryPanel(defaultTable: (viewModel.databaseName, viewModel.tableName))
             } label: {
-                Label("SQL Sorgusu", systemImage: "terminal")
+                Label("SQL Query", systemImage: "terminal")
                     .lineLimit(1)
             }
 
@@ -237,13 +237,13 @@ struct TableDataGridView: View {
                 Button {
                     Task { await viewModel.reload() }
                 } label: {
-                    Label("Yenile", systemImage: "arrow.clockwise")
+                    Label("Refresh", systemImage: "arrow.clockwise")
                         .lineLimit(1)
                 }
                 Button {
                     viewModel.addDraftRow()
                 } label: {
-                    Label("Satır Ekle", systemImage: "plus")
+                    Label("Add Row", systemImage: "plus")
                         .lineLimit(1)
                 }
                 .disabled(!viewModel.hasPrimaryKey)

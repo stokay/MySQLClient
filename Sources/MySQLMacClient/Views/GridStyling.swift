@@ -177,7 +177,7 @@ final class GridButtonCellView: NSView {
     let button: NSButton
 
     override init(frame frameRect: NSRect) {
-        button = NSButton(image: NSImage(systemSymbolName: "trash", accessibilityDescription: "Sil") ?? NSImage(), target: nil, action: nil)
+        button = NSButton(image: NSImage(systemSymbolName: "trash", accessibilityDescription: String(localized: "Delete")) ?? NSImage(), target: nil, action: nil)
         super.init(frame: frameRect)
         button.isBordered = false
         button.bezelStyle = .regularSquare
@@ -206,11 +206,11 @@ func confirmRowDeletion(in window: NSWindow?, onConfirm: @escaping () -> Void) {
     }
     guard let window else { return }
     let alert = NSAlert()
-    alert.messageText = "Bu satır silinsin mi?"
-    alert.informativeText = "Bu işlem geri alınamaz."
+    alert.messageText = String(localized: "Delete this row?")
+    alert.informativeText = String(localized: "This action cannot be undone.")
     alert.alertStyle = .warning
-    alert.addButton(withTitle: "Sil")
-    alert.addButton(withTitle: "İptal")
+    alert.addButton(withTitle: String(localized: "Delete"))
+    alert.addButton(withTitle: String(localized: "Cancel"))
     alert.buttons.first?.hasDestructiveAction = true
     alert.beginSheetModal(for: window) { response in
         guard response == .alertFirstButtonReturn else { return }

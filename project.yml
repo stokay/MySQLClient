@@ -89,6 +89,10 @@ targets:
         MARKETING_VERSION: "1.1.0"
         CURRENT_PROJECT_VERSION: "7"
         ENABLE_HARDENED_RUNTIME: YES
+        # Extracts every `Text("…")` / `String(localized:)` literal into
+        # Localizable.xcstrings during the build, so the catalog stays in
+        # sync with the code instead of being hand-maintained.
+        SWIFT_EMIT_LOC_STRINGS: YES
         # Automatic on Debug only — Xcode's "pick the right cert per
         # action" behavior for Automatic signing turned out to only be
         # reliable from Xcode's own GUI Archive flow; a plain command-line

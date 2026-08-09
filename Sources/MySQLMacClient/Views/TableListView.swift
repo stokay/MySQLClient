@@ -45,7 +45,7 @@ struct TableListView: View {
                     .foregroundStyle(.red)
                     .padding()
             } else if viewModel.databaseNodes.isEmpty {
-                Text("Veritabanı bulunamadı.")
+                Text("No databases found.")
                     .foregroundStyle(.secondary)
                     .padding()
             } else {
@@ -86,7 +86,7 @@ struct TableListView: View {
                 Button {
                     Task { await viewModel.loadDatabases() }
                 } label: {
-                    Label("Yenile", systemImage: "arrow.clockwise")
+                    Label("Refresh", systemImage: "arrow.clockwise")
                 }
             }
         }
@@ -214,7 +214,7 @@ private struct CategoryRow<Item: Identifiable, RowContent: View>: View {
 
             if isExpanded {
                 if isLoading {
-                    placeholder("Yükleniyor…")
+                    placeholder(String(localized: "Loading…"))
                 } else if let errorMessage {
                     placeholder(errorMessage, color: .red)
                 } else if isLoaded && items.isEmpty {
@@ -284,7 +284,7 @@ private struct DatabaseRow: View {
 
             if isExpanded {
                 CategoryRow(
-                    title: "Tablolar",
+                    title: String(localized: "Tables"),
                     systemImage: "tablecells",
                     iconColor: sidebarIconColor { $0.sidebar.tablesGroupIcon },
                     indent: 14,
@@ -292,7 +292,7 @@ private struct DatabaseRow: View {
                     isLoading: node.isLoading,
                     isLoaded: node.isLoaded,
                     errorMessage: node.errorMessage,
-                    emptyText: "Tablo yok",
+                    emptyText: String(localized: "No tables"),
                     onExpand: { Task { await node.loadIfNeeded() } }
                 ) { tableNode in
                     TableTreeRow(
@@ -313,7 +313,7 @@ private struct DatabaseRow: View {
                 }
 
                 CategoryRow(
-                    title: "View'lar",
+                    title: String(localized: "Views"),
                     systemImage: "eye",
                     iconColor: sidebarIconColor { $0.sidebar.viewsGroupIcon },
                     indent: 14,
@@ -321,7 +321,7 @@ private struct DatabaseRow: View {
                     isLoading: node.isLoading,
                     isLoaded: node.isLoaded,
                     errorMessage: node.errorMessage,
-                    emptyText: "View yok",
+                    emptyText: String(localized: "No views"),
                     onExpand: { Task { await node.loadIfNeeded() } }
                 ) { tableNode in
                     TableTreeRow(
@@ -375,8 +375,8 @@ private struct DatabaseRow: View {
 
     @ViewBuilder
     private var databaseContextMenu: some View {
-        Menu("Oluştur") {
-            Button("Tablo...") {
+        Menu("Create") {
+            Button("Table...") {
                 onCreateTable(node.info.name)
             }
             Button("View...") {
@@ -451,7 +451,7 @@ private struct TableTreeRow: View {
 
             if isExpanded {
                 CategoryRow(
-                    title: "Kolonlar",
+                    title: String(localized: "Columns"),
                     systemImage: "list.bullet",
                     iconColor: sidebarIconColor { $0.sidebar.columnsIcon },
                     indent: indent + 14,
@@ -459,14 +459,14 @@ private struct TableTreeRow: View {
                     isLoading: node.isLoadingColumns,
                     isLoaded: node.isColumnsLoaded,
                     errorMessage: node.columnsErrorMessage,
-                    emptyText: "Kolon yok",
+                    emptyText: String(localized: "No columns"),
                     onExpand: { Task { await node.loadColumnsIfNeeded() } }
                 ) { column in
                     ColumnRow(column: column, indent: indent + 28, tableInfo: node.info, selectedTable: $selectedTable, insertionBridge: insertionBridge)
                 }
 
                 CategoryRow(
-                    title: "İndeksler",
+                    title: String(localized: "Indexes"),
                     systemImage: "arrow.up.arrow.down",
                     iconColor: sidebarIconColor { $0.sidebar.indexesIcon },
                     indent: indent + 14,
@@ -474,7 +474,7 @@ private struct TableTreeRow: View {
                     isLoading: node.isLoadingIndexes,
                     isLoaded: node.isIndexesLoaded,
                     errorMessage: node.indexesErrorMessage,
-                    emptyText: "İndeks yok",
+                    emptyText: String(localized: "No indexes"),
                     onExpand: { Task { await node.loadIndexesIfNeeded() } }
                 ) { index in
                     IndexRow(index: index, indent: indent + 28)
@@ -485,13 +485,13 @@ private struct TableTreeRow: View {
 
     @ViewBuilder
     private var tableContextMenu: some View {
-        Button("İnfo") {
+        Button("Info") {
             onShowTableInfo(node.info)
         }
 
         Divider()
 
-        Menu("SQL Sorgu Ekle") {
+        Menu("Insert SQL Query") {
             Button("INSERT INTO") {
                 onInsertQueryTemplate(node.info, .insert)
             }

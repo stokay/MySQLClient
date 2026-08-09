@@ -1,0 +1,3191 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "": {
+      "extractionState": "manual"
+    },
+    "%@": {
+      "extractionState": "manual"
+    },
+    "%@ was backed up successfully.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ başarıyla yedeklendi."
+          }
+        }
+      }
+    },
+    "%@ was exported successfully.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ başarıyla dışa aktarıldı."
+          }
+        }
+      }
+    },
+    "%@@%@:%lld%@": {
+      "extractionState": "manual"
+    },
+    "%@@%@:%lld/%@": {
+      "extractionState": "manual"
+    },
+    "%lld objects ready · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nesne hazır · %@"
+          }
+        }
+      }
+    },
+    "%lld pt": {
+      "extractionState": "manual"
+    },
+    "%lld result sets returned, %lld rows in total.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sonuç kümesi, toplam %lld satır döndürüldü."
+          }
+        }
+      }
+    },
+    "%lld rows": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld row"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld rows"
+                }
+              }
+            }
+          }
+        },
+        "tr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld satır"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld satır"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld rows returned.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld row returned."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld rows returned."
+                }
+              }
+            }
+          }
+        },
+        "tr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld satır döndürüldü."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld satır döndürüldü."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld selected": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld seçili"
+          }
+        }
+      }
+    },
+    "%lld statements executed. %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ifade çalıştırıldı. %@"
+          }
+        }
+      }
+    },
+    "%lld%%": {
+      "extractionState": "manual"
+    },
+    "%lld/%lld": {
+      "extractionState": "manual"
+    },
+    "%lld/%lld objects — %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld nesne — %@"
+          }
+        }
+      }
+    },
+    "%lld/%lld rows": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld satır"
+          }
+        }
+      }
+    },
+    "%llu rows affected.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%llu row affected."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%llu rows affected."
+                }
+              }
+            }
+          }
+        },
+        "tr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%llu satır etkilendi."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%llu satır etkilendi."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "(required)": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(zorunlu)"
+          }
+        }
+      }
+    },
+    "(unavailable)": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(alınamadı)"
+          }
+        }
+      }
+    },
+    "-- No changes yet --": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-- Henüz bir değişiklik yok --"
+          }
+        }
+      }
+    },
+    "-- SQL will appear here once you enter a table name and at least one column name --": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-- Tablo adı ve en az bir kolon adı girildiğinde SQL burada görünecek --"
+          }
+        }
+      }
+    },
+    "AUTO\nINC": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OTO\nARTIŞ"
+          }
+        }
+      }
+    },
+    "Add \"CREATE database\" statement": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"CREATE database\" ifadesini ekle"
+          }
+        }
+      }
+    },
+    "Add \"DROP\" statements": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"DROP\" ifadelerini ekle"
+          }
+        }
+      }
+    },
+    "Add \"USE database\" statement": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"USE database\" ifadesini ekle"
+          }
+        }
+      }
+    },
+    "Add Column": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolon Ekle"
+          }
+        }
+      }
+    },
+    "Add Row": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satır Ekle"
+          }
+        }
+      }
+    },
+    "All": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tümü"
+          }
+        }
+      }
+    },
+    "Alter %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter %@"
+          }
+        }
+      }
+    },
+    "Alter Table": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter Table"
+          }
+        }
+      }
+    },
+    "Alter Table ": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter Table "
+          }
+        }
+      }
+    },
+    "Alter View": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter View"
+          }
+        }
+      }
+    },
+    "Alter failed: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter başarısız: %@"
+          }
+        }
+      }
+    },
+    "Appearance: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Görünüm: %@"
+          }
+        }
+      }
+    },
+    "Apply": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uygula"
+          }
+        }
+      }
+    },
+    "Ask for confirmation before deleting a row": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satır silmeden önce onay iste"
+          }
+        }
+      }
+    },
+    "Automatically UPPERCASE keywords": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anahtar kelimeleri otomatik BÜYÜK yaz"
+          }
+        }
+      }
+    },
+    "Back to Table View": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo Görünümüne Dön"
+          }
+        }
+      }
+    },
+    "Backup Complete": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yedekleme Tamamlandı"
+          }
+        }
+      }
+    },
+    "Backup...": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup..."
+          }
+        }
+      }
+    },
+    "COLUMN MAPPING": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KOLON EŞLEME"
+          }
+        }
+      }
+    },
+    "COLUMN NAME": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KOLON ADI"
+          }
+        }
+      }
+    },
+    "COLUMNS": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KOLONLAR"
+          }
+        }
+      }
+    },
+    "COMMENT": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AÇIKLAMA"
+          }
+        }
+      }
+    },
+    "CSV COLUMNS": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CSV BAŞLIKLARI"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İptal"
+          }
+        }
+      }
+    },
+    "Cell font size": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hücre yazı boyutu"
+          }
+        }
+      }
+    },
+    "Cell text color": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hücre yazı rengi"
+          }
+        }
+      }
+    },
+    "Character Set": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karakter Seti"
+          }
+        }
+      }
+    },
+    "Clear History": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geçmişi Temizle"
+          }
+        }
+      }
+    },
+    "Clear History for All Connections": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tüm Bağlantıların Geçmişini Sil"
+          }
+        }
+      }
+    },
+    "Close": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kapat"
+          }
+        }
+      }
+    },
+    "Collation": {
+      "extractionState": "manual"
+    },
+    "Column %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolon %lld"
+          }
+        }
+      }
+    },
+    "Column names on first row": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Üstte kolon adları"
+          }
+        }
+      }
+    },
+    "Columns": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolonlar"
+          }
+        }
+      }
+    },
+    "Comment (--) color": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yorum (--) rengi"
+          }
+        }
+      }
+    },
+    "Completed": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamamlandı"
+          }
+        }
+      }
+    },
+    "Connect": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bağlan"
+          }
+        }
+      }
+    },
+    "Connection Name": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bağlantı Adı"
+          }
+        }
+      }
+    },
+    "Could not connect: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bağlanılamadı: %@"
+          }
+        }
+      }
+    },
+    "Could not create table: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo oluşturulamadı: %@"
+          }
+        }
+      }
+    },
+    "Could not load %@ definition: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ tanımı alınamadı: %@"
+          }
+        }
+      }
+    },
+    "Could not load %@ list: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ listesi alınamadı: %@"
+          }
+        }
+      }
+    },
+    "Could not load columns: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolonlar alınamadı: %@"
+          }
+        }
+      }
+    },
+    "Could not load database list: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veritabanı listesi alınamadı: %@"
+          }
+        }
+      }
+    },
+    "Could not load indexes: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İndeksler alınamadı: %@"
+          }
+        }
+      }
+    },
+    "Could not load table info: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo bilgisi alınamadı: %@"
+          }
+        }
+      }
+    },
+    "Could not load table list: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo listesi alınamadı: %@"
+          }
+        }
+      }
+    },
+    "Could not load the procedure/function list; tables and views were loaded: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedure/Function listesi alınamadı, tablo ve view'lar yüklendi: %@"
+          }
+        }
+      }
+    },
+    "Could not load view definition: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View tanımı alınamadı: %@"
+          }
+        }
+      }
+    },
+    "Could not read table structure: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo yapısı okunamadı: %@"
+          }
+        }
+      }
+    },
+    "Create": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oluştur"
+          }
+        }
+      }
+    },
+    "Create New Table": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni Tablo Oluştur"
+          }
+        }
+      }
+    },
+    "DATABASE NAME": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VERİTABANI ADI"
+          }
+        }
+      }
+    },
+    "DEFAULT": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VARSAYILAN"
+          }
+        }
+      }
+    },
+    "DELETE FROM": {
+      "extractionState": "manual"
+    },
+    "DELIMITER": {
+      "extractionState": "manual"
+    },
+    "DESTINATION FILE": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEDEF DOSYA"
+          }
+        }
+      }
+    },
+    "DROP %@ deletes it permanently and cannot be undone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP %@ kalıcı olarak siler, geri alınamaz."
+          }
+        }
+      }
+    },
+    "DROP TABLE deletes the table and its structure permanently and cannot be undone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP TABLE tabloyu yapısıyla birlikte kalıcı olarak siler, geri alınamaz."
+          }
+        }
+      }
+    },
+    "DROP VIEW deletes the view permanently and cannot be undone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP VIEW view'ı kalıcı olarak siler, geri alınamaz."
+          }
+        }
+      }
+    },
+    "Dark": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koyu"
+          }
+        }
+      }
+    },
+    "Data Grid": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veri Izgarası"
+          }
+        }
+      }
+    },
+    "Data only": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yalnız veri"
+          }
+        }
+      }
+    },
+    "Data was imported into %@ successfully.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ tablosuna başarıyla veri aktarıldı."
+          }
+        }
+      }
+    },
+    "Database": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veritabanı"
+          }
+        }
+      }
+    },
+    "Default SELECT LIMIT": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Varsayılan SELECT LIMIT"
+          }
+        }
+      }
+    },
+    "Default page size": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Varsayılan sayfa boyutu"
+          }
+        }
+      }
+    },
+    "Delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sil"
+          }
+        }
+      }
+    },
+    "Delete ALL rows in '%@'?": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' tablosundaki TÜM satırlar silinsin mi?"
+          }
+        }
+      }
+    },
+    "Delete connection": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bağlantıyı sil"
+          }
+        }
+      }
+    },
+    "Delete the connection '%@'?": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' bağlantısı silinsin mi?"
+          }
+        }
+      }
+    },
+    "Delete this row?": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu satır silinsin mi?"
+          }
+        }
+      }
+    },
+    "Deselect All": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tümünü Kaldır"
+          }
+        }
+      }
+    },
+    "Disconnect": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bağlantıyı Kes"
+          }
+        }
+      }
+    },
+    "Drop": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop"
+          }
+        }
+      }
+    },
+    "Drop %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop %@"
+          }
+        }
+      }
+    },
+    "Drop Table": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop Table"
+          }
+        }
+      }
+    },
+    "Drop View": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop View"
+          }
+        }
+      }
+    },
+    "Drop failed: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop başarısız: %@"
+          }
+        }
+      }
+    },
+    "ENCLOSURE": {
+      "extractionState": "manual"
+    },
+    "ESCAPE CHARACTER": {
+      "extractionState": "manual"
+    },
+    "EXPORT AS SQL": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL OLARAK AKTAR"
+          }
+        }
+      }
+    },
+    "Editable": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Düzenlenebilir"
+          }
+        }
+      }
+    },
+    "Engine": {
+      "extractionState": "manual"
+    },
+    "Error": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hata"
+          }
+        }
+      }
+    },
+    "Error message color": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hata mesajı rengi"
+          }
+        }
+      }
+    },
+    "Event Name": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event Adı"
+          }
+        }
+      }
+    },
+    "Event...": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event..."
+          }
+        }
+      }
+    },
+    "Export": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktar"
+          }
+        }
+      }
+    },
+    "Export ": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dışa Aktar "
+          }
+        }
+      }
+    },
+    "Export Complete": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dışa Aktarma Tamamlandı"
+          }
+        }
+      }
+    },
+    "Export database to file · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veritabanını dosyaya aktar · %@"
+          }
+        }
+      }
+    },
+    "Export...": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export..."
+          }
+        }
+      }
+    },
+    "FIELDS TO EXPORT": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DIŞA AKTARILACAK ALANLAR"
+          }
+        }
+      }
+    },
+    "Filter column": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtre sütunu"
+          }
+        }
+      }
+    },
+    "Filter value": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtre değeri"
+          }
+        }
+      }
+    },
+    "First row is a header": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İlk satır başlık"
+          }
+        }
+      }
+    },
+    "Font size": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yazı boyutu"
+          }
+        }
+      }
+    },
+    "Function": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Function"
+          }
+        }
+      }
+    },
+    "Function Name": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Function Adı"
+          }
+        }
+      }
+    },
+    "Function names": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Function adları"
+          }
+        }
+      }
+    },
+    "Function...": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Function..."
+          }
+        }
+      }
+    },
+    "Function: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Function: %@"
+          }
+        }
+      }
+    },
+    "Functions": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Function'lar"
+          }
+        }
+      }
+    },
+    "Functions group": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Function'lar grubu"
+          }
+        }
+      }
+    },
+    "General": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Genel"
+          }
+        }
+      }
+    },
+    "Generate extended INSERT statements": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toplu INSERT ifadeleri oluştur"
+          }
+        }
+      }
+    },
+    "Grid View": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izgara Görünümü"
+          }
+        }
+      }
+    },
+    "Grid line color": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izgara çizgi rengi"
+          }
+        }
+      }
+    },
+    "Header background color": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Başlık zemin rengi"
+          }
+        }
+      }
+    },
+    "Header font size": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Başlık yazı boyutu"
+          }
+        }
+      }
+    },
+    "Header text color": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Başlık yazı rengi"
+          }
+        }
+      }
+    },
+    "Hide SQL Query": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL Sorgusunu Gizle"
+          }
+        }
+      }
+    },
+    "Hide password": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şifreyi gizle"
+          }
+        }
+      }
+    },
+    "History is empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geçmiş boş"
+          }
+        }
+      }
+    },
+    "History is kept only on this Mac, up to %lld queries per connection.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geçmiş yalnızca bu Mac'te, bağlantı başına en fazla %lld sorgu olarak saklanır."
+          }
+        }
+      }
+    },
+    "History: recent queries run on this connection — the selected query is appended to the editor": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geçmiş: bu bağlantıda çalıştırılan son sorgular — seçilen sorgu editörün sonuna eklenir"
+          }
+        }
+      }
+    },
+    "Host": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sunucu"
+          }
+        }
+      }
+    },
+    "INSERT INTO": {
+      "extractionState": "manual"
+    },
+    "Import": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İçe Aktar"
+          }
+        }
+      }
+    },
+    "Import ": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İçe Aktar "
+          }
+        }
+      }
+    },
+    "Import Complete": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İçe Aktarma Tamamlandı"
+          }
+        }
+      }
+    },
+    "Import...": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import..."
+          }
+        }
+      }
+    },
+    "Indexes": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İndeksler"
+          }
+        }
+      }
+    },
+    "Info": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İnfo"
+          }
+        }
+      }
+    },
+    "Info View": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İnfo Görünümü"
+          }
+        }
+      }
+    },
+    "Info — %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İnfo — %@"
+          }
+        }
+      }
+    },
+    "Insert SQL Query": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL Sorgu Ekle"
+          }
+        }
+      }
+    },
+    "Invalid %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geçersiz %@."
+          }
+        }
+      }
+    },
+    "Invalid length for column \"%@\": %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"%@\" kolonunun uzunluğu geçersiz: %@"
+          }
+        }
+      }
+    },
+    "Invalid table/column name: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geçersiz tablo/sütun adı: %@"
+          }
+        }
+      }
+    },
+    "Keychain error (%d): %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keychain hatası (%d): %@"
+          }
+        }
+      }
+    },
+    "Keyword color": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anahtar kelime rengi"
+          }
+        }
+      }
+    },
+    "LENGTH": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UZUNLUK"
+          }
+        }
+      }
+    },
+    "Language": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dil"
+          }
+        }
+      }
+    },
+    "Light": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Açık"
+          }
+        }
+      }
+    },
+    "Limited": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sınırlı"
+          }
+        }
+      }
+    },
+    "Loading columns…": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolonlar yükleniyor…"
+          }
+        }
+      }
+    },
+    "Loading objects…": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nesneler yükleniyor…"
+          }
+        }
+      }
+    },
+    "Loading table structure…": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo yapısı yükleniyor…"
+          }
+        }
+      }
+    },
+    "Loading…": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yükleniyor…"
+          }
+        }
+      }
+    },
+    "Lock INSERT statements": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "INSERT ifadelerini kilitle"
+          }
+        }
+      }
+    },
+    "Lock tables for reading": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Okuma için tabloları kilitle"
+          }
+        }
+      }
+    },
+    "Main toolbar icon size": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Üst araç çubuğu ikon boyutu"
+          }
+        }
+      }
+    },
+    "NOT\nNULL": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NULL\nDEĞİL"
+          }
+        }
+      }
+    },
+    "New Connection": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni Bağlantı"
+          }
+        }
+      }
+    },
+    "New Event": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni Event"
+          }
+        }
+      }
+    },
+    "New Function": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni Function"
+          }
+        }
+      }
+    },
+    "New MySQL Connection": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni MySQL Bağlantısı"
+          }
+        }
+      }
+    },
+    "New Stored Procedure": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni Stored Procedure"
+          }
+        }
+      }
+    },
+    "New Table": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni Tablo"
+          }
+        }
+      }
+    },
+    "New Trigger": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni Trigger"
+          }
+        }
+      }
+    },
+    "New View": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni View"
+          }
+        }
+      }
+    },
+    "No changes were made.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Değişiklik yapılmadı."
+          }
+        }
+      }
+    },
+    "No columns": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolon yok"
+          }
+        }
+      }
+    },
+    "No data found in the file.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dosyada veri bulunamadı."
+          }
+        }
+      }
+    },
+    "No databases found.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veritabanı bulunamadı."
+          }
+        }
+      }
+    },
+    "No functions": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Function yok"
+          }
+        }
+      }
+    },
+    "No indexes": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İndeks yok"
+          }
+        }
+      }
+    },
+    "No procedures": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedure yok"
+          }
+        }
+      }
+    },
+    "No saved connections yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Henüz kayıtlı bağlantı yok."
+          }
+        }
+      }
+    },
+    "No tables": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo yok"
+          }
+        }
+      }
+    },
+    "No views": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View yok"
+          }
+        }
+      }
+    },
+    "None": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiçbiri"
+          }
+        }
+      }
+    },
+    "Not connected to a database.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veritabanına bağlı değil."
+          }
+        }
+      }
+    },
+    "Note": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not"
+          }
+        }
+      }
+    },
+    "OBJECTS": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NESNELER"
+          }
+        }
+      }
+    },
+    "OK": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamam"
+          }
+        }
+      }
+    },
+    "OPTIONS AFFECTING THE SOURCE": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KAYNAĞI ETKİLEYEN SEÇENEKLER"
+          }
+        }
+      }
+    },
+    "OPTIONS WRITTEN TO THE FILE": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DOSYAYA YAZILAN SEÇENEKLER"
+          }
+        }
+      }
+    },
+    "Optional": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opsiyonel"
+          }
+        }
+      }
+    },
+    "Optional — lists all if empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opsiyonel — boşsa tümü listelenir"
+          }
+        }
+      }
+    },
+    "PK": {
+      "extractionState": "manual"
+    },
+    "Page size:": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayfa boyutu:"
+          }
+        }
+      }
+    },
+    "Password": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şifre"
+          }
+        }
+      }
+    },
+    "Permanently delete the %@ '%@'?": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' '%@' tamamen silinsin mi?"
+          }
+        }
+      }
+    },
+    "Permanently delete the table '%@'?": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' tablosu tamamen silinsin mi?"
+          }
+        }
+      }
+    },
+    "Permanently delete the view '%@'?": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' view'ı tamamen silinsin mi?"
+          }
+        }
+      }
+    },
+    "Port": {
+      "extractionState": "manual"
+    },
+    "Port must be numeric.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Port sayısal olmalı."
+          }
+        }
+      }
+    },
+    "Procedure": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedure"
+          }
+        }
+      }
+    },
+    "Procedure names": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedure adları"
+          }
+        }
+      }
+    },
+    "Procedure: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedure: %@"
+          }
+        }
+      }
+    },
+    "Procedures": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedure'lar"
+          }
+        }
+      }
+    },
+    "Procedures group": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedure'lar grubu"
+          }
+        }
+      }
+    },
+    "Query completed, no results.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sorgu tamamlandı, sonuç yok."
+          }
+        }
+      }
+    },
+    "Query history": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sorgu geçmişi"
+          }
+        }
+      }
+    },
+    "READ FROM FILE": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DOSYADAN OKU"
+          }
+        }
+      }
+    },
+    "Read Only": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salt Okunur"
+          }
+        }
+      }
+    },
+    "Redo (⇧⌘Z)": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yinele (⇧⌘Z)"
+          }
+        }
+      }
+    },
+    "Refresh": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yenile"
+          }
+        }
+      }
+    },
+    "Reset to Defaults": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Varsayılanlara Sıfırla"
+          }
+        }
+      }
+    },
+    "Restart the app for the language change to take effect.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dil değişikliğinin geçerli olması için uygulamayı yeniden başlatın."
+          }
+        }
+      }
+    },
+    "Result %lld (%lld)": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sonuç %lld (%lld)"
+          }
+        }
+      }
+    },
+    "Row height": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satır yüksekliği"
+          }
+        }
+      }
+    },
+    "Row spacing": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satır aralığı"
+          }
+        }
+      }
+    },
+    "Run": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çalıştır"
+          }
+        }
+      }
+    },
+    "Run All": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tümünü Çalıştır"
+          }
+        }
+      }
+    },
+    "Run SQL Query": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL Sorgusu Çalıştır"
+          }
+        }
+      }
+    },
+    "Runs each \";\"-separated statement in order without DELIMITER (⇧⌘↩). A CREATE PROCEDURE/FUNCTION/TRIGGER with a BEGIN…END body still needs DELIMITER.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Her \";\" ile ayrılmış ifadeyi DELIMITER olmadan sırayla çalıştırır (⇧⌘↩). BEGIN…END gövdeli bir CREATE PROCEDURE/FUNCTION/TRIGGER için hâlâ DELIMITER gerekir."
+          }
+        }
+      }
+    },
+    "Runs the selected text if there is one, otherwise the whole query (⌘↩)": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seçili metin varsa yalnızca onu, yoksa tüm sorguyu çalıştırır (⌘↩)"
+          }
+        }
+      }
+    },
+    "SAVE TO FILE": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DOSYAYA KAYDET"
+          }
+        }
+      }
+    },
+    "SELECT": {
+      "extractionState": "manual"
+    },
+    "SQL Dump": {
+      "extractionState": "manual"
+    },
+    "SQL Editor": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL Editörü"
+          }
+        }
+      }
+    },
+    "SQL PREVIEW": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL ÖNİZLEME"
+          }
+        }
+      }
+    },
+    "SQL Query": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL Sorgusu"
+          }
+        }
+      }
+    },
+    "Save password": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şifreyi sakla"
+          }
+        }
+      }
+    },
+    "Save query history": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sorgu geçmişini kaydet"
+          }
+        }
+      }
+    },
+    "Saved Connections": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kayıtlı Bağlantılar"
+          }
+        }
+      }
+    },
+    "Schema (CREATE TABLE IF NOT EXISTS) and data (INSERT INTO) are exported together.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şema (CREATE TABLE IF NOT EXISTS) ve veri (INSERT INTO) birlikte dışa aktarılır."
+          }
+        }
+      }
+    },
+    "Select All": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tümünü Seç"
+          }
+        }
+      }
+    },
+    "Select a table": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir tablo seçin"
+          }
+        }
+      }
+    },
+    "Select column": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sütun seç"
+          }
+        }
+      }
+    },
+    "Selected row background color": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seçili satır zemin rengi"
+          }
+        }
+      }
+    },
+    "Selected row text color": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seçili satır yazı rengi"
+          }
+        }
+      }
+    },
+    "Set FOREIGN_KEY_CHECKS=0": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOREIGN_KEY_CHECKS=0 ayarla"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayarlar"
+          }
+        }
+      }
+    },
+    "Settings (⌘,)": {
+      "extractionState": "manual",
+      "comment": "Toolbar tooltip. The shortcut is bound to a physical key, so its character depends on the keyboard layout: ⌘, on US, ⌘Ö on Turkish-Q.",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayarlar (⌘Ö)"
+          }
+        }
+      }
+    },
+    "Show line numbers": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satır numaralarını göster"
+          }
+        }
+      }
+    },
+    "Show password": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şifreyi göster"
+          }
+        }
+      }
+    },
+    "Sidebar": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kenar Çubuğu"
+          }
+        }
+      }
+    },
+    "Single transaction": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tek işlem (single transaction)"
+          }
+        }
+      }
+    },
+    "Statement %lld/%lld failed: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İfade %lld/%lld başarısız: %@"
+          }
+        }
+      }
+    },
+    "Status/error message font size": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durum/hata mesajı yazı boyutu"
+          }
+        }
+      }
+    },
+    "Stored Procedure Name": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stored Procedure Adı"
+          }
+        }
+      }
+    },
+    "Stored Procedure...": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stored Procedure..."
+          }
+        }
+      }
+    },
+    "Stored Procedures": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stored Procedure'lar"
+          }
+        }
+      }
+    },
+    "String ('...') color": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metin ('...') rengi"
+          }
+        }
+      }
+    },
+    "Structure + data": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yapı + veri"
+          }
+        }
+      }
+    },
+    "Structure only": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yalnız yapı"
+          }
+        }
+      }
+    },
+    "System": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistem"
+          }
+        }
+      }
+    },
+    "TABLE COLUMNS": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TABLO BAŞLIKLARI"
+          }
+        }
+      }
+    },
+    "TRUNCATE TABLE cannot be undone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TRUNCATE TABLE geri alınamaz."
+          }
+        }
+      }
+    },
+    "TYPE": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TİP"
+          }
+        }
+      }
+    },
+    "Table Name": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo Adı"
+          }
+        }
+      }
+    },
+    "Table name cannot be empty.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo adı boş olamaz."
+          }
+        }
+      }
+    },
+    "Table names": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo adları"
+          }
+        }
+      }
+    },
+    "Table toolbar icon size": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo araç çubuğu ikon boyutu"
+          }
+        }
+      }
+    },
+    "Table...": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo..."
+          }
+        }
+      }
+    },
+    "Table: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo: %@"
+          }
+        }
+      }
+    },
+    "Table: %@ (%lld rows)": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablo: %@ (%lld satır)"
+          }
+        }
+      }
+    },
+    "Tables": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablolar"
+          }
+        }
+      }
+    },
+    "Tables group": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablolar grubu"
+          }
+        }
+      }
+    },
+    "Text View": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metin Görünümü"
+          }
+        }
+      }
+    },
+    "Text color": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yazı rengi"
+          }
+        }
+      }
+    },
+    "The view definition (CREATE OR REPLACE VIEW) is exported — a view has no rows of its own, so no data is written separately.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View tanımı (CREATE OR REPLACE VIEW) dışa aktarılır — bir view'ın kendine ait satırları olmadığından veri ayrıca yazılmaz."
+          }
+        }
+      }
+    },
+    "Theme": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tema"
+          }
+        }
+      }
+    },
+    "This action cannot be undone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu işlem geri alınamaz."
+          }
+        }
+      }
+    },
+    "This result is not editable (requires a single table and a primary key column in the result).": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu sonuç düzenlenemez (tek tablo + sonuçta primary key sütunu gerekir)."
+          }
+        }
+      }
+    },
+    "This table (%lld rows) exceeds Excel's limit of %lld rows. Please use the CSV, SQL or HTML format instead.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu tablo (%lld satır) Excel'in %lld satır sınırını aşıyor. Lütfen CSV, SQL ya da HTML formatını kullanın."
+          }
+        }
+      }
+    },
+    "This table has no primary key; editing is disabled.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu tabloda primary key yok, düzenleme kapalı."
+          }
+        }
+      }
+    },
+    "Tree icon colors": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ağaç ikon renkleri"
+          }
+        }
+      }
+    },
+    "Trigger Name": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger Adı"
+          }
+        }
+      }
+    },
+    "Trigger...": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger..."
+          }
+        }
+      }
+    },
+    "Truncate": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate"
+          }
+        }
+      }
+    },
+    "Truncate Table": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate Table"
+          }
+        }
+      }
+    },
+    "Truncate failed: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate başarısız: %@"
+          }
+        }
+      }
+    },
+    "UNSIGNED": {
+      "extractionState": "manual"
+    },
+    "UPDATE": {
+      "extractionState": "manual"
+    },
+    "Undo (⌘Z)": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geri Al (⌘Z)"
+          }
+        }
+      }
+    },
+    "Username": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kullanıcı Adı"
+          }
+        }
+      }
+    },
+    "View Name": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View Adı"
+          }
+        }
+      }
+    },
+    "View names": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View adları"
+          }
+        }
+      }
+    },
+    "View...": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View..."
+          }
+        }
+      }
+    },
+    "View: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View: %@"
+          }
+        }
+      }
+    },
+    "Views": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View'lar"
+          }
+        }
+      }
+    },
+    "Views group": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View'lar grubu"
+          }
+        }
+      }
+    },
+    "When off, the page size is ignored and the whole table is loaded.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kapatılırsa sayfa boyutu yok sayılır ve tablonun tamamı yüklenir."
+          }
+        }
+      }
+    },
+    "You must add at least one column.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En az bir kolon eklemelisiniz."
+          }
+        }
+      }
+    },
+    "You must map at least one column to import.": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İçe aktarmak için en az bir kolonu eşlemelisiniz."
+          }
+        }
+      }
+    },
+    "unknown": {
+      "extractionState": "manual",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bilinmeyen"
+          }
+        }
+      }
+    },
+    "— ": {
+      "extractionState": "manual"
+    },
+    "•": {
+      "extractionState": "manual"
+    },
+    "…": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

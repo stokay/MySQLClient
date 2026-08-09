@@ -429,7 +429,7 @@ struct SpreadsheetGridView: NSViewRepresentable {
             guard let column = viewModel.columns.first(where: { $0.name == columnName }) else { return "" }
             if column.isAutoIncrement { return "AUTO_INCREMENT" }
             if let defaultValue = column.defaultValue { return defaultValue.isEmpty ? "''" : defaultValue }
-            return column.isNullable ? "NULL" : "(zorunlu)"
+            return column.isNullable ? "NULL" : String(localized: "(required)")
         }
 
         @objc private func deleteTapped(_ sender: NSButton) {

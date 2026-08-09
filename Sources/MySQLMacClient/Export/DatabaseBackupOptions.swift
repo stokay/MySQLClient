@@ -8,9 +8,9 @@ enum DatabaseBackupMode: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .structureOnly: return "Yalnız yapı"
-        case .dataOnly: return "Yalnız veri"
-        case .structureAndData: return "Yapı + veri"
+        case .structureOnly: return String(localized: "Structure only")
+        case .dataOnly: return String(localized: "Data only")
+        case .structureAndData: return String(localized: "Structure + data")
         }
     }
 }

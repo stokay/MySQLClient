@@ -88,13 +88,13 @@ struct QueryPanelView: View {
                     if console.isExecutingQuery {
                         ProgressView().controlSize(.small)
                     } else {
-                        Label("Çalıştır", systemImage: "play.fill")
+                        Label("Run", systemImage: "play.fill")
                             .lineLimit(1)
                     }
                 }
                 .keyboardShortcut(.return, modifiers: .command)
                 .disabled(console.isExecutingQuery || console.queryText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                .help("Seçili metin varsa yalnızca onu, yoksa tüm sorguyu çalıştırır (⌘↩)")
+                .help("Runs the selected text if there is one, otherwise the whole query (⌘↩)")
 
                 Button {
                     Task { await console.runAllStatements() }
@@ -102,13 +102,13 @@ struct QueryPanelView: View {
                     if console.isExecutingQuery {
                         ProgressView().controlSize(.small)
                     } else {
-                        Label("Tümünü Çalıştır", systemImage: "forward.fill")
+                        Label("Run All", systemImage: "forward.fill")
                             .lineLimit(1)
                     }
                 }
                 .keyboardShortcut(.return, modifiers: [.command, .shift])
                 .disabled(console.isExecutingQuery || console.queryText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                .help("Her \";\" ile ayrılmış ifadeyi DELIMITER olmadan sırayla çalıştırır (⇧⌘↩). BEGIN…END gövdeli bir CREATE PROCEDURE/FUNCTION/TRIGGER için hâlâ DELIMITER gerekir.")
+                .help("Runs each \";\"-separated statement in order without DELIMITER (⇧⌘↩). A CREATE PROCEDURE/FUNCTION/TRIGGER with a BEGIN…END body still needs DELIMITER.")
 
                 // Placed right after the run buttons, not at the end of the
                 // row: while a result is showing this is the only way back
@@ -121,7 +121,7 @@ struct QueryPanelView: View {
                     Button {
                         Task { await console.clearQueryResult() }
                     } label: {
-                        Label("Tablo Görünümüne Dön", systemImage: "tablecells")
+                        Label("Back to Table View", systemImage: "tablecells")
                             .lineLimit(1)
                     }
                 }
@@ -134,7 +134,7 @@ struct QueryPanelView: View {
                     Image(systemName: "arrow.uturn.backward")
                 }
                 .disabled(!undoProxy.canUndo)
-                .help("Geri Al (⌘Z)")
+                .help("Undo (⌘Z)")
 
                 Button {
                     undoProxy.redo()
@@ -142,7 +142,7 @@ struct QueryPanelView: View {
                     Image(systemName: "arrow.uturn.forward")
                 }
                 .disabled(!undoProxy.canRedo)
-                .help("Yinele (⇧⌘Z)")
+                .help("Redo (⇧⌘Z)")
 
                 Divider().frame(height: 16)
 

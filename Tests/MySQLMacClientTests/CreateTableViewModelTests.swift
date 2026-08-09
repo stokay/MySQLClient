@@ -75,7 +75,7 @@ final class CreateTableViewModelTests: XCTestCase {
         let created = await viewModel.submit()
 
         XCTAssertNil(created)
-        XCTAssertEqual(viewModel.errorMessage, "Tablo adı boş olamaz.")
+        XCTAssertEqual(viewModel.errorMessage, CreateTableError.emptyTableName.errorDescription)
     }
 
     func testNoNamedColumnsFails() async throws {
@@ -85,7 +85,7 @@ final class CreateTableViewModelTests: XCTestCase {
         let created = await viewModel.submit()
 
         XCTAssertNil(created)
-        XCTAssertEqual(viewModel.errorMessage, "En az bir kolon eklemelisiniz.")
+        XCTAssertEqual(viewModel.errorMessage, CreateTableError.noColumns.errorDescription)
     }
 
     func testMaliciousLengthValueIsRejectedInsteadOfBeingSplicedIntoTheSQL() async throws {
@@ -98,7 +98,10 @@ final class CreateTableViewModelTests: XCTestCase {
         let created = await viewModel.submit()
 
         XCTAssertNil(created)
-        XCTAssertTrue(viewModel.errorMessage?.contains("uzunluğu geçersiz") ?? false)
+        XCTAssertEqual(
+            viewModel.errorMessage,
+            CreateTableError.invalidLength(column: "id", value: "10); DROP TABLE widgets; --").errorDescription
+        )
 
         // The widgets table (used by other tests) must still exist.
         let stillThere = try await introspection.listTablesAndViews(inDatabase: "mysqlmacclient_test")

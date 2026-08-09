@@ -29,12 +29,12 @@ struct ConnectionFormView: View {
 
     private var savedConnectionsList: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Kayıtlı Bağlantılar")
+            Text("Saved Connections")
                 .font(.headline)
                 .padding(12)
 
             if connectionStore.connections.isEmpty {
-                Text("Henüz kayıtlı bağlantı yok.")
+                Text("No saved connections yet.")
                     .foregroundStyle(.secondary)
                     .font(.callout)
                     .padding(.horizontal, 12)
@@ -48,20 +48,20 @@ struct ConnectionFormView: View {
         }
         .background(Color(nsColor: .underPageBackgroundColor))
         .confirmationDialog(
-            "'\(connectionPendingDeletion?.name ?? "")' bağlantısı silinsin mi?",
+            "Delete the connection '\(connectionPendingDeletion?.name ?? "")'?",
             isPresented: Binding(
                 get: { connectionPendingDeletion != nil },
                 set: { if !$0 { connectionPendingDeletion = nil } }
             ),
             titleVisibility: .visible
         ) {
-            Button("Sil", role: .destructive) {
+            Button("Delete", role: .destructive) {
                 if let profile = connectionPendingDeletion {
                     viewModel.delete(profile)
                 }
                 connectionPendingDeletion = nil
             }
-            Button("İptal", role: .cancel) {
+            Button("Cancel", role: .cancel) {
                 connectionPendingDeletion = nil
             }
         }
@@ -96,7 +96,7 @@ struct ConnectionFormView: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
-            .help("Bağlantıyı sil")
+            .help("Delete connection")
         }
         .padding(.vertical, 2)
         .padding(.horizontal, 4)
@@ -108,7 +108,7 @@ struct ConnectionFormView: View {
 
     private var form: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Yeni MySQL Bağlantısı")
+            Text("New MySQL Connection")
                 .font(.title2.bold())
 
             // Each field's on-screen name is an external label, not the
@@ -125,11 +125,11 @@ struct ConnectionFormView: View {
             // widest cell by construction — every border's left edge lines
             // up exactly, with no hardcoded label width to go stale.
             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
-                formRow("Bağlantı Adı") {
-                    TextField("Opsiyonel", text: $viewModel.name)
+                formRow("Connection Name") {
+                    TextField("Optional", text: $viewModel.name)
                         .visibleFieldBorder()
                 }
-                formRow("Sunucu") {
+                formRow("Host") {
                     TextField("", text: $viewModel.host)
                         .visibleFieldBorder()
                 }
@@ -137,20 +137,20 @@ struct ConnectionFormView: View {
                     TextField("", text: $viewModel.port)
                         .visibleFieldBorder()
                 }
-                formRow("Kullanıcı Adı") {
+                formRow("Username") {
                     TextField("", text: $viewModel.username)
                         .visibleFieldBorder()
                 }
-                formRow("Şifre") {
+                formRow("Password") {
                     HStack(spacing: 10) {
                         RevealablePasswordField(text: $viewModel.password)
-                        Toggle("Şifreyi sakla", isOn: $viewModel.savePassword)
+                        Toggle("Save password", isOn: $viewModel.savePassword)
                             .toggleStyle(.checkbox)
                             .font(.callout)
                     }
                 }
-                formRow("Veritabanı") {
-                    TextField("Opsiyonel — boşsa tümü listelenir", text: $viewModel.database)
+                formRow("Database") {
+                    TextField("Optional — lists all if empty", text: $viewModel.database)
                         .visibleFieldBorder()
                 }
             }
@@ -159,7 +159,7 @@ struct ConnectionFormView: View {
             .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .gridLineColor)))
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Not")
+                Text("Note")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 TextEditor(text: $viewModel.note)
@@ -189,7 +189,7 @@ struct ConnectionFormView: View {
                     if viewModel.isConnecting {
                         ProgressView().controlSize(.small)
                     } else {
-                        Text("Bağlan")
+                        Text("Connect")
                     }
                 }
                 .keyboardShortcut(.defaultAction)
@@ -202,7 +202,7 @@ struct ConnectionFormView: View {
 
     /// One `Grid` row: right-aligned label in the shared label column,
     /// leading-aligned (and horizontally greedy) field in the second.
-    private func formRow<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {
+    private func formRow<Content: View>(_ label: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
         GridRow {
             Text(label)
                 .gridColumnAlignment(.trailing)
@@ -225,9 +225,9 @@ private struct RevealablePasswordField: View {
         HStack(spacing: 6) {
             Group {
                 if isRevealed {
-                    TextField("Şifre", text: $text)
+                    TextField("Password", text: $text)
                 } else {
-                    SecureField("Şifre", text: $text)
+                    SecureField("Password", text: $text)
                 }
             }
             .visibleFieldBorder()
@@ -239,7 +239,7 @@ private struct RevealablePasswordField: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
-            .help(isRevealed ? "Şifreyi gizle" : "Şifreyi göster")
+            .help(isRevealed ? "Hide password" : "Show password")
         }
     }
 }

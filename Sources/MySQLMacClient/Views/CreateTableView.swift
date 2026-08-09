@@ -33,7 +33,7 @@ struct CreateTableView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Yeni Tablo")
+            Text("New Table")
                 .font(.title2.bold())
                 .foregroundStyle(theme.textPrimary)
 
@@ -53,7 +53,7 @@ struct CreateTableView: View {
 
             HStack {
                 Spacer()
-                Button("İptal") { dismiss() }
+                Button("Cancel") { dismiss() }
                     .keyboardShortcut(.cancelAction)
                     .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
                 Button {
@@ -67,7 +67,7 @@ struct CreateTableView: View {
                     if viewModel.isSubmitting {
                         ProgressView().controlSize(.small)
                     } else {
-                        Text("Oluştur")
+                        Text("Create")
                     }
                 }
                 .keyboardShortcut(.defaultAction)
@@ -85,11 +85,11 @@ struct CreateTableView: View {
 
     private var header: some View {
         Form {
-            LabeledContent("Tablo Adı") {
+            LabeledContent("Table Name") {
                 TextField("", text: $viewModel.tableName)
                     .schemaFieldBorder(theme: theme)
             }
-            Picker("Veritabanı", selection: $viewModel.database) {
+            Picker("Database", selection: $viewModel.database) {
                 ForEach(schemaTree.databaseNodes) { node in
                     Text(node.info.name).tag(node.info.name)
                 }
@@ -98,7 +98,7 @@ struct CreateTableView: View {
                 Picker("Engine", selection: $viewModel.engine) {
                     ForEach(CreateTableViewModel.engines, id: \.self) { Text($0).tag($0) }
                 }
-                Picker("Karakter Seti", selection: $viewModel.charset) {
+                Picker("Character Set", selection: $viewModel.charset) {
                     ForEach(viewModel.charsetOptions, id: \.self) { Text($0).tag($0) }
                 }
                 Picker("Collation", selection: $viewModel.collation) {
@@ -113,7 +113,7 @@ struct CreateTableView: View {
 
     private var sqlPreviewSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("SQL ÖNİZLEME")
+            Text("SQL PREVIEW")
                 .font(.system(size: 11, weight: .semibold))
                 .tracking(0.6)
                 .foregroundStyle(theme.textSecondary)

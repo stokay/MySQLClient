@@ -23,7 +23,7 @@ struct DatabaseBackupView: View {
             databasePicker
 
             if viewModel.isLoadingObjects {
-                ProgressView("Nesneler yükleniyor…")
+                ProgressView("Loading objects…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 HStack(alignment: .top, spacing: 16) {
@@ -57,10 +57,10 @@ struct DatabaseBackupView: View {
         .frame(minWidth: 720, idealWidth: 820, minHeight: 640, idealHeight: 720)
         .background(theme.windowBackground)
         .task { await viewModel.loadDatabasesAndObjects() }
-        .alert("Yedekleme Tamamlandı", isPresented: $viewModel.didFinishSuccessfully) {
-            Button("Tamam") {}
+        .alert("Backup Complete", isPresented: $viewModel.didFinishSuccessfully) {
+            Button("OK") {}
         } message: {
-            Text("\(viewModel.database.name) başarıyla yedeklendi.")
+            Text("\(viewModel.database.name) was backed up successfully.")
         }
     }
 
@@ -69,7 +69,7 @@ struct DatabaseBackupView: View {
             Text("SQL Dump")
                 .font(.title2.bold())
                 .foregroundColor(theme.textPrimary)
-            Text("Veritabanını dosyaya aktar · \(viewModel.database.name)")
+            Text("Export database to file · \(viewModel.database.name)")
                 .font(.callout)
                 .foregroundStyle(theme.textSecondary)
         }
@@ -79,7 +79,7 @@ struct DatabaseBackupView: View {
 
     private var databasePicker: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("VERİTABANI ADI")
+            Text("DATABASE NAME")
                 .font(.system(size: 11, weight: .semibold))
                 .tracking(0.6)
                 .foregroundStyle(theme.textSecondary)
@@ -101,33 +101,33 @@ struct DatabaseBackupView: View {
     private var objectsPanel: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("NESNELER")
+                Text("OBJECTS")
                     .font(.system(size: 11, weight: .semibold))
                     .tracking(0.6)
                     .foregroundStyle(theme.textSecondary)
                 Spacer()
-                Text("\(viewModel.selectedObjectCount) seçili")
+                Text("\(viewModel.selectedObjectCount) selected")
                     .font(.caption)
                     .foregroundStyle(theme.textSecondary)
             }
             HStack(spacing: 8) {
-                Button("Tümü") { viewModel.selectAllObjects() }
+                Button("All") { viewModel.selectAllObjects() }
                     .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
-                Button("Hiçbiri") { viewModel.selectNoObjects() }
+                Button("None") { viewModel.selectNoObjects() }
                     .buttonStyle(SchemaSecondaryButtonStyle(theme: theme))
             }
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    categorySection(title: "Tablolar", items: viewModel.allTables, selection: Binding(
+                    categorySection(title: "Tables", items: viewModel.allTables, selection: Binding(
                         get: { viewModel.selectedTables }, set: { viewModel.selectedTables = $0 }
                     )) { $0.name }
-                    categorySection(title: "View'lar", items: viewModel.allViews, selection: Binding(
+                    categorySection(title: "Views", items: viewModel.allViews, selection: Binding(
                         get: { viewModel.selectedViews }, set: { viewModel.selectedViews = $0 }
                     )) { $0.name }
-                    categorySection(title: "Stored Procedure'lar", items: viewModel.allProcedures, selection: Binding(
+                    categorySection(title: "Stored Procedures", items: viewModel.allProcedures, selection: Binding(
                         get: { viewModel.selectedProcedures }, set: { viewModel.selectedProcedures = $0 }
                     )) { $0.name }
-                    categorySection(title: "Function'lar", items: viewModel.allFunctions, selection: Binding(
+                    categorySection(title: "Functions", items: viewModel.allFunctions, selection: Binding(
                         get: { viewModel.selectedFunctions }, set: { viewModel.selectedFunctions = $0 }
                     )) { $0.name }
                 }
@@ -151,7 +151,7 @@ struct DatabaseBackupView: View {
     /// the `Toggle` itself (see `TableExportView.fieldsToExportSection`'s
     /// identical note).
     private func categorySection<Item: Identifiable & Hashable>(
-        title: String,
+        title: LocalizedStringKey,
         items: [Item],
         selection: Binding<Set<Item>>,
         name: @escaping (Item) -> String
@@ -199,7 +199,7 @@ struct DatabaseBackupView: View {
 
     private var modeSelector: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("SQL OLARAK AKTAR")
+            Text("EXPORT AS SQL")
                 .font(.system(size: 11, weight: .semibold))
                 .tracking(0.6)
                 .foregroundStyle(theme.textSecondary)
@@ -231,15 +231,15 @@ struct DatabaseBackupView: View {
 
     private var sourceOptionsCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("KAYNAĞI ETKİLEYEN SEÇENEKLER")
+            Text("OPTIONS AFFECTING THE SOURCE")
                 .font(.system(size: 11, weight: .semibold))
                 .tracking(0.6)
                 .foregroundStyle(theme.textSecondary)
-            optionRow("Okuma için tabloları kilitle", isOn: Binding(
+            optionRow("Lock tables for reading", isOn: Binding(
                 get: { viewModel.options.source.lockTablesForReading },
                 set: { viewModel.options.source.lockTablesForReading = $0 }
             ))
-            optionRow("Tek işlem (single transaction)", isOn: Binding(
+            optionRow("Single transaction", isOn: Binding(
                 get: { viewModel.options.source.useSingleTransaction },
                 set: { viewModel.options.source.useSingleTransaction = $0 }
             ))
@@ -250,31 +250,31 @@ struct DatabaseBackupView: View {
 
     private var fileOptionsCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("DOSYAYA YAZILAN SEÇENEKLER")
+            Text("OPTIONS WRITTEN TO THE FILE")
                 .font(.system(size: 11, weight: .semibold))
                 .tracking(0.6)
                 .foregroundStyle(theme.textSecondary)
-            optionRow("\"USE database\" ifadesini ekle", isOn: Binding(
+            optionRow("Add \"USE database\" statement", isOn: Binding(
                 get: { viewModel.options.file.includeUseStatement },
                 set: { viewModel.options.file.includeUseStatement = $0 }
             ))
-            optionRow("\"CREATE database\" ifadesini ekle", isOn: Binding(
+            optionRow("Add \"CREATE database\" statement", isOn: Binding(
                 get: { viewModel.options.file.includeCreateDatabaseStatement },
                 set: { viewModel.options.file.includeCreateDatabaseStatement = $0 }
             ))
-            optionRow("FOREIGN_KEY_CHECKS=0 ayarla", isOn: Binding(
+            optionRow("Set FOREIGN_KEY_CHECKS=0", isOn: Binding(
                 get: { viewModel.options.file.setForeignKeyChecksToZero },
                 set: { viewModel.options.file.setForeignKeyChecksToZero = $0 }
             ))
-            optionRow("INSERT ifadelerini kilitle", isOn: Binding(
+            optionRow("Lock INSERT statements", isOn: Binding(
                 get: { viewModel.options.file.lockInsertStatements },
                 set: { viewModel.options.file.lockInsertStatements = $0 }
             ))
-            optionRow("Toplu INSERT ifadeleri oluştur", isOn: Binding(
+            optionRow("Generate extended INSERT statements", isOn: Binding(
                 get: { viewModel.options.file.useExtendedInserts },
                 set: { viewModel.options.file.useExtendedInserts = $0 }
             ))
-            optionRow("\"DROP\" ifadelerini ekle", isOn: Binding(
+            optionRow("Add \"DROP\" statements", isOn: Binding(
                 get: { viewModel.options.file.includeDropStatements },
                 set: { viewModel.options.file.includeDropStatements = $0 }
             ))
@@ -283,7 +283,7 @@ struct DatabaseBackupView: View {
         .schemaCard(theme: theme)
     }
 
-    private func optionRow(_ title: String, isOn: Binding<Bool>) -> some View {
+    private func optionRow(_ title: LocalizedStringKey, isOn: Binding<Bool>) -> some View {
         HStack(spacing: 8) {
             Toggle("", isOn: isOn)
                 .labelsHidden()
@@ -299,7 +299,7 @@ struct DatabaseBackupView: View {
 
     private var saveToFileRow: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("HEDEF DOSYA")
+            Text("DESTINATION FILE")
                 .font(.system(size: 11, weight: .semibold))
                 .tracking(0.6)
                 .foregroundStyle(theme.textSecondary)
@@ -324,7 +324,7 @@ struct DatabaseBackupView: View {
             if let progress = viewModel.progress {
                 ProgressView(value: progress.percentage)
                 HStack {
-                    Text("\(progress.completedObjects)/\(progress.totalObjects) nesne — \(progress.currentObjectDescription)")
+                    Text("\(progress.completedObjects)/\(progress.totalObjects) objects — \(progress.currentObjectDescription)")
                     Spacer()
                     Text("\(Int(progress.percentage * 100))%")
                 }
@@ -332,11 +332,11 @@ struct DatabaseBackupView: View {
                 .foregroundStyle(theme.textSecondary)
             }
             HStack {
-                Text("\(viewModel.selectedObjectCount) nesne hazır · \(viewModel.options.mode.displayName)")
+                Text("\(viewModel.selectedObjectCount) objects ready · \(viewModel.options.mode.displayName)")
                     .font(.callout)
                     .foregroundStyle(theme.textSecondary)
                 Spacer()
-                Button("Kapat") {
+                Button("Close") {
                     if viewModel.isRunning { viewModel.cancelBackup() }
                     dismiss()
                 }
@@ -348,7 +348,7 @@ struct DatabaseBackupView: View {
                     if viewModel.isRunning {
                         ProgressView().controlSize(.small)
                     } else {
-                        Text("Aktar")
+                        Text("Export")
                     }
                 }
                 .keyboardShortcut(.defaultAction)

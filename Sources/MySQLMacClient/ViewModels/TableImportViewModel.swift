@@ -115,7 +115,7 @@ final class TableImportViewModel: ObservableObject {
             let headerRow = hasHeaderRow ? rows[0] : nil
             let columnCount = rows.map(\.count).max() ?? 0
             columnMappings = (0..<columnCount).map { index in
-                let sourceHeaderName = (headerRow?.indices.contains(index) == true) ? headerRow![index] : "Kolon \(index + 1)"
+                let sourceHeaderName = (headerRow?.indices.contains(index) == true) ? headerRow![index] : String(localized: "Column \(index + 1)")
                 let normalized = sourceHeaderName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
                 let match = allColumns.first { $0.name.lowercased() == normalized }
                 return ColumnMapping(id: index, sourceHeaderName: sourceHeaderName, targetColumnName: match?.name)
@@ -151,7 +151,7 @@ final class TableImportViewModel: ObservableObject {
             return (entry.id, column)
         }
         guard !mapping.isEmpty else {
-            errorMessage = "İçe aktarmak için en az bir kolonu eşlemelisiniz."
+            errorMessage = String(localized: "You must map at least one column to import.")
             return
         }
 

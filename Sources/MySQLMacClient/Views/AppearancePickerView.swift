@@ -26,6 +26,6 @@ struct AppearancePickerView: View {
         }
         .menuStyle(.borderlessButton)
         .fixedSize()
-        .help("Görünüm: \(appearanceStore.mode.label)")
+        .help("Appearance: \(appearanceStore.mode.label)")
     }
 }

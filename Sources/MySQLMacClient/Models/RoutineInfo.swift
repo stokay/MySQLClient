@@ -28,24 +28,28 @@ enum RoutineKind: String, CaseIterable {
 
     /// Sidebar category title, its empty-state text, and the word used in
     /// the context menu / drop confirmation.
+    ///
+    /// Unlike `sqlKeyword`/`createStatementColumn` above — which are MySQL
+    /// protocol strings and must never be translated — everything below is
+    /// user-facing and goes through the String Catalog.
     var categoryTitle: String {
         switch self {
-        case .procedure: return "Procedure'lar"
-        case .function: return "Function'lar"
+        case .procedure: return String(localized: "Procedures")
+        case .function: return String(localized: "Functions")
         }
     }
 
     var emptyCategoryText: String {
         switch self {
-        case .procedure: return "Procedure yok"
-        case .function: return "Function yok"
+        case .procedure: return String(localized: "No procedures")
+        case .function: return String(localized: "No functions")
         }
     }
 
     var displayName: String {
         switch self {
-        case .procedure: return "Procedure"
-        case .function: return "Function"
+        case .procedure: return String(localized: "Procedure")
+        case .function: return String(localized: "Function")
         }
     }
 }

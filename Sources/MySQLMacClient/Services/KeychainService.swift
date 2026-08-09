@@ -7,8 +7,8 @@ enum KeychainError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unhandled(let status):
-            let message = SecCopyErrorMessageString(status, nil) as String?
-            return "Keychain hatası (\(status)): \(message ?? "bilinmeyen")"
+            let message = SecCopyErrorMessageString(status, nil) as String? ?? String(localized: "unknown")
+            return String(localized: "Keychain error (\(status)): \(message)")
         }
     }
 }

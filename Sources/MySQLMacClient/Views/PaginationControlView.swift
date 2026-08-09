@@ -31,7 +31,7 @@ struct PaginationControlView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Text("Sayfa boyutu:")
+            Text("Page size:")
                 .lineLimit(1)
             TextField("", text: pageSizeBinding)
                 .frame(width: 60)
@@ -40,15 +40,15 @@ struct PaginationControlView: View {
                     Task { await viewModel.reload() }
                 }
 
-            Toggle("Sınırlı", isOn: paginationEnabledBinding)
+            Toggle("Limited", isOn: paginationEnabledBinding)
                 .toggleStyle(.checkbox)
                 .lineLimit(1)
-                .help("Kapatılırsa sayfa boyutu yok sayılır ve tablonun tamamı yüklenir.")
+                .help("When off, the page size is ignored and the whole table is loaded.")
 
             Spacer()
 
-            Picker("Filtre sütunu", selection: $filterColumnSelection) {
-                Text("Sütun seç").tag("")
+            Picker("Filter column", selection: $filterColumnSelection) {
+                Text("Select column").tag("")
                 ForEach(viewModel.columns) { column in
                     Text(column.name).tag(column.name)
                 }
@@ -56,7 +56,7 @@ struct PaginationControlView: View {
             .labelsHidden()
             .frame(width: 140)
 
-            TextField("Filtre değeri", text: $filterText)
+            TextField("Filter value", text: $filterText)
                 .frame(width: 160)
                 .onSubmit {
                     Task {

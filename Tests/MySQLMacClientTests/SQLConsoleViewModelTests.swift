@@ -424,7 +424,7 @@ final class SQLConsoleViewModelTests: XCTestCase {
 
         XCTAssertNil(console.queryErrorMessage)
         XCTAssertFalse(console.isShowingQueryResult)
-        XCTAssertEqual(console.queryMessage, "1 satır etkilendi.")
+        XCTAssertEqual(console.queryMessage, SQLConsoleViewModel.affectedRowsMessage(1))
 
         let rows = try await service.query("SELECT quantity FROM widgets WHERE name = 'Bolt'")
         XCTAssertEqual(rows.first?.column("quantity")?.int, 42)

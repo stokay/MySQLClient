@@ -50,7 +50,7 @@ struct QueryResultTabbedView: View {
                     Button {
                         console.selectedResultSetIndex = index
                     } label: {
-                        Text("Sonuç \(index + 1) (\(resultSet.rows.count))")
+                        Text("Result \(index + 1) (\(resultSet.rows.count))")
                             .font(.system(size: 11, weight: isSelected ? .semibold : .regular))
                             .lineLimit(1)
                             .padding(.horizontal, 10)

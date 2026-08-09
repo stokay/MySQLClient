@@ -10,21 +10,21 @@ private struct NamedObjectCreationRequest: Identifiable {
 
         var title: String {
             switch self {
-            case .view: return "Yeni View"
-            case .storedProcedure: return "Yeni Stored Procedure"
-            case .function: return "Yeni Function"
-            case .trigger: return "Yeni Trigger"
-            case .event: return "Yeni Event"
+            case .view: return String(localized: "New View")
+            case .storedProcedure: return String(localized: "New Stored Procedure")
+            case .function: return String(localized: "New Function")
+            case .trigger: return String(localized: "New Trigger")
+            case .event: return String(localized: "New Event")
             }
         }
 
         var nameFieldLabel: String {
             switch self {
-            case .view: return "View Adı"
-            case .storedProcedure: return "Stored Procedure Adı"
-            case .function: return "Function Adı"
-            case .trigger: return "Trigger Adı"
-            case .event: return "Event Adı"
+            case .view: return String(localized: "View Name")
+            case .storedProcedure: return String(localized: "Stored Procedure Name")
+            case .function: return String(localized: "Function Name")
+            case .trigger: return String(localized: "Trigger Name")
+            case .event: return String(localized: "Event Name")
             }
         }
 
@@ -198,7 +198,7 @@ struct MainWindowView: View {
                     isShowingCreateTable = true
                 } label: {
                     Label {
-                        Text("Yeni Tablo")
+                        Text("New Table")
                     } icon: {
                         Image.bundled(
                             "create_table",
@@ -207,12 +207,12 @@ struct MainWindowView: View {
                         )
                     }
                 }
-                .help("Yeni Tablo Oluştur")
+                .help("Create New Table")
             }
             ToolbarItem(placement: .navigation) {
                 SettingsLink {
                     Label {
-                        Text("Ayarlar")
+                        Text("Settings")
                     } icon: {
                         Image.bundled(
                             "settings",
@@ -221,7 +221,7 @@ struct MainWindowView: View {
                         )
                     }
                 }
-                .help("Ayarlar (⌘,)")
+                .help("Settings (⌘,)")
             }
             ToolbarItem(placement: .navigation) {
                 QueryHistoryMenu(console: console)
@@ -287,7 +287,7 @@ struct MainWindowView: View {
             DatabaseBackupView(service: session.mysqlService, database: database)
         }
         .confirmationDialog(
-            "'\(tablePendingTruncate?.name ?? "")' tablosundaki TÜM satırlar silinsin mi?",
+            "Delete ALL rows in '\(tablePendingTruncate?.name ?? "")'?",
             isPresented: Binding(
                 get: { tablePendingTruncate != nil },
                 set: { if !$0 { tablePendingTruncate = nil } }
@@ -300,14 +300,14 @@ struct MainWindowView: View {
                 }
                 tablePendingTruncate = nil
             }
-            Button("İptal", role: .cancel) { tablePendingTruncate = nil }
+            Button("Cancel", role: .cancel) { tablePendingTruncate = nil }
         } message: {
-            Text("TRUNCATE TABLE geri alınamaz.")
+            Text("TRUNCATE TABLE cannot be undone.")
         }
         .confirmationDialog(
             tablePendingDrop?.isView == true
-                ? "'\(tablePendingDrop?.name ?? "")' view'ı tamamen silinsin mi?"
-                : "'\(tablePendingDrop?.name ?? "")' tablosu tamamen silinsin mi?",
+                ? "Permanently delete the view '\(tablePendingDrop?.name ?? "")'?"
+                : "Permanently delete the table '\(tablePendingDrop?.name ?? "")'?",
             isPresented: Binding(
                 get: { tablePendingDrop != nil },
                 set: { if !$0 { tablePendingDrop = nil } }
@@ -320,16 +320,16 @@ struct MainWindowView: View {
                 }
                 tablePendingDrop = nil
             }
-            Button("İptal", role: .cancel) { tablePendingDrop = nil }
+            Button("Cancel", role: .cancel) { tablePendingDrop = nil }
         } message: {
             Text(
                 tablePendingDrop?.isView == true
-                    ? "DROP VIEW view'ı kalıcı olarak siler, geri alınamaz."
-                    : "DROP TABLE tabloyu yapısıyla birlikte kalıcı olarak siler, geri alınamaz."
+                    ? "DROP VIEW deletes the view permanently and cannot be undone."
+                    : "DROP TABLE deletes the table and its structure permanently and cannot be undone."
             )
         }
         .confirmationDialog(
-            "'\(routinePendingDrop?.name ?? "")' \(routinePendingDrop?.kind.displayName ?? "")'ü tamamen silinsin mi?",
+            "Permanently delete the \(routinePendingDrop?.kind.displayName ?? "") '\(routinePendingDrop?.name ?? "")'?",
             isPresented: Binding(
                 get: { routinePendingDrop != nil },
                 set: { if !$0 { routinePendingDrop = nil } }
@@ -342,18 +342,18 @@ struct MainWindowView: View {
                 }
                 routinePendingDrop = nil
             }
-            Button("İptal", role: .cancel) { routinePendingDrop = nil }
+            Button("Cancel", role: .cancel) { routinePendingDrop = nil }
         } message: {
-            Text("DROP \(routinePendingDrop?.kind.sqlKeyword ?? "") kalıcı olarak siler, geri alınamaz.")
+            Text("DROP \(routinePendingDrop?.kind.sqlKeyword ?? "") deletes it permanently and cannot be undone.")
         }
         .alert(
-            "Hata",
+            "Error",
             isPresented: Binding(
                 get: { contextActionError != nil },
                 set: { if !$0 { contextActionError = nil } }
             )
         ) {
-            Button("Tamam", role: .cancel) { contextActionError = nil }
+            Button("OK", role: .cancel) { contextActionError = nil }
         } message: {
             Text(contextActionError ?? "")
         }
@@ -425,13 +425,13 @@ struct MainWindowView: View {
                     Image(systemName: "tablecells")
                         .font(.system(size: 40))
                         .foregroundStyle(.tertiary)
-                    Text("Bir tablo seçin")
+                    Text("Select a table")
                         .foregroundStyle(.secondary)
 
                     Button {
                         console.toggleQueryPanel()
                     } label: {
-                        Label(console.isQueryPanelVisible ? "SQL Sorgusunu Gizle" : "SQL Sorgusu Çalıştır", systemImage: "terminal")
+                        Label(console.isQueryPanelVisible ? "Hide SQL Query" : "Run SQL Query", systemImage: "terminal")
                     }
                     .padding(.top, 4)
                 }
@@ -486,7 +486,7 @@ struct MainWindowView: View {
         do {
             columns = try await session.introspectionService.columns(forTable: table.name, inDatabase: table.database)
         } catch {
-            contextActionError = "Kolonlar alınamadı: \(error.localizedDescription)"
+            contextActionError = String(localized: "Could not load columns: \(error.localizedDescription)")
             return
         }
 
@@ -506,7 +506,7 @@ struct MainWindowView: View {
             historyRecorder.record(sql, database: table.database, source: .app)
             try await session.mysqlService.execute(sql)
         } catch {
-            contextActionError = "Truncate başarısız: \(error.localizedDescription)"
+            contextActionError = String(localized: "Truncate failed: \(error.localizedDescription)")
             return
         }
 
@@ -528,7 +528,7 @@ struct MainWindowView: View {
             historyRecorder.record(statement, database: table.database, source: .app)
             try await session.mysqlService.execute(statement)
         } catch {
-            contextActionError = "Drop başarısız: \(error.localizedDescription)"
+            contextActionError = String(localized: "Drop failed: \(error.localizedDescription)")
             return
         }
 
@@ -549,7 +549,7 @@ struct MainWindowView: View {
         do {
             createView = try await session.introspectionService.showCreateView(view.name, inDatabase: view.database)
         } catch {
-            contextActionError = "View tanımı alınamadı: \(error.localizedDescription)"
+            contextActionError = String(localized: "Could not load view definition: \(error.localizedDescription)")
             return
         }
 
@@ -570,7 +570,7 @@ struct MainWindowView: View {
         do {
             createStatement = try await session.introspectionService.showCreateRoutine(routine)
         } catch {
-            contextActionError = "\(routine.kind.displayName) tanımı alınamadı: \(error.localizedDescription)"
+            contextActionError = String(localized: "Could not load \(routine.kind.displayName) definition: \(error.localizedDescription)")
             return
         }
 
@@ -592,7 +592,7 @@ struct MainWindowView: View {
             historyRecorder.record(sql, database: routine.database, source: .app)
             _ = try await session.mysqlService.rawQuery(sql)
         } catch {
-            contextActionError = "Drop başarısız: \(error.localizedDescription)"
+            contextActionError = String(localized: "Drop failed: \(error.localizedDescription)")
             return
         }
 

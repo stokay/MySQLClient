@@ -75,11 +75,11 @@ final class AlterTableViewModelTests: XCTestCase {
         let viewModel = await makeViewModel()
 
         XCTAssertFalse(viewModel.canSubmit)
-        XCTAssertTrue(viewModel.previewSQL.contains("Henüz bir değişiklik yok"))
+        XCTAssertEqual(viewModel.previewSQL, AlterTableViewModel.noChangesPreview)
 
         let result = await viewModel.submit()
         XCTAssertNil(result)
-        XCTAssertEqual(viewModel.errorMessage, "Değişiklik yapılmadı.")
+        XCTAssertEqual(viewModel.errorMessage, CreateTableError.noChanges.errorDescription)
     }
 
     func testAddColumnAppliesAddClause() async throws {
