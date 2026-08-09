@@ -6,6 +6,22 @@ options:
   xcodeVersion: "16.0"
   createIntermediateGroups: true
 
+# A third configuration, alongside the default Debug/Release, dedicated to
+# `scripts/build-dmg.sh`'s direct-download DMG — it needs Developer ID
+# Application signing, which must NOT live on "Release" itself (that's
+# what Product ▸ Archive / App Store Connect uploads use, and that path
+# needs Apple Distribution instead). Keeping them as separate named
+# configs — rather than command-line CODE_SIGN_IDENTITY overrides on
+# `xcodebuild -configuration Release` — avoids a real failure mode: a
+# command-line override applies to *every* target in the build graph,
+# including the SPM package dependency targets (swift-crypto, swift-nio,
+# ...), which then fail with "requires a development team" since they're
+# never meant to be independently signed at all.
+configs:
+  Debug: debug
+  Release: release
+  DeveloperID: release
+
 packages:
   # Kept in lockstep with Package.swift: a fork of vapor/mysql-nio 1.9.1
   # pinned to an exact revision, adding CLIENT_MULTI_RESULTS + multi-result-set
@@ -34,7 +50,7 @@ targets:
       properties:
         CFBundleDisplayName: "MySQL Client"
         CFBundleShortVersionString: "1.1.0"
-        CFBundleVersion: "6"
+        CFBundleVersion: "7"
         LSApplicationCategoryType: "public.app-category.developer-tools"
         CFBundleIconName: AppIcon
         NSHumanReadableCopyright: "Copyright © 2025 Sedat Tokay. All rights reserved."
@@ -71,26 +87,43 @@ targets:
         # bağlı) "MySQL Client" yapar, Bundle ID'ye dokunmaz.
         PRODUCT_NAME: "MySQL Client"
         MARKETING_VERSION: "1.1.0"
-        CURRENT_PROJECT_VERSION: "6"
+        CURRENT_PROJECT_VERSION: "7"
         ENABLE_HARDENED_RUNTIME: YES
+        # Automatic on Debug only — Xcode's "pick the right cert per
+        # action" behavior for Automatic signing turned out to only be
+        # reliable from Xcode's own GUI Archive flow; a plain command-line
+        # `xcodebuild archive -configuration Release` signed with Apple
+        # Development instead of Apple Distribution (verified empirically
+        # 2026-08-09). Release now pins Apple Distribution explicitly
+        # below, the same way DeveloperID pins Developer ID Application —
+        # no more ambiguity regardless of how the archive is triggered.
         CODE_SIGN_STYLE: Automatic
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       configs:
-        # Debug (Xcode's own Run/Test) keeps Automatic + the free Apple
-        # Development identity — fine for local testing on this Mac.
-        # Release (what `scripts/build-dmg.sh` builds) must be signed with
-        # a Developer ID Application certificate instead: an app signed
-        # only with Apple Development is rejected by Gatekeeper on any
-        # *other* Mac once quarantined (downloaded) — "is damaged and
-        # can't be opened" — regardless of notarization. Developer ID +
-        # notarization is the only combination that lets a direct-download
-        # DMG run cleanly for someone who isn't this machine/account.
+        # App Store Connect uploads (Product ▸ Archive, or a command-line
+        # `xcodebuild archive -configuration Release`) need Apple
+        # Distribution specifically — Automatic signing style doesn't
+        # reliably resolve to it outside Xcode's own GUI archive flow (see
+        # comment above), so it's pinned explicitly instead.
         Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Apple Distribution"
+        # `scripts/build-dmg.sh` builds this config exclusively, for a
+        # direct-download DMG that must pass Gatekeeper on someone else's
+        # Mac — Developer ID Application is the only identity that works
+        # for that (App Sandbox + notarization). Scoped as a real
+        # configuration (not a command-line override on top of Release)
+        # because a command-line CODE_SIGN_IDENTITY override applies to
+        # *every* target in the build graph, including the SPM package
+        # dependency targets (swift-crypto, swift-nio, ...) — those then
+        # fail with "requires a development team", since they're never
+        # meant to be independently signed at all.
+        DeveloperID:
           CODE_SIGN_STYLE: Manual
           CODE_SIGN_IDENTITY: "Developer ID Application"
           # Automatic/Development-style signing defaults to `--timestamp=none`
           # (faster local builds) — notarization rejects a signature without
-          # a secure timestamp, so Release has to force a real one.
+          # a secure timestamp, so this has to force a real one.
           OTHER_CODE_SIGN_FLAGS: "--timestamp"
           # `xcodebuild build` (as opposed to `archive`) auto-injects
           # com.apple.security.get-task-allow — a debugger-attach

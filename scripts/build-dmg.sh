@@ -29,14 +29,17 @@ DERIVED_DATA="$ROOT/.scratch/DerivedData"
 echo "==> xcodegen generate"
 xcodegen generate
 
-echo "==> Release build"
+echo "==> DeveloperID build (Developer ID Application signing, for direct download)"
+# A dedicated configuration, not `-configuration Release` — see project.yml's
+# comment on the DeveloperID config for why a command-line signing override
+# on top of Release doesn't work (it leaks into the SPM package targets).
 xcodebuild -project MySQLMacClient.xcodeproj \
     -scheme MySQLMacClient \
-    -configuration Release \
+    -configuration DeveloperID \
     -derivedDataPath "$DERIVED_DATA" \
     build
 
-APP="$DERIVED_DATA/Build/Products/Release/MySQL Client.app"
+APP="$DERIVED_DATA/Build/Products/DeveloperID/MySQL Client.app"
 VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Contents/Info.plist")
 
 echo "==> Staging DMG contents (version $VERSION)"
