@@ -16,7 +16,7 @@ A native macOS MySQL management tool built with **Swift 6 / SwiftUI**, available
   <img src="docs/screenshots/general-dark.png" alt="Main Window — Dark Mode" width="420" />
 </p>
 <p align="center">
-  <img src="docs/screenshots/new-table.png" alt="Create Table" width="420" />
+  <img src="docs/screenshots/create-table.png" alt="Create Table" width="420" />
   <img src="docs/screenshots/alter-table.png" alt="Alter Table" width="420" />
 </p>
 
