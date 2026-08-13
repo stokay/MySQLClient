@@ -49,8 +49,8 @@ targets:
       path: Info.plist
       properties:
         CFBundleDisplayName: "MySQL Client"
-        CFBundleShortVersionString: "1.2.0"
-        CFBundleVersion: "8"
+        CFBundleShortVersionString: "1.2.1"
+        CFBundleVersion: "9"
         LSApplicationCategoryType: "public.app-category.developer-tools"
         CFBundleIconName: AppIcon
         NSHumanReadableCopyright: "Copyright © 2025 Sedat Tokay. All rights reserved."
@@ -86,8 +86,8 @@ targets:
         # ve CFBundleName'i (Info.plist'te $(PRODUCT_NAME) olarak zaten
         # bağlı) "MySQL Client" yapar, Bundle ID'ye dokunmaz.
         PRODUCT_NAME: "MySQL Client"
-        MARKETING_VERSION: "1.2.0"
-        CURRENT_PROJECT_VERSION: "8"
+        MARKETING_VERSION: "1.2.1"
+        CURRENT_PROJECT_VERSION: "9"
         ENABLE_HARDENED_RUNTIME: YES
         # Extracts every `Text("…")` / `String(localized:)` literal into
         # Localizable.xcstrings during the build, so the catalog stays in

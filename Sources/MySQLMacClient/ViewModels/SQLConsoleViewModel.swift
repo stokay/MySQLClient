@@ -165,6 +165,7 @@ final class SQLConsoleViewModel: ObservableObject {
         }
 
         do {
+            try await useCurrentDatabaseIfKnown()
             let result = try await service.rawQuery(sqlToRun)
             await applyResult(result, executedSQL: sqlToRun)
         } catch {
@@ -223,6 +224,14 @@ final class SQLConsoleViewModel: ObservableObject {
     }
 
     private func runStatements(_ statements: [String]) async {
+        do {
+            try await useCurrentDatabaseIfKnown()
+        } catch {
+            queryErrorMessage = describe(error)
+            isShowingQueryResult = false
+            queryEditContext = nil
+            return
+        }
         for (index, statement) in statements.enumerated() {
             do {
                 let result = try await service.rawQuery(statement)
@@ -238,6 +247,24 @@ final class SQLConsoleViewModel: ObservableObject {
                 return
             }
         }
+    }
+
+    /// Keeps the server's own default-database context in sync with the
+    /// sidebar selection before running console SQL. No view-model-generated
+    /// statement in this app relies on it — every one is fully qualified —
+    /// but arbitrary/pasted SQL run here (an exported table dump's
+    /// unqualified `CREATE TABLE`, for instance) does, and this app's
+    /// connection is never given a default database at connect time (it
+    /// browses multiple databases from one connection), so unqualified SQL
+    /// otherwise fails with "No database selected" even with a table
+    /// clearly selected in the sidebar.
+    private func useCurrentDatabaseIfKnown() async throws {
+        guard let currentDatabaseHint else { return }
+        // `rawQuery`, not `execute`: `USE` isn't valid over the prepared
+        // statement (binary) protocol `execute` uses — even with zero
+        // binds, MySQL/MariaDB rejects it with "This command is not
+        // supported in the prepared statement protocol yet".
+        _ = try await service.rawQuery("USE \(try SchemaIntrospectionService.quotedIdentifier(currentDatabaseHint))")
     }
 
     private func applyResult(_ result: RawQueryResult, executedSQL: String) async {

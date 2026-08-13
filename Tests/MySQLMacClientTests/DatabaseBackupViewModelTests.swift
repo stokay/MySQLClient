@@ -160,6 +160,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         let viewModel = makeViewModel()
         await viewModel.loadDatabasesAndObjects()
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
 
         viewModel.startBackup()
         while viewModel.isRunning { await Task.yield() }
@@ -178,6 +181,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         let viewModel = makeViewModel()
         await viewModel.loadDatabasesAndObjects()
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
 
         viewModel.startBackup()
         while viewModel.isRunning { await Task.yield() }
@@ -193,6 +199,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         let viewModel = makeViewModel()
         await viewModel.loadDatabasesAndObjects()
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
         viewModel.options.mode = .structureOnly
 
         viewModel.startBackup()
@@ -208,6 +217,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         let viewModel = makeViewModel()
         await viewModel.loadDatabasesAndObjects()
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
         viewModel.options.mode = .dataOnly
 
         viewModel.startBackup()
@@ -224,6 +236,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         let viewModel = makeViewModel()
         await viewModel.loadDatabasesAndObjects()
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
         viewModel.selectedViews = []
 
         viewModel.startBackup()
@@ -238,6 +253,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         let viewModel = makeViewModel()
         await viewModel.loadDatabasesAndObjects()
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
         viewModel.options.file.includeDropStatements = true
 
         viewModel.startBackup()
@@ -254,6 +272,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         let viewModel = makeViewModel()
         await viewModel.loadDatabasesAndObjects()
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
         viewModel.options.file.includeDropStatements = true
 
         viewModel.startBackup()
@@ -269,6 +290,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         let viewModel = makeViewModel()
         await viewModel.loadDatabasesAndObjects()
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
 
         viewModel.startBackup()
         while viewModel.isRunning { await Task.yield() }
@@ -301,6 +325,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         await viewModel.loadDatabasesAndObjects()
         viewModel.dataPageSize = 100
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
         // Only `widgets` — the other fixture tables carry a row each, which
         // would otherwise be counted in the INSERT total below.
         viewModel.selectedTables = Set(viewModel.allTables.filter { $0.name == "widgets" })
@@ -341,6 +368,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         await viewModel.loadDatabasesAndObjects()
         viewModel.dataPageSize = 100
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
         viewModel.selectedTables = Set(viewModel.allTables.filter { $0.name == "widget_logs_nopk" })
         viewModel.selectedViews = []
         viewModel.options.mode = .dataOnly
@@ -377,6 +407,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         // Several pages, so there are intermediate progress updates to see.
         viewModel.dataPageSize = 50
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
         // Exactly one object, so any movement in the percentage can only
         // come from row-level progress inside it.
         viewModel.selectedTables = Set(viewModel.allTables.filter { $0.name == "widgets" })
@@ -406,6 +439,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         let viewModel = makeViewModel()
         await viewModel.loadDatabasesAndObjects()
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
         viewModel.interObjectDelay = .milliseconds(200)
 
         viewModel.startBackup()
@@ -427,6 +463,9 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         let viewModel = makeViewModel()
         await viewModel.loadDatabasesAndObjects()
         viewModel.outputFileURL = tempFileURL
+        // Bypasses the real `NSSavePanel` `startBackup()` would otherwise
+        // pop for a never-granted `outputFileURL` — can't run headless.
+        viewModel.outputLocationIsGranted = true
         viewModel.interObjectDelay = .milliseconds(200)
 
         viewModel.startBackup()
@@ -443,6 +482,7 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         let viewModel = makeViewModel()
         await viewModel.loadDatabasesAndObjects()
         viewModel.outputFileURL = URL(fileURLWithPath: "/nonexistent-dir-\(UUID().uuidString)/x.sql")
+        viewModel.outputLocationIsGranted = true
 
         viewModel.startBackup()
         while viewModel.isRunning { await Task.yield() }

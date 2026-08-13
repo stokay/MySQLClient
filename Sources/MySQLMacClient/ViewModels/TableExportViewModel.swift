@@ -37,6 +37,18 @@ final class TableExportViewModel: ObservableObject {
     @Published private(set) var allColumns: [ColumnInfo] = []
     @Published var selectedColumnNames: Set<String> = []
     @Published var outputFileURL: URL?
+    /// Whether `outputFileURL` currently points at a location the sandbox
+    /// has actually granted write access to. `defaultOutputURL()` below is
+    /// only a *guess* used to pre-fill the "Save to file" field — Powerbox
+    /// only grants write access to a path the user has gone through
+    /// `NSSavePanel` for, so `startExport()` forces that panel to run at
+    /// least once before ever attempting a write. Without this, a real
+    /// (non-`swift run`) sandboxed build silently fails the first Export
+    /// click with an opaque permission error, since `swift run` doesn't
+    /// enforce App Sandbox and never exposed this.
+    /// Not `private`: tests set this directly alongside `outputFileURL` to
+    /// bypass the real `NSSavePanel`, which can't run headless.
+    var outputLocationIsGranted = false
     @Published private(set) var isLoadingColumns = true
     @Published private(set) var isExporting = false
     @Published private(set) var progress: Progress?
@@ -86,6 +98,7 @@ final class TableExportViewModel: ObservableObject {
             allColumns = try await introspection.columns(forTable: table.name, inDatabase: table.database)
             selectedColumnNames = Set(allColumns.map(\.name))
             outputFileURL = defaultOutputURL()
+            outputLocationIsGranted = false
         } catch {
             errorMessage = describe(error)
         }
@@ -118,6 +131,7 @@ final class TableExportViewModel: ObservableObject {
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
         outputFileURL = url
+        outputLocationIsGranted = true
     }
 
     // MARK: - Running the export
@@ -128,6 +142,14 @@ final class TableExportViewModel: ObservableObject {
     /// Aktar") — same design as `DatabaseBackupViewModel.startBackup`.
     func startExport() {
         guard !isExporting else { return }
+        // `outputFileURL` may still be just the auto-generated guess from
+        // `loadColumns()`, which the sandbox never actually granted access
+        // to — force the save panel here so the write below doesn't fail
+        // with a permission error. If the user cancels, bail out entirely.
+        if !outputLocationIsGranted {
+            chooseOutputFile()
+            guard outputLocationIsGranted else { return }
+        }
         // Set synchronously, before the task is even scheduled — a `Task {}`
         // body doesn't necessarily begin running before control returns
         // here, so flipping this inside `performExport` would leave a

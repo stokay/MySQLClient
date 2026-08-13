@@ -18,10 +18,22 @@ final class AtomicFileWriterTests: XCTestCase {
 
     /// No `.tmp-` sibling should survive a run, success or failure —
     /// checked by listing the directory and filtering out `destination`
-    /// itself.
+    /// itself. The temp file itself now lives in the system temp
+    /// directory (not `directory`), so this mainly guards against a
+    /// regression back to the same-directory-sibling approach.
     private func tempSiblingsRemaining() -> [String] {
         let names = (try? FileManager.default.contentsOfDirectory(atPath: directory.path)) ?? []
         return names.filter { $0 != destination.lastPathComponent }
+    }
+
+    /// The real leftover-cleanup guard now that the temp file lives in
+    /// `FileManager.default.temporaryDirectory` — a run, success or
+    /// failure, must never leave a `<name>.tmp-…` file behind there.
+    private func tempFilesRemainingInSystemTempDirectory() -> [String] {
+        let names = (try? FileManager.default.contentsOfDirectory(
+            atPath: FileManager.default.temporaryDirectory.path
+        )) ?? []
+        return names.filter { $0.hasPrefix("\(destination.lastPathComponent).tmp-") }
     }
 
     func testSuccessWritesDestinationAndLeavesNoTempSibling() async throws {
@@ -31,6 +43,7 @@ final class AtomicFileWriterTests: XCTestCase {
 
         XCTAssertEqual(try String(contentsOf: destination, encoding: .utf8), "hello")
         XCTAssertEqual(tempSiblingsRemaining(), [])
+        XCTAssertEqual(tempFilesRemainingInSystemTempDirectory(), [])
     }
 
     /// Regression guard: the temp sibling used to be named `.out.txt.tmp-…`
@@ -56,6 +69,7 @@ final class AtomicFileWriterTests: XCTestCase {
 
         XCTAssertEqual(try String(contentsOf: destination, encoding: .utf8), "new content")
         XCTAssertEqual(tempSiblingsRemaining(), [])
+        XCTAssertEqual(tempFilesRemainingInSystemTempDirectory(), [])
     }
 
     /// The core regression guard: a pre-existing file must survive a
@@ -71,6 +85,7 @@ final class AtomicFileWriterTests: XCTestCase {
 
         XCTAssertEqual(try String(contentsOf: destination, encoding: .utf8), "must survive")
         XCTAssertEqual(tempSiblingsRemaining(), [])
+        XCTAssertEqual(tempFilesRemainingInSystemTempDirectory(), [])
     }
 
     func testBodyThrowingWhenDestinationDoesNotExistYetCreatesNothing() async throws {
@@ -81,6 +96,7 @@ final class AtomicFileWriterTests: XCTestCase {
 
         XCTAssertFalse(FileManager.default.fileExists(atPath: destination.path))
         XCTAssertEqual(tempSiblingsRemaining(), [])
+        XCTAssertEqual(tempFilesRemainingInSystemTempDirectory(), [])
     }
 
     /// `CancellationError` is just another thrown error as far as this
@@ -95,6 +111,7 @@ final class AtomicFileWriterTests: XCTestCase {
 
         XCTAssertEqual(try String(contentsOf: destination, encoding: .utf8), "must survive cancellation")
         XCTAssertEqual(tempSiblingsRemaining(), [])
+        XCTAssertEqual(tempFilesRemainingInSystemTempDirectory(), [])
     }
 }
 

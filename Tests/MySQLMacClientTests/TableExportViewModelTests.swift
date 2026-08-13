@@ -48,6 +48,10 @@ final class TableExportViewModelTests: XCTestCase {
     /// different call site), so tests poll `isExporting` the same way
     /// `DatabaseBackupViewModelTests` polls `isRunning`.
     private func runToCompletion(_ viewModel: TableExportViewModel) async {
+        // Bypasses the real `NSSavePanel` `startExport()` would otherwise
+        // pop for a never-granted `outputFileURL` — the panel can't run
+        // headless in a test process.
+        viewModel.outputLocationIsGranted = true
         viewModel.startExport()
         while viewModel.isExporting { await Task.yield() }
     }
@@ -298,6 +302,7 @@ final class TableExportViewModelTests: XCTestCase {
         viewModel.outputFileURL = tempFileURL
 
         var midRunPercentages: [Double] = []
+        viewModel.outputLocationIsGranted = true
         viewModel.startExport()
         while viewModel.isExporting {
             if let progress = viewModel.progress, progress.percentage > 0, progress.percentage < 1 {
@@ -325,6 +330,7 @@ final class TableExportViewModelTests: XCTestCase {
         viewModel.outputFileURL = tempFileURL
 
         var midRunPercentages: [Double] = []
+        viewModel.outputLocationIsGranted = true
         viewModel.startExport()
         while viewModel.isExporting {
             if let progress = viewModel.progress, progress.percentage > 0, progress.percentage < 1 {
@@ -387,6 +393,7 @@ final class TableExportViewModelTests: XCTestCase {
         viewModel.options.format = .csv
         viewModel.outputFileURL = tempFileURL
 
+        viewModel.outputLocationIsGranted = true
         viewModel.startExport()
         while viewModel.progress == nil { await Task.yield() }
         viewModel.cancelExport()
@@ -412,6 +419,7 @@ final class TableExportViewModelTests: XCTestCase {
         viewModel.options.format = .csv
         viewModel.outputFileURL = tempFileURL
 
+        viewModel.outputLocationIsGranted = true
         viewModel.startExport()
         while viewModel.progress == nil { await Task.yield() }
         viewModel.cancelExport()

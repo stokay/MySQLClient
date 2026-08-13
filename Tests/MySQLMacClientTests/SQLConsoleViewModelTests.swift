@@ -192,6 +192,43 @@ final class SQLConsoleViewModelTests: XCTestCase {
         XCTAssertTrue(tables.contains { $0.name == "console_scratch" })
     }
 
+    /// The real regression guard for the bug this fix addresses: a
+    /// connection that was never given a default database at connect time
+    /// (this app's normal multi-database browsing connection — unlike
+    /// every other test here, which uses `database: "mysqlmacclient_test"`
+    /// at connect time and so never exposed this) used to reject even an
+    /// *unqualified* statement with "No database selected", despite
+    /// `currentDatabaseHint` correctly reflecting the sidebar selection.
+    /// `runQuery()` now issues a real `USE` first when the hint is set.
+    func testUnqualifiedStatementSucceedsOnAConnectionWithNoDefaultDatabaseWhenHintIsSet() async throws {
+        let noDefaultDBService = MySQLService()
+        try await noDefaultDBService.connect(
+            host: "127.0.0.1",
+            port: 3306,
+            username: "root",
+            password: nil,
+            database: nil
+        )
+        try await noDefaultDBService.execute("DROP TABLE IF EXISTS mysqlmacclient_test.console_scratch_no_default_db")
+
+        let console = SQLConsoleViewModel(
+            service: noDefaultDBService,
+            introspection: SchemaIntrospectionService(service: noDefaultDBService),
+            defaultSelectLimit: 1000
+        )
+        console.currentDatabaseHint = "mysqlmacclient_test"
+        console.queryText = "CREATE TABLE console_scratch_no_default_db (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY)"
+
+        await console.runQuery()
+
+        XCTAssertNil(console.queryErrorMessage)
+        let tables = try await introspection.listTablesAndViews(inDatabase: "mysqlmacclient_test")
+        XCTAssertTrue(tables.contains { $0.name == "console_scratch_no_default_db" })
+
+        try await noDefaultDBService.execute("DROP TABLE IF EXISTS mysqlmacclient_test.console_scratch_no_default_db")
+        try await noDefaultDBService.disconnect()
+    }
+
     func testRunQuerySelectSucceedsWithNoTableSelectedUsingAFullyQualifiedName() async throws {
         let console = makeConsole()
 

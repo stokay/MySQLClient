@@ -77,6 +77,14 @@ final class DatabaseBackupViewModel: ObservableObject {
     }
 
     @Published var outputFileURL: URL?
+    /// Whether `outputFileURL` currently points at a location the sandbox
+    /// has actually granted write access to — see the identical flag in
+    /// `TableExportViewModel` for the full explanation. `defaultOutputURL()`
+    /// is only a display guess; `startBackup()` forces the save panel to
+    /// run at least once before ever attempting a write.
+    /// Not `private`: tests set this directly alongside `outputFileURL` to
+    /// bypass the real `NSSavePanel`, which can't run headless.
+    var outputLocationIsGranted = false
     @Published private(set) var isLoadingObjects = true
     @Published private(set) var isRunning = false
     @Published private(set) var progress: Progress?
@@ -143,6 +151,7 @@ final class DatabaseBackupViewModel: ObservableObject {
             availableDatabases = [database]
         }
         outputFileURL = defaultOutputURL()
+        outputLocationIsGranted = false
         await loadObjects()
     }
 
@@ -231,6 +240,7 @@ final class DatabaseBackupViewModel: ObservableObject {
         panel.canCreateDirectories = true
         guard panel.runModal() == .OK, let url = panel.url else { return }
         outputFileURL = url
+        outputLocationIsGranted = true
     }
 
     // MARK: - Running the backup
@@ -244,6 +254,15 @@ final class DatabaseBackupViewModel: ObservableObject {
     /// file-handle-close/partial-file-delete cleanup in `performBackup`.
     func startBackup() {
         guard !isRunning else { return }
+        // `outputFileURL` may still be just the auto-generated guess from
+        // `loadDatabasesAndObjects()`, which the sandbox never actually
+        // granted access to — force the save panel here so the write below
+        // doesn't fail with a permission error. If the user cancels, bail
+        // out entirely.
+        if !outputLocationIsGranted {
+            chooseOutputFile()
+            guard outputLocationIsGranted else { return }
+        }
         // Set synchronously, before the task is even scheduled: a `Task {}`
         // body doesn't necessarily begin running before control returns
         // here, so flipping this inside `performBackup` would leave a

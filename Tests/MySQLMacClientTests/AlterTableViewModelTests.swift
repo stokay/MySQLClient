@@ -152,7 +152,14 @@ final class AlterTableViewModelTests: XCTestCase {
         let viewModel = await makeViewModel()
         viewModel.tableName = "alter_scratch_renamed"
 
-        XCTAssertTrue(viewModel.previewSQL.contains("RENAME TO `alter_scratch_renamed`"))
+        // Qualified with the database, not just `` `alter_scratch_renamed` ``:
+        // this app never issues a server-side `USE`, so an unqualified
+        // RENAME TO target fails with "No database selected" on a
+        // connection that was never given a default database (a real
+        // connection to a multi-database server, as opposed to this test's
+        // `database: "mysqlmacclient_test"` connect-time default, which
+        // masked the bug).
+        XCTAssertTrue(viewModel.previewSQL.contains("RENAME TO `mysqlmacclient_test`.`alter_scratch_renamed`"))
         let result = await viewModel.submit()
 
         XCTAssertNil(viewModel.errorMessage)

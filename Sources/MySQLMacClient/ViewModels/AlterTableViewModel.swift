@@ -176,7 +176,12 @@ final class AlterTableViewModel: ObservableObject {
         }
 
         if trimmedTable != originalTableName {
-            clauses.append("RENAME TO \(try SchemaIntrospectionService.quotedIdentifier(trimmedTable))")
+            // Qualified with the database, not just `quotedIdentifier` —
+            // this app never issues a server-side `USE`, so an unqualified
+            // RENAME TO target left MySQL with no default database to
+            // resolve it against ("No database selected"), even though the
+            // `ALTER TABLE` clause itself was already fully qualified.
+            clauses.append("RENAME TO \(try SchemaIntrospectionService.qualifiedIdentifier(database: database, name: trimmedTable))")
         }
 
         guard !clauses.isEmpty else { throw CreateTableError.noChanges }
