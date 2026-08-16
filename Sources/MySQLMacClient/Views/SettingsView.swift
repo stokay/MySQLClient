@@ -7,6 +7,7 @@ struct SettingsView: View {
     @EnvironmentObject private var settingsStore: SettingsStore
     @EnvironmentObject private var appearanceStore: AppearanceStore
     @EnvironmentObject private var languageStore: LanguageStore
+    @State private var isShowingRestartAlert = false
 
     var body: some View {
         TabView {
@@ -48,6 +49,22 @@ struct SettingsView: View {
             resetSection
         }
         .padding(16)
+        // Fires only on an actual picker selection change (not on every
+        // view update), and only nudges when a relaunch is genuinely
+        // needed — picking the language the process already launched
+        // with (including picking back to it after a detour) must not
+        // pop this.
+        .onChange(of: languageStore.language) { _, _ in
+            if languageStore.needsRelaunch {
+                isShowingRestartAlert = true
+            }
+        }
+        .alert("Restart Required", isPresented: $isShowingRestartAlert) {
+            Button("Later", role: .cancel) {}
+            Button("Restart") { languageStore.relaunch() }
+        } message: {
+            Text("Restart the app for the language change to take effect.")
+        }
     }
 
     // MARK: - Kenar Çubuğu (tree view)

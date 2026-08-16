@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 /// In-app language override, mirroring `AppearanceMode`'s shape. Unlike
@@ -9,6 +10,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case system
     case turkish = "tr"
     case english = "en"
+    case spanish = "es"
 
     var id: String { rawValue }
 
@@ -24,6 +26,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         case .system: return String(localized: "System")
         case .turkish: return "Türkçe"
         case .english: return "English"
+        case .spanish: return "Español"
         }
     }
 
@@ -67,6 +70,56 @@ final class LanguageStore: ObservableObject {
     /// True once the user has picked something other than what the running
     /// process actually loaded — drives the "relaunch to apply" hint.
     var needsRelaunch: Bool { language != languageAtLaunch }
+
+    /// Spawns a fresh instance of this same `.app` via `NSWorkspace` and
+    /// terminates the running one — the standard macOS "relaunch to apply
+    /// a setting" pattern. `AppleLanguages` was already written to
+    /// `UserDefaults` by `language`'s `didSet` above, so the new process
+    /// picks it up on its own at startup.
+    ///
+    /// Deliberately `NSWorkspace.openApplication`, not `Process` spawning
+    /// `/usr/bin/open` directly: App Sandbox (the Release/DeveloperID
+    /// configs both carry `com.apple.security.app-sandbox`) doesn't allow
+    /// arbitrary child-process execution, only sanctioned system APIs like
+    /// this one, which goes through Launch Services via XPC instead of a
+    /// raw fork/exec.
+    ///
+    /// Only meaningful for a real `.app` bundle — under `swift run`,
+    /// `Bundle.main.bundleURL` is just the build output directory, not an
+    /// app bundle, so there is nothing valid to relaunch. Use
+    /// `scripts/run-localized.sh` to test this for real.
+    ///
+    /// Terminates from *inside* the completion handler, not right after
+    /// issuing the request: `openApplication` hands the launch off
+    /// asynchronously, and terminating immediately after the call — before
+    /// that request actually reached Launch Services — killed this process
+    /// without ever spawning the new one. The handler only fires once the
+    /// new instance has actually launched, which is exactly when it's safe
+    /// to quit this one.
+    ///
+    /// `createsNewApplicationInstance = true` is the fix for a second,
+    /// nastier bug found the same way (via `log stream`): `OpenConfiguration`
+    /// defaults to *reusing* an already-running instance
+    /// (`_kLSOpenOptionPreferRunningInstanceKey = 1`, confirmed in the log).
+    /// Since the instance it found was this same still-running process,
+    /// Launch Services just sent it a `reopen` Apple Event instead of
+    /// spawning anything — the completion handler still fired (as far as
+    /// it's concerned, the "open" succeeded), so this code proceeded to
+    /// terminate the only instance that existed, and nothing was left
+    /// running. Forcing a genuinely new instance is what actually launches
+    /// a second process before this one exits.
+    func relaunch() {
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.createsNewApplicationInstance = true
+        NSWorkspace.shared.openApplication(
+            at: Bundle.main.bundleURL,
+            configuration: configuration
+        ) { _, _ in
+            DispatchQueue.main.async {
+                NSApp.terminate(nil)
+            }
+        }
+    }
 
     init() {
         // A stored override is an array whose first entry is the language;

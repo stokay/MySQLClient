@@ -88,10 +88,10 @@ struct DraftColumnsEditor: View {
     private var headerRow: some View {
         HStack(spacing: 6) {
             Color.clear.frame(width: 16)
-            Text("COLUMN NAME").frame(width: 150, alignment: .leading)
+            Text("COLUMN NAME").frame(width: 175, alignment: .leading)
             Text("TYPE").frame(width: 110, alignment: .leading)
-            Text("LENGTH").frame(width: 64, alignment: .leading)
-            Text("DEFAULT").frame(width: 90, alignment: .leading)
+            Text("LENGTH").frame(width: 72, alignment: .leading)
+            Text("DEFAULT").frame(width: 125, alignment: .leading)
             Text("PK").frame(width: 24, alignment: .center)
             Text("NOT\nNULL").multilineTextAlignment(.center).frame(width: 58, alignment: .center)
             Text("UNSIGNED").frame(width: 58, alignment: .center)
@@ -125,7 +125,7 @@ private struct DraftColumnRow: View {
 
             TextField("", text: $column.name)
                 .schemaFieldBorder(theme: theme, padding: 4, cornerRadius: 5)
-                .frame(width: 150)
+                .frame(width: 175)
             Picker("", selection: $column.dataType) {
                 ForEach(dataTypes, id: \.self) { Text($0).tag($0) }
             }
@@ -133,10 +133,10 @@ private struct DraftColumnRow: View {
             .frame(width: 110)
             TextField("", text: $column.length)
                 .schemaFieldBorder(theme: theme, padding: 4, cornerRadius: 5)
-                .frame(width: 64)
+                .frame(width: 72)
             TextField("", text: $column.defaultValue)
                 .schemaFieldBorder(theme: theme, padding: 4, cornerRadius: 5)
-                .frame(width: 90)
+                .frame(width: 125)
             Toggle("", isOn: $column.isPrimaryKey)
                 .labelsHidden()
                 .toggleStyle(SchemaCheckboxToggleStyle(theme: theme))

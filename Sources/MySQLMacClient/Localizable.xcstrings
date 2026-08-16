@@ -10,6 +10,12 @@
     "%@ was backed up successfully.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se realizó la copia de seguridad de %@ correctamente."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -21,6 +27,12 @@
     "%@ was exported successfully.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se exportó %@ correctamente."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -38,6 +50,12 @@
     "%lld objects ready · %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld objetos listos · %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -52,6 +70,12 @@
     "%lld result sets returned, %lld rows in total.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld conjuntos de resultados devueltos, %lld filas en total."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -76,6 +100,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld rows"
+                }
+              }
+            }
+          }
+        },
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld fila"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld filas"
                 }
               }
             }
@@ -122,6 +164,24 @@
             }
           }
         },
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld fila devuelta."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld filas devueltas."
+                }
+              }
+            }
+          }
+        },
         "tr": {
           "variations": {
             "plural": {
@@ -145,6 +205,12 @@
     "%lld selected": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld seleccionados"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -156,6 +222,12 @@
     "%lld statements executed. %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld instrucciones ejecutadas. %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -173,6 +245,12 @@
     "%lld/%lld objects — %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld objetos — %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -184,6 +262,12 @@
     "%lld/%lld rows": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld filas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -213,6 +297,24 @@
             }
           }
         },
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%llu fila afectada."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%llu filas afectadas."
+                }
+              }
+            }
+          }
+        },
         "tr": {
           "variations": {
             "plural": {
@@ -236,6 +338,12 @@
     "(required)": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(obligatorio)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -247,6 +355,12 @@
     "(unavailable)": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(no disponible)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -258,6 +372,12 @@
     "-- No changes yet --": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-- Aún no hay cambios --"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -269,6 +389,12 @@
     "-- SQL will appear here once you enter a table name and at least one column name --": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-- El SQL aparecerá aquí en cuanto introduzcas un nombre de tabla y al menos un nombre de columna --"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -280,6 +406,12 @@
     "AUTO\nINC": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AUTO\nINCR"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -291,6 +423,12 @@
     "Add \"CREATE database\" statement": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir instrucción \"CREATE database\""
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -302,6 +440,12 @@
     "Add \"DROP\" statements": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir instrucciones \"DROP\""
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -313,6 +457,12 @@
     "Add \"USE database\" statement": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir instrucción \"USE database\""
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -324,6 +474,12 @@
     "Add Column": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir Columna"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -335,6 +491,12 @@
     "Add Row": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir Fila"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -346,6 +508,12 @@
     "All": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -357,6 +525,12 @@
     "Alter %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -368,6 +542,12 @@
     "Alter Table": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter Table"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -379,6 +559,12 @@
     "Alter Table ": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter Table "
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -390,6 +576,12 @@
     "Alter View": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter View"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -401,6 +593,12 @@
     "Alter failed: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter falló: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -412,6 +610,12 @@
     "Appearance: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apariencia: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -423,6 +627,12 @@
     "Apply": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplicar"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -434,6 +644,12 @@
     "Ask for confirmation before deleting a row": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pedir confirmación antes de eliminar una fila"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -445,6 +661,12 @@
     "Automatically UPPERCASE keywords": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poner palabras clave en MAYÚSCULAS automáticamente"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -456,6 +678,12 @@
     "Back to Table View": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volver a la Vista de Tabla"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -467,6 +695,12 @@
     "Backup Complete": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia de Seguridad Completada"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -478,6 +712,12 @@
     "Backup...": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia de seguridad..."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -489,6 +729,12 @@
     "COLUMN MAPPING": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ASIGNACIÓN DE COLUMNAS"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -500,6 +746,12 @@
     "COLUMN NAME": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NOMBRE DE COLUMNA"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -511,6 +763,12 @@
     "COLUMNS": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "COLUMNAS"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -522,6 +780,12 @@
     "COMMENT": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "COMENTARIO"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -533,6 +797,12 @@
     "CSV COLUMNS": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "COLUMNAS CSV"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -544,6 +814,12 @@
     "Cancel": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -555,6 +831,12 @@
     "Cell font size": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamaño de fuente de celda"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -566,6 +848,12 @@
     "Cell text color": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color de texto de celda"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -577,6 +865,12 @@
     "Character Set": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juego de Caracteres"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -588,6 +882,12 @@
     "Clear History": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Borrar Historial"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -599,6 +899,12 @@
     "Clear History for All Connections": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Borrar Historial de Todas las Conexiones"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -610,6 +916,12 @@
     "Close": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -624,6 +936,12 @@
     "Column %lld": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Columna %lld"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -635,6 +953,12 @@
     "Column names on first row": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombres de columna en la primera fila"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -646,6 +970,12 @@
     "Columns": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Columnas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -657,6 +987,12 @@
     "Comment (--) color": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color de comentario (--)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -668,6 +1004,12 @@
     "Completed": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completado"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -679,6 +1021,12 @@
     "Connect": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectar"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -690,6 +1038,12 @@
     "Connection Name": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre de Conexión"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -701,6 +1055,12 @@
     "Could not connect: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo conectar: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -712,6 +1072,12 @@
     "Could not create table: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo crear la tabla: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -723,6 +1089,12 @@
     "Could not load %@ definition: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar la definición de %@: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -734,6 +1106,12 @@
     "Could not load %@ list: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar la lista de %@: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -745,6 +1123,12 @@
     "Could not load columns: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron cargar las columnas: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -756,6 +1140,12 @@
     "Could not load database list: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar la lista de bases de datos: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -767,6 +1157,12 @@
     "Could not load indexes: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron cargar los índices: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -778,6 +1174,12 @@
     "Could not load table info: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar la información de la tabla: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -789,6 +1191,12 @@
     "Could not load table list: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar la lista de tablas: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -800,6 +1208,12 @@
     "Could not load the procedure/function list; tables and views were loaded: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar la lista de procedimientos/funciones; se cargaron las tablas y vistas: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -811,6 +1225,12 @@
     "Could not load view definition: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar la definición de la vista: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -822,6 +1242,12 @@
     "Could not read table structure: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo leer la estructura de la tabla: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -833,6 +1259,12 @@
     "Create": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crear"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -844,6 +1276,12 @@
     "Create New Table": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crear Nueva Tabla"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -855,6 +1293,12 @@
     "DATABASE NAME": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NOMBRE DE BASE DE DATOS"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -866,6 +1310,12 @@
     "DEFAULT": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PREDETERMINADO"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -883,6 +1333,12 @@
     "DESTINATION FILE": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ARCHIVO DE DESTINO"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -894,6 +1350,12 @@
     "DROP %@ deletes it permanently and cannot be undone.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP %@ lo elimina permanentemente y no se puede deshacer."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -905,6 +1367,12 @@
     "DROP TABLE deletes the table and its structure permanently and cannot be undone.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP TABLE elimina la tabla y su estructura permanentemente y no se puede deshacer."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -916,6 +1384,12 @@
     "DROP VIEW deletes the view permanently and cannot be undone.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP VIEW elimina la vista permanentemente y no se puede deshacer."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -927,6 +1401,12 @@
     "Dark": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oscuro"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -938,6 +1418,12 @@
     "Data Grid": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuadrícula de Datos"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -949,6 +1435,12 @@
     "Data only": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo datos"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -960,6 +1452,12 @@
     "Data was imported into %@ successfully.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los datos se importaron correctamente en %@."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -971,6 +1469,12 @@
     "Database": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Base de Datos"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -982,6 +1486,12 @@
     "Default SELECT LIMIT": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LIMIT de SELECT predeterminado"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -993,6 +1503,12 @@
     "Default page size": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamaño de página predeterminado"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1004,6 +1520,12 @@
     "Delete": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1015,6 +1537,12 @@
     "Delete ALL rows in '%@'?": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar TODAS las filas de \"%@\"?"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1026,6 +1554,12 @@
     "Delete connection": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar conexión"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1037,6 +1571,12 @@
     "Delete the connection '%@'?": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar la conexión \"%@\"?"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1048,6 +1588,12 @@
     "Delete this row?": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar esta fila?"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1059,6 +1605,12 @@
     "Deselect All": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deseleccionar Todo"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1070,6 +1622,12 @@
     "Disconnect": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desconectar"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1081,6 +1639,12 @@
     "Drop": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1092,6 +1656,12 @@
     "Drop %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1103,6 +1673,12 @@
     "Drop Table": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop Table"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1114,6 +1690,12 @@
     "Drop View": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop View"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1125,6 +1707,12 @@
     "Drop failed: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop falló: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1142,6 +1730,12 @@
     "EXPORT AS SQL": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EXPORTAR COMO SQL"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1153,6 +1747,12 @@
     "Editable": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editable"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1167,6 +1767,12 @@
     "Error": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1178,6 +1784,12 @@
     "Error message color": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color de mensaje de error"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1189,6 +1801,12 @@
     "Event Name": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre de Evento"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1200,6 +1818,12 @@
     "Event...": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evento..."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1211,6 +1835,12 @@
     "Export": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportar"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1222,6 +1852,12 @@
     "Export ": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportar "
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1233,6 +1869,12 @@
     "Export Complete": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportación Completada"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1244,6 +1886,12 @@
     "Export database to file · %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportar base de datos a archivo · %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1255,6 +1903,12 @@
     "Export...": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportar..."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1266,6 +1920,12 @@
     "FIELDS TO EXPORT": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CAMPOS A EXPORTAR"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1277,6 +1937,12 @@
     "Filter column": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Columna de filtro"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1288,6 +1954,12 @@
     "Filter value": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valor de filtro"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1299,6 +1971,12 @@
     "First row is a header": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La primera fila es un encabezado"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1310,6 +1988,12 @@
     "Font size": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamaño de fuente"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1321,6 +2005,12 @@
     "Function": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Función"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1332,6 +2022,12 @@
     "Function Name": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre de Función"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1343,6 +2039,12 @@
     "Function names": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombres de función"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1354,6 +2056,12 @@
     "Function...": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Función..."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1365,6 +2073,12 @@
     "Function: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Función: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1376,6 +2090,12 @@
     "Functions": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Funciones"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1387,6 +2107,12 @@
     "Functions group": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupo de Funciones"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1398,6 +2124,12 @@
     "General": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1409,6 +2141,12 @@
     "Generate extended INSERT statements": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generar instrucciones INSERT extendidas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1420,6 +2158,12 @@
     "Grid View": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista de Cuadrícula"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1431,6 +2175,12 @@
     "Grid line color": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color de línea de cuadrícula"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1442,6 +2192,12 @@
     "Header background color": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color de fondo del encabezado"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1453,6 +2209,12 @@
     "Header font size": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamaño de fuente del encabezado"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1464,6 +2226,12 @@
     "Header text color": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color de texto del encabezado"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1475,6 +2243,12 @@
     "Hide SQL Query": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar Consulta SQL"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1486,6 +2260,12 @@
     "Hide password": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar contraseña"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1497,6 +2277,12 @@
     "History is empty": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El historial está vacío"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1508,6 +2294,12 @@
     "History is kept only on this Mac, up to %lld queries per connection.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El historial se guarda solo en este Mac, hasta %lld consultas por conexión."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1519,6 +2311,12 @@
     "History: recent queries run on this connection — the selected query is appended to the editor": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historial: consultas recientes ejecutadas en esta conexión — la consulta seleccionada se añade al editor"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1530,6 +2328,12 @@
     "Host": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servidor"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1544,6 +2348,12 @@
     "Import": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1555,6 +2365,12 @@
     "Import ": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar "
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1566,6 +2382,12 @@
     "Import Complete": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importación Completada"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1577,6 +2399,12 @@
     "Import...": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar..."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1588,6 +2416,12 @@
     "Indexes": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Índices"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1599,6 +2433,12 @@
     "Info": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Información"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1610,6 +2450,12 @@
     "Info View": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista de Información"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1621,6 +2467,12 @@
     "Info — %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Información — %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1632,6 +2484,12 @@
     "Insert SQL Query": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insertar Consulta SQL"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1643,6 +2501,12 @@
     "Invalid %@.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ no válido."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1654,6 +2518,12 @@
     "Invalid length for column \"%@\": %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Longitud no válida para la columna \"%@\": %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1665,6 +2535,12 @@
     "Invalid table/column name: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre de tabla/columna no válido: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1676,6 +2552,12 @@
     "Keychain error (%d): %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error de Llavero (%d): %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1687,6 +2569,12 @@
     "Keyword color": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color de palabra clave"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1698,6 +2586,12 @@
     "LENGTH": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LONGITUD"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1709,6 +2603,12 @@
     "Language": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Idioma"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1717,9 +2617,32 @@
         }
       }
     },
+    "Later": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más Tarde"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daha Sonra"
+          }
+        }
+      }
+    },
     "Light": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claro"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1731,6 +2654,12 @@
     "Limited": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limitado"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1742,6 +2671,12 @@
     "Loading columns…": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargando columnas…"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1753,6 +2688,12 @@
     "Loading objects…": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargando objetos…"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1764,6 +2705,12 @@
     "Loading table structure…": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargando estructura de la tabla…"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1775,6 +2722,12 @@
     "Loading…": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargando…"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1786,6 +2739,12 @@
     "Lock INSERT statements": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloquear instrucciones INSERT"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1797,6 +2756,12 @@
     "Lock tables for reading": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloquear tablas para lectura"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1808,6 +2773,12 @@
     "Main toolbar icon size": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamaño de icono de la barra de herramientas principal"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1819,6 +2790,12 @@
     "NOT\nNULL": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NO\nNULO"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1830,6 +2807,12 @@
     "New Connection": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nueva Conexión"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1841,6 +2824,12 @@
     "New Event": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuevo Evento"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1852,6 +2841,12 @@
     "New Function": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nueva Función"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1863,6 +2858,12 @@
     "New MySQL Connection": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nueva Conexión MySQL"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1874,6 +2875,12 @@
     "New Stored Procedure": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuevo Procedimiento Almacenado"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1885,6 +2892,12 @@
     "New Table": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nueva Tabla"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1896,6 +2909,12 @@
     "New Trigger": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuevo Disparador"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1907,6 +2926,12 @@
     "New View": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nueva Vista"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1918,6 +2943,12 @@
     "No changes were made.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se realizaron cambios."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1929,6 +2960,12 @@
     "No columns": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin columnas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1940,6 +2977,12 @@
     "No data found in the file.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontraron datos en el archivo."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1951,6 +2994,12 @@
     "No databases found.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontraron bases de datos."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1962,6 +3011,12 @@
     "No functions": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin funciones"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1973,6 +3028,12 @@
     "No indexes": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin índices"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1984,6 +3045,12 @@
     "No procedures": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin procedimientos"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1995,6 +3062,12 @@
     "No saved connections yet.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no hay conexiones guardadas."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2006,6 +3079,12 @@
     "No tables": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin tablas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2017,6 +3096,12 @@
     "No views": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin vistas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2028,6 +3113,12 @@
     "None": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ninguno"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2039,6 +3130,12 @@
     "Not connected to a database.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No conectado a ninguna base de datos."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2050,6 +3147,12 @@
     "Note": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nota"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2061,6 +3164,12 @@
     "OBJECTS": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OBJETOS"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2072,6 +3181,12 @@
     "OK": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aceptar"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2083,6 +3198,12 @@
     "OPTIONS AFFECTING THE SOURCE": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPCIONES QUE AFECTAN AL ORIGEN"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2094,6 +3215,12 @@
     "OPTIONS WRITTEN TO THE FILE": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPCIONES ESCRITAS EN EL ARCHIVO"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2105,6 +3232,12 @@
     "Optional": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opcional"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2116,6 +3249,12 @@
     "Optional — lists all if empty": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opcional — si está vacío, se listan todos"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2130,6 +3269,12 @@
     "Page size:": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamaño de página:"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2141,6 +3286,12 @@
     "Password": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2152,6 +3303,12 @@
     "Permanently delete the %@ '%@'?": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar %@ \"%@\" permanentemente?"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2163,6 +3320,12 @@
     "Permanently delete the table '%@'?": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar la tabla \"%@\" permanentemente?"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2174,6 +3337,12 @@
     "Permanently delete the view '%@'?": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar la vista \"%@\" permanentemente?"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2188,6 +3357,12 @@
     "Port must be numeric.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El puerto debe ser numérico."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2199,6 +3374,12 @@
     "Procedure": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedimiento"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2210,6 +3391,12 @@
     "Procedure names": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombres de procedimiento"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2221,6 +3408,12 @@
     "Procedure: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedimiento: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2232,6 +3425,12 @@
     "Procedures": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedimientos"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2243,6 +3442,12 @@
     "Procedures group": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupo de Procedimientos"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2254,6 +3459,12 @@
     "Query completed, no results.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consulta completada, sin resultados."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2265,6 +3476,12 @@
     "Query history": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historial de consultas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2276,6 +3493,12 @@
     "READ FROM FILE": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LEER DESDE ARCHIVO"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2287,6 +3510,12 @@
     "Read Only": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo Lectura"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2298,6 +3527,12 @@
     "Redo (⇧⌘Z)": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rehacer (⇧⌘Z)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2309,6 +3544,12 @@
     "Refresh": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizar"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2320,6 +3561,12 @@
     "Reset to Defaults": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restablecer Valores Predeterminados"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2328,9 +3575,49 @@
         }
       }
     },
+    "Restart": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reiniciar"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeniden Başlat"
+          }
+        }
+      }
+    },
+    "Restart Required": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinicio Necesario"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeniden Başlatma Gerekli"
+          }
+        }
+      }
+    },
     "Restart the app for the language change to take effect.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinicia la app para que el cambio de idioma surta efecto."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2342,6 +3629,12 @@
     "Result %lld (%lld)": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resultado %lld (%lld)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2353,6 +3646,12 @@
     "Row height": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altura de fila"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2364,6 +3663,12 @@
     "Row spacing": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espaciado de fila"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2375,6 +3680,12 @@
     "Run": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejecutar"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2386,6 +3697,12 @@
     "Run All": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejecutar Todo"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2397,6 +3714,12 @@
     "Run SQL Query": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejecutar Consulta SQL"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2408,6 +3731,12 @@
     "Runs each \";\"-separated statement in order without DELIMITER (⇧⌘↩). A CREATE PROCEDURE/FUNCTION/TRIGGER with a BEGIN…END body still needs DELIMITER.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejecuta en orden cada instrucción separada por \";\" sin DELIMITER (⇧⌘↩). Un CREATE PROCEDURE/FUNCTION/TRIGGER con cuerpo BEGIN…END sigue necesitando DELIMITER."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2419,6 +3748,12 @@
     "Runs the selected text if there is one, otherwise the whole query (⌘↩)": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejecuta el texto seleccionado si lo hay; si no, toda la consulta (⌘↩)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2430,6 +3765,12 @@
     "SAVE TO FILE": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GUARDAR EN ARCHIVO"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2447,6 +3788,12 @@
     "SQL Editor": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editor SQL"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2458,6 +3805,12 @@
     "SQL PREVIEW": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VISTA PREVIA DE SQL"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2469,6 +3822,12 @@
     "SQL Query": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consulta SQL"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2480,6 +3839,12 @@
     "Save password": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar contraseña"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2491,6 +3856,12 @@
     "Save query history": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar historial de consultas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2502,6 +3873,12 @@
     "Saved Connections": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conexiones Guardadas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2513,6 +3890,12 @@
     "Schema (CREATE TABLE IF NOT EXISTS) and data (INSERT INTO) are exported together.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El esquema (CREATE TABLE IF NOT EXISTS) y los datos (INSERT INTO) se exportan juntos."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2524,6 +3907,12 @@
     "Select All": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleccionar Todo"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2535,6 +3924,12 @@
     "Select a table": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona una tabla"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2546,6 +3941,12 @@
     "Select column": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleccionar columna"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2557,6 +3958,12 @@
     "Selected row background color": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color de fondo de fila seleccionada"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2568,6 +3975,12 @@
     "Selected row text color": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color de texto de fila seleccionada"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2579,6 +3992,12 @@
     "Set FOREIGN_KEY_CHECKS=0": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Establecer FOREIGN_KEY_CHECKS=0"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2590,6 +4009,12 @@
     "Settings": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2599,9 +4024,15 @@
       }
     },
     "Settings (⌘,)": {
-      "extractionState": "manual",
       "comment": "Toolbar tooltip. The shortcut is bound to a physical key, so its character depends on the keyboard layout: ⌘, on US, ⌘Ö on Turkish-Q.",
+      "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes (⌘,)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2613,6 +4044,12 @@
     "Show line numbers": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar números de línea"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2624,6 +4061,12 @@
     "Show password": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar contraseña"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2635,6 +4078,12 @@
     "Sidebar": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barra Lateral"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2646,6 +4095,12 @@
     "Single transaction": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transacción única (single transaction)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2657,6 +4112,12 @@
     "Statement %lld/%lld failed: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instrucción %lld/%lld fallida: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2668,6 +4129,12 @@
     "Status/error message font size": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamaño de fuente de mensaje de estado/error"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2679,6 +4146,12 @@
     "Stored Procedure Name": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre de Procedimiento Almacenado"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2690,6 +4163,12 @@
     "Stored Procedure...": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedimiento Almacenado..."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2701,6 +4180,12 @@
     "Stored Procedures": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedimientos Almacenados"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2712,6 +4197,12 @@
     "String ('...') color": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color de cadena ('...')"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2723,6 +4214,12 @@
     "Structure + data": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estructura + datos"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2734,6 +4231,12 @@
     "Structure only": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo estructura"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2745,6 +4248,12 @@
     "System": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2756,6 +4265,12 @@
     "TABLE COLUMNS": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "COLUMNAS DE LA TABLA"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2767,6 +4282,12 @@
     "TRUNCATE TABLE cannot be undone.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TRUNCATE TABLE no se puede deshacer."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2778,6 +4299,12 @@
     "TYPE": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TIPO"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2789,6 +4316,12 @@
     "Table Name": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre de Tabla"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2800,6 +4333,12 @@
     "Table name cannot be empty.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El nombre de la tabla no puede estar vacío."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2811,6 +4350,12 @@
     "Table names": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombres de tabla"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2822,6 +4367,12 @@
     "Table toolbar icon size": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamaño de icono de la barra de herramientas de tabla"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2833,6 +4384,12 @@
     "Table...": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tabla..."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2844,6 +4401,12 @@
     "Table: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tabla: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2855,6 +4418,12 @@
     "Table: %@ (%lld rows)": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tabla: %@ (%lld filas)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2866,6 +4435,12 @@
     "Tables": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tablas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2877,6 +4452,12 @@
     "Tables group": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupo de Tablas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2888,6 +4469,12 @@
     "Text View": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista de Texto"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2899,6 +4486,12 @@
     "Text color": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color de texto"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2910,6 +4503,12 @@
     "The view definition (CREATE OR REPLACE VIEW) is exported — a view has no rows of its own, so no data is written separately.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se exporta la definición de la vista (CREATE OR REPLACE VIEW) — una vista no tiene filas propias, por lo que no se escriben datos por separado."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2921,6 +4520,12 @@
     "Theme": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tema"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2932,6 +4537,12 @@
     "This action cannot be undone.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta acción no se puede deshacer."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2943,6 +4554,12 @@
     "This result is not editable (requires a single table and a primary key column in the result).": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este resultado no es editable (requiere una sola tabla y una columna de clave primaria en el resultado)."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2954,6 +4571,12 @@
     "This table (%lld rows) exceeds Excel's limit of %lld rows. Please use the CSV, SQL or HTML format instead.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta tabla (%lld filas) supera el límite de Excel de %lld filas. Usa el formato CSV, SQL o HTML en su lugar."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2965,6 +4588,12 @@
     "This table has no primary key; editing is disabled.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta tabla no tiene clave primaria; la edición está desactivada."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2976,6 +4605,12 @@
     "Tree icon colors": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colores de icono del árbol"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2987,6 +4622,12 @@
     "Trigger Name": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre de Disparador"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2998,6 +4639,12 @@
     "Trigger...": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disparador..."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3009,6 +4656,12 @@
     "Truncate": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3020,6 +4673,12 @@
     "Truncate Table": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate Table"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3031,6 +4690,12 @@
     "Truncate failed: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate falló: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3048,6 +4713,12 @@
     "Undo (⌘Z)": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deshacer (⌘Z)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3059,6 +4730,12 @@
     "Username": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre de Usuario"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3070,6 +4747,12 @@
     "View Name": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre de Vista"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3081,6 +4764,12 @@
     "View names": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombres de vista"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3092,6 +4781,12 @@
     "View...": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista..."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3103,6 +4798,12 @@
     "View: %@": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3114,6 +4815,12 @@
     "Views": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vistas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3125,6 +4832,12 @@
     "Views group": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupo de Vistas"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3136,6 +4849,12 @@
     "When off, the page size is ignored and the whole table is loaded.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si está desactivado, se ignora el tamaño de página y se carga la tabla completa."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3147,6 +4866,12 @@
     "You must add at least one column.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debes añadir al menos una columna."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3158,6 +4883,12 @@
     "You must map at least one column to import.": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debes asignar al menos una columna para importar."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3169,6 +4900,12 @@
     "unknown": {
       "extractionState": "manual",
       "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "desconocido"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
