@@ -87,8 +87,13 @@ struct AlterTableView: View {
                 .buttonStyle(SchemaPrimaryButtonStyle(theme: theme))
             }
         }
-        .padding(24)
-        .frame(minWidth: 920, idealWidth: 960, minHeight: 640, idealHeight: 700)
+        .padding(.vertical, 24)
+        .padding(.horizontal, 32)
+        // Same constraint as `CreateTableView`: `DraftColumnsEditor`'s row
+        // is ~908pt of fixed, unshrinkable width, so the frame has to be
+        // wider than that plus this padding or the grid overflows and the
+        // padding stops being visible at all. See the comment there.
+        .frame(minWidth: 1000, idealWidth: 1040, minHeight: 640, idealHeight: 700)
         .background(theme.windowBackground)
         .task {
             await viewModel.load()

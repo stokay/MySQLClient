@@ -1,4 +1,6 @@
+import AppKit
 import Foundation
+import UniformTypeIdentifiers
 
 enum CreateTableError: Error, LocalizedError {
     case emptyTableName
@@ -58,6 +60,37 @@ final class CreateTableViewModel: ObservableObject {
     @Published private(set) var isSubmitting = false
     @Published var errorMessage: String?
 
+    // MARK: - Import columns from file
+
+    /// Defaults to CSV, same convention as `TableImportViewModel
+    /// .selectedFormat`. Switching format drops whatever file was chosen
+    /// for the old one — a CSV file can't be reinterpreted as an Excel
+    /// workbook.
+    @Published var columnImportFormat: ImportSourceFormat = .csv {
+        didSet {
+            guard columnImportFormat != oldValue else { return }
+            columnImportSourceURL = nil
+            columnImportSheetNames = []
+            columnImportSelectedSheetIndex = 0
+            columnImportErrorMessage = nil
+        }
+    }
+    @Published var columnImportSourceURL: URL?
+    /// Sheet names for a chosen `.xlsx`, in file order — empty for CSV, or
+    /// before any file is chosen.
+    @Published private(set) var columnImportSheetNames: [String] = []
+    @Published var columnImportSelectedSheetIndex = 0
+    @Published private(set) var isImportingColumns = false
+    @Published var columnImportErrorMessage: String?
+
+    /// Rows sampled to guess type/length/nullability — deliberately more
+    /// than `TableImportViewModel.columnDetectionRowLimit` (which only
+    /// needs the header): a wider sample means a value that would blow up
+    /// a too-narrow `VARCHAR` guess, or a decimal column with only a
+    /// couple of fractional digits in the first few rows, is more likely
+    /// to actually get seen before the table is created.
+    let columnImportSampleRowLimit = 200
+
     /// Live `CREATE TABLE` text for the "SQL Önizleme" section — recomputed
     /// on every access (cheap: local string building, no I/O), so it always
     /// reflects the current form state without needing its own `@Published`
@@ -92,6 +125,78 @@ final class CreateTableViewModel: ObservableObject {
         collationOptions = ["[default]"] + collations
         if !collationOptions.contains(collation) {
             collation = "[default]"
+        }
+    }
+
+    // MARK: - Import columns from file
+
+    /// Same reasoning as `TableImportViewModel.chooseSourceFile`:
+    /// `NSApp.keyWindow` rather than a dedicated window-accessor, since
+    /// this sheet is always key when its own "..." button was just
+    /// clicked. Restricted to `columnImportFormat`'s own file type.
+    func chooseColumnImportFile() {
+        let panel = NSOpenPanel()
+        switch columnImportFormat {
+        case .csv:
+            panel.allowedContentTypes = [.commaSeparatedText, .plainText]
+        case .xlsx:
+            panel.allowedContentTypes = [UTType(filenameExtension: "xlsx")].compactMap { $0 }
+        }
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        columnImportSourceURL = url
+        columnImportSelectedSheetIndex = 0
+        columnImportErrorMessage = nil
+
+        guard columnImportFormat == .xlsx else {
+            columnImportSheetNames = []
+            return
+        }
+        do {
+            let fileHandle = try FileHandle(forReadingFrom: url)
+            defer { try? fileHandle.close() }
+            columnImportSheetNames = try XLSXImportParser.sheetNames(fileHandle: fileHandle)
+        } catch {
+            columnImportSheetNames = []
+            columnImportErrorMessage = error.localizedDescription
+        }
+    }
+
+    /// Reads a sample of `columnImportSourceURL` and **replaces** `columns`
+    /// wholesale with `ColumnTypeInference`'s guesses — a fresh starting
+    /// point to review, not a merge with whatever rows were already typed.
+    /// Only the file's structure is read here; no data is written
+    /// anywhere, and nothing about the file is retained afterward.
+    func importColumns() async {
+        guard let columnImportSourceURL else { return }
+        isImportingColumns = true
+        columnImportErrorMessage = nil
+        defer { isImportingColumns = false }
+
+        do {
+            let fileHandle = try FileHandle(forReadingFrom: columnImportSourceURL)
+            defer { try? fileHandle.close() }
+            let rows: [[String]]
+            switch columnImportFormat {
+            case .csv:
+                rows = try await CSVImportParser.preview(
+                    fileHandle: fileHandle, options: CSVImportParser.Options(), limit: columnImportSampleRowLimit
+                )
+            case .xlsx:
+                rows = try await XLSXImportParser.preview(
+                    fileHandle: fileHandle, sheetIndex: columnImportSelectedSheetIndex, limit: columnImportSampleRowLimit
+                )
+            }
+            guard !rows.isEmpty else {
+                columnImportErrorMessage = String(localized: "No data found in the file.")
+                return
+            }
+            columns = ColumnTypeInference.inferColumns(fromRows: rows)
+        } catch {
+            columnImportErrorMessage = error.localizedDescription
         }
     }
 

@@ -50,7 +50,7 @@ A native macOS MySQL management tool built with **Swift 6 / SwiftUI**, available
 - Right-click SQL templates for quick `SELECT`, `INSERT`, `UPDATE`, `DELETE`
 
 ### Table Management
-- **Create Table** form with column editor (name, type, length, nullable, default, auto-increment)
+- **Create Table** form with column editor (name, type, length, nullable, default, auto-increment) — columns can also be suggested from a CSV or Excel file's header and sample data (type/length/nullability inferred, reviewable before creating; no data is imported, only the structure)
 - **Alter Table** — add / modify / reorder / drop columns
 - Column drag-and-drop reordering
 

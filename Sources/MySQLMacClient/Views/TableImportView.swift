@@ -81,19 +81,18 @@ struct TableImportView: View {
 
     /// Same shape/styling as `TableExportView.formatTabs` — an explicit
     /// choice made before browsing for a file, not inferred from whatever
-    /// extension the user happens to pick. See `TableImportViewModel
-    /// .SourceFormat`'s doc comment for why this matters: a file picker
-    /// that silently also accepts `.xlsx` doesn't tell anyone Excel import
-    /// exists.
+    /// extension the user happens to pick. See `ImportSourceFormat`'s doc
+    /// comment for why this matters: a file picker that silently also
+    /// accepts `.xlsx` doesn't tell anyone Excel import exists.
     private var formatTabs: some View {
         HStack(spacing: 6) {
-            ForEach(TableImportViewModel.SourceFormat.allCases) { format in
+            ForEach(ImportSourceFormat.allCases) { format in
                 formatTabButton(format)
             }
         }
     }
 
-    private func formatTabButton(_ format: TableImportViewModel.SourceFormat) -> some View {
+    private func formatTabButton(_ format: ImportSourceFormat) -> some View {
         let isActive = viewModel.selectedFormat == format
         return Button {
             viewModel.selectedFormat = format

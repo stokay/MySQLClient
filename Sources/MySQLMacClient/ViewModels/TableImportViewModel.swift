@@ -28,35 +28,15 @@ final class TableImportViewModel: ObservableObject {
         var targetColumnName: String?
     }
 
-    /// Which parser handles `sourceFileURL` — an explicit choice up front
-    /// (CSV/Excel tabs in the view, mirroring `TableExportView`'s format
-    /// tabs), not inferred from a file extension after the fact. Making it
-    /// a choice made *before* browsing for a file is what actually
-    /// surfaces that Excel import exists at all — a user who only sees the
-    /// file picker after clicking "Import…" has no reason to expect
-    /// anything but CSV, and would never discover `.xlsx` support by
-    /// trial and error.
-    enum SourceFormat: Equatable, CaseIterable, Identifiable {
-        case csv
-        case xlsx
-
-        var id: Self { self }
-
-        var displayName: String {
-            switch self {
-            case .csv: return "CSV"
-            case .xlsx: return "Excel"
-            }
-        }
-    }
-
     let table: TableInfo
 
     @Published var csvOptions = CSVImportParser.Options()
     @Published var hasHeaderRow = true
     /// Defaults to CSV — the common case, and what browsing for a file
-    /// used to always mean before Excel import existed.
-    @Published var selectedFormat: SourceFormat = .csv {
+    /// used to always mean before Excel import existed. See
+    /// `ImportSourceFormat`'s doc comment for why this is an explicit
+    /// choice rather than inferred from a file extension.
+    @Published var selectedFormat: ImportSourceFormat = .csv {
         didSet {
             guard selectedFormat != oldValue else { return }
             // The previously chosen file (if any) belongs to the old

@@ -3169,6 +3169,29 @@
         }
       }
     },
+    "IMPORT COLUMNS FROM FILE": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SPALTEN AUS DATEI IMPORTIEREN"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IMPORTAR COLUMNAS DESDE ARCHIVO"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DOSYADAN KOLON İÇE AKTAR"
+          }
+        }
+      }
+    },
     "INSERT INTO": {
       "extractionState": "manual"
     },
@@ -3214,6 +3237,29 @@
           "stringUnit": {
             "state": "translated",
             "value": "İçe Aktar "
+          }
+        }
+      }
+    },
+    "Import Columns": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spalten Importieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar Columnas"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolonları İçe Aktar"
           }
         }
       }
@@ -4364,6 +4410,29 @@
           "stringUnit": {
             "state": "translated",
             "value": "DOSYAYA YAZILAN SEÇENEKLER"
+          }
+        }
+      }
+    },
+    "Only the table structure is created — no records are imported. Review the suggested types below before creating.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es wird nur die Tabellenstruktur erstellt — es werden keine Datensätze importiert. Überprüfen Sie die vorgeschlagenen Typen unten, bevor Sie erstellen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo se crea la estructura de la tabla — no se importan registros. Revisa los tipos sugeridos a continuación antes de crear."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yalnızca tablo yapısı oluşturulur — kayıtlar içe aktarılmaz. Oluşturmadan önce aşağıdaki önerilen tipleri gözden geçirin."
           }
         }
       }

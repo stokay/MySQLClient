@@ -115,4 +115,69 @@ final class CreateTableViewModelTests: XCTestCase {
 
         XCTAssertTrue(viewModel.columns[0].isNotNull)
     }
+
+    // MARK: - Import columns from file
+
+    /// `chooseColumnImportFile()` itself needs a real `NSOpenPanel`, so —
+    /// same workaround as `TableImportViewModelTests` — this sets
+    /// `columnImportSourceURL` directly instead of driving the picker.
+    /// Proves the whole path end to end: a real file's rows produce real
+    /// `DraftColumn`s, and those actually `CREATE TABLE` correctly — not
+    /// just that `ColumnTypeInference` itself works in isolation (already
+    /// covered by `ColumnTypeInferenceTests`).
+    func testImportColumnsFromCSVPopulatesColumnsWhichThenCreateSuccessfully() async throws {
+        let csvURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).csv")
+        defer { try? FileManager.default.removeItem(at: csvURL) }
+        try Data("id,name,price,created\n1,Ada,19.99,2024-01-15\n2,Grace,29.50,2024-02-20\n".utf8).write(to: csvURL)
+
+        let viewModel = makeViewModel()
+        viewModel.tableName = "create_table_scratch"
+        XCTAssertEqual(viewModel.columnImportFormat, .csv)
+        viewModel.columnImportSourceURL = csvURL
+        await viewModel.importColumns()
+
+        XCTAssertNil(viewModel.columnImportErrorMessage)
+        XCTAssertEqual(viewModel.columns.map(\.name), ["id", "name", "price", "created"])
+        XCTAssertEqual(viewModel.columns.map(\.dataType), ["INT", "VARCHAR", "DECIMAL", "DATE"])
+
+        let created = await viewModel.submit()
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertNotNil(created)
+
+        let columns = try await introspection.columns(forTable: "create_table_scratch", inDatabase: "mysqlmacclient_test")
+        XCTAssertEqual(columns.map(\.name).sorted(), ["created", "id", "name", "price"])
+        // No row from the source CSV was ever written — only the structure.
+        let rows = try await service.query("SELECT COUNT(*) AS cnt FROM create_table_scratch")
+        XCTAssertEqual(rows.first?.column("cnt")?.int, 0)
+    }
+
+    func testImportColumnsFromXLSXUsesTheSelectedSheet() async throws {
+        let xlsxURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).xlsx")
+        defer { try? FileManager.default.removeItem(at: xlsxURL) }
+        let columns = [ColumnInfo(name: "sku", mysqlType: "text", isNullable: true, isPrimaryKey: false, isAutoIncrement: false, defaultValue: nil)]
+        try XLSXExporter.write(columns: columns, rows: [[.string("ABC123")]], includeHeaderRow: true, to: xlsxURL)
+
+        let viewModel = makeViewModel()
+        viewModel.columnImportFormat = .xlsx
+        viewModel.columnImportSourceURL = xlsxURL
+        await viewModel.importColumns()
+
+        XCTAssertNil(viewModel.columnImportErrorMessage)
+        XCTAssertEqual(viewModel.columns.map(\.name), ["sku"])
+        XCTAssertEqual(viewModel.columns.map(\.dataType), ["VARCHAR"])
+    }
+
+    func testSwitchingColumnImportFormatClearsThePreviouslyChosenFile() async throws {
+        let csvURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).csv")
+        defer { try? FileManager.default.removeItem(at: csvURL) }
+        try Data("id\n1\n".utf8).write(to: csvURL)
+
+        let viewModel = makeViewModel()
+        viewModel.columnImportSourceURL = csvURL
+        XCTAssertNotNil(viewModel.columnImportSourceURL)
+
+        viewModel.columnImportFormat = .xlsx
+
+        XCTAssertNil(viewModel.columnImportSourceURL, "format değişince önceki dosya geçersiz kalır, temizlenmeli")
+    }
 }
