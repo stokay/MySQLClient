@@ -10,9 +10,11 @@ import XCTest
 final class TableImportViewModelTests: XCTestCase {
     var service: MySQLService!
     var sourceFileURL: URL!
+    var xlsxFileURL: URL!
 
     override func setUp() async throws {
         sourceFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).csv")
+        xlsxFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).xlsx")
         service = MySQLService()
         try await service.connect(
             host: "127.0.0.1",
@@ -33,6 +35,7 @@ final class TableImportViewModelTests: XCTestCase {
 
     override func tearDown() async throws {
         try? FileManager.default.removeItem(at: sourceFileURL)
+        try? FileManager.default.removeItem(at: xlsxFileURL)
         _ = try? await service.rawQuery("DROP TABLE IF EXISTS import_scratch_innodb")
         try await service.disconnect()
     }
@@ -85,6 +88,28 @@ final class TableImportViewModelTests: XCTestCase {
     private func widgetRowCount() async throws -> Int {
         let rows = try await service.query("SELECT COUNT(*) AS cnt FROM widgets")
         return rows.first?.column("cnt")?.int ?? 0
+    }
+
+    // MARK: - Format selection
+
+    func testDefaultsToCSVAndSwitchingFormatClearsThePreviouslyChosenFile() async throws {
+        try write("name,quantity,notes\nScrew,50,Small screw\n")
+
+        let viewModel = makeViewModel()
+        await viewModel.loadColumns()
+        XCTAssertEqual(viewModel.selectedFormat, .csv)
+
+        viewModel.sourceFileURL = sourceFileURL
+        await viewModel.refreshColumnMappings()
+        XCTAssertNotNil(viewModel.sourceFileURL)
+        XCTAssertFalse(viewModel.columnMappings.isEmpty)
+
+        // A CSV file can't just be reinterpreted as an Excel one — the
+        // stale selection has to go, not linger as a mismatched pairing.
+        viewModel.selectedFormat = .xlsx
+
+        XCTAssertNil(viewModel.sourceFileURL)
+        XCTAssertTrue(viewModel.columnMappings.isEmpty)
     }
 
     // MARK: - Basic import + auto-mapping
@@ -264,5 +289,137 @@ final class TableImportViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.didFinishSuccessfully, "iptal edilen bir import tamamlanma uyarısını tetiklememeli")
         let count = try await scratchRowCount()
         XCTAssertEqual(count, 1, "iptal, önceden başarıyla çalışan batch'ler dahil hiçbir satır bırakmamalı — yalnızca tohum satırı kalmalı")
+    }
+
+    // MARK: - XLSX source format
+
+    /// Built with this app's own `XLSXExporter` — sufficient here, since
+    /// `XLSXImportParserTests` already separately proves the parser
+    /// handles shared strings/DEFLATE/multiple sheets a real-world file
+    /// would use. What this file needs to prove is that
+    /// `TableImportViewModel` correctly detects `.xlsx` from the file
+    /// extension and routes the whole transactional pipeline through
+    /// `XLSXImportParser` instead of `CSVImportParser`.
+    private func writeXLSX(headers: [String], rows: [[String]], to url: URL) throws {
+        let columns = headers.map {
+            ColumnInfo(name: $0, mysqlType: "text", isNullable: true, isPrimaryKey: false, isAutoIncrement: false, defaultValue: nil)
+        }
+        let rowValues: [[RowValue]] = rows.map { row in row.map { RowValue.string($0) } }
+        try XLSXExporter.write(columns: columns, rows: rowValues, includeHeaderRow: true, to: url)
+    }
+
+    func testSelectingExcelFormatImportsAnXLSXFilesRows() async throws {
+        try writeXLSX(
+            headers: ["name", "quantity", "notes"],
+            rows: [["Screw", "50", "Small screw"], ["Rivet", "75", ""]],
+            to: xlsxFileURL
+        )
+
+        let viewModel = makeViewModel()
+        await viewModel.loadColumns()
+        XCTAssertEqual(viewModel.selectedFormat, .csv, "CSV varsayılan olmalı")
+        viewModel.selectedFormat = .xlsx
+        viewModel.sourceFileURL = xlsxFileURL
+        await viewModel.refreshColumnMappings()
+
+        XCTAssertEqual(viewModel.columnMappings.map(\.targetColumnName), ["name", "quantity", "notes"])
+
+        await runToCompletion(viewModel)
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertTrue(viewModel.didFinishSuccessfully)
+
+        let rows = try await service.query("SELECT quantity, notes FROM widgets WHERE name = 'Screw'")
+        XCTAssertEqual(rows.first?.column("quantity")?.int, 50)
+        XCTAssertEqual(rows.first?.column("notes")?.string, "Small screw")
+
+        let count = try await widgetRowCount()
+        XCTAssertEqual(count, 5, "3 tohum satırı + 2 içe aktarılan satır")
+    }
+
+    /// `chooseSourceFile()` itself needs a real `NSOpenPanel`, so this
+    /// exercises `selectedSheetIndex` the way the sheet picker's
+    /// `onChange` does: set directly, then re-derive the mapping — proving
+    /// the *second* sheet's data is what actually gets read and imported,
+    /// not just the first one found in the archive.
+    func testSelectingTheSecondSheetImportsThatSheetsRowsNotTheFirsts() async throws {
+        let firstSheetColumns = [ColumnInfo(name: "name", mysqlType: "text", isNullable: true, isPrimaryKey: false, isAutoIncrement: false, defaultValue: nil)]
+        try XLSXExporter.write(columns: firstSheetColumns, rows: [[.string("WrongSheet")]], includeHeaderRow: true, to: xlsxFileURL)
+
+        // `XLSXExporter` only ever writes one sheet — append a second sheet
+        // by hand so there's something real to pick between, packaged with
+        // `/usr/bin/zip` the same way `XLSXImportParserTests` builds its
+        // multi-sheet fixture.
+        let secondSheetXML = """
+            <?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>name</t></is></c></row><row r="2"><c r="A2" t="inlineStr"><is><t>RightSheet</t></is></c></row></sheetData></worksheet>
+            """
+        try appendSecondSheet(sheetXML: secondSheetXML, to: xlsxFileURL)
+
+        let viewModel = makeViewModel()
+        await viewModel.loadColumns()
+        viewModel.selectedFormat = .xlsx
+        viewModel.sourceFileURL = xlsxFileURL
+        await viewModel.refreshColumnMappings()
+        XCTAssertEqual(viewModel.xlsxSheetNames, ["Sheet1", "Sheet2"])
+
+        viewModel.selectedSheetIndex = 1
+        await viewModel.refreshColumnMappings()
+
+        await runToCompletion(viewModel)
+        XCTAssertNil(viewModel.errorMessage)
+
+        let count = try await service.query("SELECT COUNT(*) AS cnt FROM widgets WHERE name = 'RightSheet'")
+        XCTAssertEqual(count.first?.column("cnt")?.int, 1)
+        let wrongCount = try await service.query("SELECT COUNT(*) AS cnt FROM widgets WHERE name = 'WrongSheet'")
+        XCTAssertEqual(wrongCount.first?.column("cnt")?.int, 0, "seçilmeyen sayfanın verisi içe aktarılmamalı")
+    }
+
+    /// Rewrites the `.xlsx` at `url` (a `XLSXExporter`-produced archive,
+    /// single sheet named "Sheet1") to add a second sheet — patches
+    /// `workbook.xml`/`workbook.xml.rels` to reference it and repacks
+    /// everything with `/usr/bin/zip`, an independent tool actually doing
+    /// the archiving rather than this project's own writer.
+    private func appendSecondSheet(sheetXML: String, to url: URL) throws {
+        let stagingDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: stagingDir) }
+        try runProcess("/usr/bin/unzip", ["-q", url.path, "-d", stagingDir.path])
+
+        let workbookURL = stagingDir.appendingPathComponent("xl/workbook.xml")
+        var workbookXML = try String(contentsOf: workbookURL, encoding: .utf8)
+        workbookXML = workbookXML.replacingOccurrences(
+            of: "</sheets>",
+            with: "<sheet name=\"Sheet2\" sheetId=\"2\" r:id=\"rId2\"/></sheets>"
+        )
+        try workbookXML.write(to: workbookURL, atomically: true, encoding: .utf8)
+
+        let relsURL = stagingDir.appendingPathComponent("xl/_rels/workbook.xml.rels")
+        var relsXML = try String(contentsOf: relsURL, encoding: .utf8)
+        relsXML = relsXML.replacingOccurrences(
+            of: "</Relationships>",
+            with: "<Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet2.xml\"/></Relationships>"
+        )
+        try relsXML.write(to: relsURL, atomically: true, encoding: .utf8)
+
+        try sheetXML.write(to: stagingDir.appendingPathComponent("xl/worksheets/sheet2.xml"), atomically: true, encoding: .utf8)
+
+        try? FileManager.default.removeItem(at: url)
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
+        process.arguments = ["-r", "-q", url.path, "."]
+        process.currentDirectoryURL = stagingDir
+        process.standardOutput = Pipe()
+        process.standardError = Pipe()
+        try process.run()
+        process.waitUntilExit()
+        XCTAssertEqual(process.terminationStatus, 0, "/usr/bin/zip failed to repack the test fixture")
+    }
+
+    private func runProcess(_ launchPath: String, _ arguments: [String]) throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: launchPath)
+        process.arguments = arguments
+        process.standardOutput = Pipe()
+        process.standardError = Pipe()
+        try process.run()
+        process.waitUntilExit()
     }
 }

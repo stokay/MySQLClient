@@ -56,7 +56,7 @@ A native macOS MySQL management tool built with **Swift 6 / SwiftUI**, available
 
 ### Export, Import & Backup
 - **Table Export** — CSV, HTML, JSON, SQL, and hand-rolled `.xlsx` (no third-party dependency), streamed page-by-page so multi-million-row tables don't sit in memory; live progress bar and cancel
-- **Table Import** — reads a CSV file through a streaming RFC4180 parser, auto-maps columns by header name (correctable per column), and writes every row inside a single transaction — all rows land or none do
+- **Table Import** — reads a CSV (streaming RFC4180 parser) or Excel `.xlsx` file (hand-rolled reader — DEFLATE-compressed archives, shared strings, multiple sheets, date-styled cells), auto-maps columns by header name (correctable per column), and writes every row inside a single transaction — all rows land or none do
 - **Database Backup** — HeidiSQL-style SQL dump dialog: structure/data/both, `DROP` statements, extended inserts, `LOCK TABLES` / `--single-transaction`, tables + views + routines, with progress and cancel
 - All file writes go through an atomic temp-file-then-replace step, so a failed or cancelled run never touches (or deletes) a pre-existing file at the destination
 
@@ -99,8 +99,9 @@ Sources/MySQLMacClient/
 ├── Persistence/     # ConnectionStore, QueryHistoryRecorder (JSON files)
 ├── Export/          # CSVExporter, HTMLExporter, JSONExporter, SQLExporter, XLSXExporter
 │                    #   (hand-rolled zip/XML writer), AtomicFileWriter
-├── Import/          # CSVImportParser (streaming RFC4180 reader)
-├── Localizable.xcstrings  # String Catalog: English source + Turkish translations
+├── Import/          # CSVImportParser (streaming RFC4180 reader), XLSXImportParser
+│                    #   (hand-rolled zip/XML reader + inflate), MinimalZipReader
+├── Localizable.xcstrings  # String Catalog: English source + Turkish/Spanish/German translations
 ├── ViewModels/      # TableDataVM, TableExportVM, TableImportVM, DatabaseBackupVM,
 │                    #   SQLConsoleVM, SchemaTreeVM, AlterTableVM, CreateTableVM, ...
 ├── Views/           # SwiftUI views + AppKit bridging (SpreadsheetGridView, SQLTextView)
@@ -178,11 +179,10 @@ into `MySQLMacClient-<version>.dmg` in the repo root.
 - [x] Schema tree with views, stored procedures and functions
 - [ ] Browse triggers and events in the schema tree (create forms already exist; they just aren't listed in the tree yet)
 - [x] Table Export (CSV, HTML, JSON, SQL, Excel) with streaming + progress + cancel
-- [x] Table Import (CSV) with column mapping and all-or-nothing transaction
+- [x] Table Import (CSV and Excel `.xlsx`) with column mapping and all-or-nothing transaction
 - [x] Database Backup (SQL dump — structure/data, routines, extended inserts)
 - [x] Packaged `.app` bundle with icon & Info.plist, App Sandbox entitlements, DMG build script
-- [x] English + Turkish localization with an in-app language picker
-- [ ] Excel (`.xlsx`) import — Table Import currently accepts CSV only
+- [x] English, Turkish, Spanish and German localization with an in-app language picker
 - [ ] Connection pooling — `MySQLService` currently holds a single connection per session, serialized behind a FIFO acquire/release gate (the wire protocol can't have two requests in flight at once); a long-running export/backup and interactive grid browsing today queue behind each other rather than running on separate connections
 
 ---

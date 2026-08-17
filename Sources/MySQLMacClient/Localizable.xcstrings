@@ -2315,6 +2315,29 @@
     "ESCAPE CHARACTER": {
       "extractionState": "manual"
     },
+    "EXCEL COLUMNS": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EXCEL-SPALTEN"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "COLUMNAS DE EXCEL"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EXCEL BAŞLIKLARI"
+          }
+        }
+      }
+    },
     "EXPORT AS SQL": {
       "extractionState": "manual",
       "localizations": {
@@ -5089,6 +5112,29 @@
     },
     "SELECT": {
       "extractionState": "manual"
+    },
+    "SHEET": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BLATT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HOJA"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SAYFA"
+          }
+        }
+      }
     },
     "SQL Dump": {
       "extractionState": "manual"

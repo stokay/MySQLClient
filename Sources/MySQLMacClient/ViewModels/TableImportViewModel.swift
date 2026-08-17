@@ -3,9 +3,10 @@ import Foundation
 import MySQLNIO
 import UniformTypeIdentifiers
 
-/// Backs the "Import..." sheet: reads a CSV file and `INSERT`s its rows
-/// into `table`, entirely inside one transaction — either every row lands,
-/// or (on any failed row, or user cancellation) none of them do.
+/// Backs the "Import..." sheet: reads a CSV or Excel `.xlsx` file and
+/// `INSERT`s its rows into `table`, entirely inside one transaction —
+/// either every row lands, or (on any failed row, or user cancellation)
+/// none of them do.
 @MainActor
 final class TableImportViewModel: ObservableObject {
     struct Progress: Equatable {
@@ -27,11 +28,52 @@ final class TableImportViewModel: ObservableObject {
         var targetColumnName: String?
     }
 
+    /// Which parser handles `sourceFileURL` — an explicit choice up front
+    /// (CSV/Excel tabs in the view, mirroring `TableExportView`'s format
+    /// tabs), not inferred from a file extension after the fact. Making it
+    /// a choice made *before* browsing for a file is what actually
+    /// surfaces that Excel import exists at all — a user who only sees the
+    /// file picker after clicking "Import…" has no reason to expect
+    /// anything but CSV, and would never discover `.xlsx` support by
+    /// trial and error.
+    enum SourceFormat: Equatable, CaseIterable, Identifiable {
+        case csv
+        case xlsx
+
+        var id: Self { self }
+
+        var displayName: String {
+            switch self {
+            case .csv: return "CSV"
+            case .xlsx: return "Excel"
+            }
+        }
+    }
+
     let table: TableInfo
 
     @Published var csvOptions = CSVImportParser.Options()
     @Published var hasHeaderRow = true
+    /// Defaults to CSV — the common case, and what browsing for a file
+    /// used to always mean before Excel import existed.
+    @Published var selectedFormat: SourceFormat = .csv {
+        didSet {
+            guard selectedFormat != oldValue else { return }
+            // The previously chosen file (if any) belongs to the old
+            // format and can't just be reinterpreted as the other one.
+            sourceFileURL = nil
+            xlsxSheetNames = []
+            selectedSheetIndex = 0
+            columnMappings = []
+            errorMessage = nil
+        }
+    }
     @Published var sourceFileURL: URL?
+    /// Sheet names from the chosen `.xlsx`'s `workbook.xml`, in file order
+    /// — empty for a CSV source, or before any file is chosen. `sheetIndex`
+    /// arguments to `XLSXImportParser` refer to this same order.
+    @Published private(set) var xlsxSheetNames: [String] = []
+    @Published var selectedSheetIndex = 0
     @Published private(set) var allColumns: [ColumnInfo] = []
     @Published private(set) var isLoadingColumns = true
     @Published var columnMappings: [ColumnMapping] = []
@@ -83,33 +125,58 @@ final class TableImportViewModel: ObservableObject {
     /// `NSApp.keyWindow` rather than a dedicated `NSViewRepresentable`
     /// window-accessor — same reasoning as `TableExportViewModel
     /// .chooseOutputFile`: the import sheet is always the key window when
-    /// its own "..." button is what was just clicked.
+    /// its own "..." button is what was just clicked. Restricted to
+    /// `selectedFormat`'s own file type — the CSV/Excel choice was already
+    /// made before this panel opens.
     func chooseSourceFile() {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.commaSeparatedText, .plainText]
+        switch selectedFormat {
+        case .csv:
+            panel.allowedContentTypes = [.commaSeparatedText, .plainText]
+        case .xlsx:
+            panel.allowedContentTypes = [UTType(filenameExtension: "xlsx")].compactMap { $0 }
+        }
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
         sourceFileURL = url
+        selectedSheetIndex = 0
         Task { await refreshColumnMappings() }
     }
 
     /// Re-reads just the first `columnDetectionRowLimit` rows of
     /// `sourceFileURL` and re-derives `columnMappings` — called after a
-    /// new file is chosen and whenever the view's CSV option controls
+    /// new file is chosen and whenever the view's CSV/XLSX option controls
     /// change, so the auto-mapping always reflects the options currently
-    /// on screen.
+    /// on screen. Also re-derives `xlsxSheetNames` for an `.xlsx` source —
+    /// done here rather than only in `chooseSourceFile()` so it stays
+    /// correct regardless of how `sourceFileURL` got set (including in
+    /// tests, which assign it directly instead of driving a real
+    /// `NSOpenPanel`).
     func refreshColumnMappings() async {
         columnMappings = []
         guard let sourceFileURL else { return }
         errorMessage = nil
+        xlsxSheetNames = []
         do {
+            if selectedFormat == .xlsx {
+                let sheetNamesHandle = try FileHandle(forReadingFrom: sourceFileURL)
+                defer { try? sheetNamesHandle.close() }
+                xlsxSheetNames = try XLSXImportParser.sheetNames(fileHandle: sheetNamesHandle)
+            }
+
             let fileHandle = try FileHandle(forReadingFrom: sourceFileURL)
             defer { try? fileHandle.close() }
             let rowsToRead = columnDetectionRowLimit + (hasHeaderRow ? 1 : 0)
-            let rows = try await CSVImportParser.preview(fileHandle: fileHandle, options: csvOptions, limit: rowsToRead)
+            let rows: [[String]]
+            switch selectedFormat {
+            case .csv:
+                rows = try await CSVImportParser.preview(fileHandle: fileHandle, options: csvOptions, limit: rowsToRead)
+            case .xlsx:
+                rows = try await XLSXImportParser.preview(fileHandle: fileHandle, sheetIndex: selectedSheetIndex, limit: rowsToRead)
+            }
             guard !rows.isEmpty else { return }
 
             let headerRow = hasHeaderRow ? rows[0] : nil
@@ -184,7 +251,12 @@ final class TableImportViewModel: ObservableObject {
         let fileHandle = try FileHandle(forReadingFrom: url)
         defer { try? fileHandle.close() }
         var count = 0
-        try await CSVImportParser.parse(fileHandle: fileHandle, options: csvOptions) { _, _ in count += 1 }
+        switch selectedFormat {
+        case .csv:
+            try await CSVImportParser.parse(fileHandle: fileHandle, options: csvOptions) { _, _ in count += 1 }
+        case .xlsx:
+            try await XLSXImportParser.parse(fileHandle: fileHandle, sheetIndex: selectedSheetIndex) { _, _ in count += 1 }
+        }
         return hasHeaderRow ? max(0, count - 1) : count
     }
 
@@ -210,7 +282,10 @@ final class TableImportViewModel: ObservableObject {
         var batchRowCount = 0
         var completedRows = 0
 
-        try await CSVImportParser.parse(fileHandle: fileHandle, options: csvOptions) { rowIndex, fields in
+        // Shared between both formats' `parse(fileHandle:...:onRow:)` —
+        // batching/binding/progress doesn't depend on which parser
+        // produced the row.
+        let handleRow: @MainActor (Int, [String]) async throws -> Void = { rowIndex, fields in
             if self.hasHeaderRow && rowIndex == 0 { return }
 
             for entry in mapping {
@@ -231,6 +306,13 @@ final class TableImportViewModel: ObservableObject {
                     try await Task.sleep(for: self.interBatchDelay)
                 }
             }
+        }
+
+        switch selectedFormat {
+        case .csv:
+            try await CSVImportParser.parse(fileHandle: fileHandle, options: csvOptions, onRow: handleRow)
+        case .xlsx:
+            try await XLSXImportParser.parse(fileHandle: fileHandle, sheetIndex: selectedSheetIndex, onRow: handleRow)
         }
 
         if batchRowCount > 0 {

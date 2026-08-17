@@ -26,8 +26,9 @@ struct TableImportView: View {
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
+                        formatTabs
                         chooseFileRow
-                        csvOptionsSection
+                        sourceOptionsSection
                         columnMappingSection
                     }
                 }
@@ -47,6 +48,7 @@ struct TableImportView: View {
         .task { await viewModel.loadColumns() }
         .onChange(of: viewModel.csvOptions) { _, _ in Task { await viewModel.refreshColumnMappings() } }
         .onChange(of: viewModel.hasHeaderRow) { _, _ in Task { await viewModel.refreshColumnMappings() } }
+        .onChange(of: viewModel.selectedSheetIndex) { _, _ in Task { await viewModel.refreshColumnMappings() } }
         .alert("Import Complete", isPresented: $viewModel.didFinishSuccessfully) {
             Button("OK") {}
         } message: {
@@ -75,6 +77,38 @@ struct TableImportView: View {
         )
     }
 
+    // MARK: - Format tabs
+
+    /// Same shape/styling as `TableExportView.formatTabs` — an explicit
+    /// choice made before browsing for a file, not inferred from whatever
+    /// extension the user happens to pick. See `TableImportViewModel
+    /// .SourceFormat`'s doc comment for why this matters: a file picker
+    /// that silently also accepts `.xlsx` doesn't tell anyone Excel import
+    /// exists.
+    private var formatTabs: some View {
+        HStack(spacing: 6) {
+            ForEach(TableImportViewModel.SourceFormat.allCases) { format in
+                formatTabButton(format)
+            }
+        }
+    }
+
+    private func formatTabButton(_ format: TableImportViewModel.SourceFormat) -> some View {
+        let isActive = viewModel.selectedFormat == format
+        return Button {
+            viewModel.selectedFormat = format
+        } label: {
+            Text(format.displayName)
+                .font(.system(size: 13, weight: isActive ? .semibold : .regular))
+                .foregroundStyle(isActive ? .white : theme.textPrimary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+                .background(RoundedRectangle(cornerRadius: 8).fill(isActive ? theme.accent : theme.fieldBackground))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(theme.fieldBorder, lineWidth: isActive ? 0 : 1))
+        }
+        .buttonStyle(.plain)
+    }
+
     // MARK: - Choose file
 
     private var chooseFileRow: some View {
@@ -97,7 +131,51 @@ struct TableImportView: View {
         }
     }
 
-    // MARK: - CSV options
+    // MARK: - Source options
+
+    @ViewBuilder
+    private var sourceOptionsSection: some View {
+        switch viewModel.selectedFormat {
+        case .csv:
+            csvOptionsSection
+        case .xlsx:
+            xlsxOptionsSection
+        }
+    }
+
+    private var xlsxOptionsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if viewModel.xlsxSheetNames.count > 1 {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("SHEET")
+                        .font(.system(size: 10, weight: .semibold))
+                        .tracking(0.4)
+                        .foregroundStyle(theme.textSecondary)
+                    Picker("", selection: $viewModel.selectedSheetIndex) {
+                        ForEach(Array(viewModel.xlsxSheetNames.enumerated()), id: \.offset) { index, name in
+                            Text(name).tag(index)
+                        }
+                    }
+                    .labelsHidden()
+                }
+            }
+            headerRowToggle
+        }
+        .padding(12)
+        .schemaCard(theme: theme)
+    }
+
+    private var headerRowToggle: some View {
+        HStack(spacing: 8) {
+            Toggle("", isOn: $viewModel.hasHeaderRow)
+                .labelsHidden()
+                .toggleStyle(SchemaCheckboxToggleStyle(theme: theme))
+            Text("First row is a header")
+                .foregroundStyle(theme.textPrimary)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { viewModel.hasHeaderRow.toggle() }
+    }
 
     private var csvOptionsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -115,15 +193,7 @@ struct TableImportView: View {
                     set: { viewModel.csvOptions.fieldEscape = $0 }
                 ))
             }
-            HStack(spacing: 8) {
-                Toggle("", isOn: $viewModel.hasHeaderRow)
-                    .labelsHidden()
-                    .toggleStyle(SchemaCheckboxToggleStyle(theme: theme))
-                Text("First row is a header")
-                    .foregroundStyle(theme.textPrimary)
-            }
-            .contentShape(Rectangle())
-            .onTapGesture { viewModel.hasHeaderRow.toggle() }
+            headerRowToggle
         }
         .padding(12)
         .schemaCard(theme: theme)
@@ -168,7 +238,7 @@ struct TableImportView: View {
                         HStack(spacing: 12) {
                             Text("TABLE COLUMNS")
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            Text("CSV COLUMNS")
+                            Text(sourceColumnsLabel)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .font(.system(size: 10, weight: .semibold))
@@ -185,6 +255,10 @@ struct TableImportView: View {
                 }
             }
         }
+    }
+
+    private var sourceColumnsLabel: LocalizedStringKey {
+        viewModel.selectedFormat == .xlsx ? "EXCEL COLUMNS" : "CSV COLUMNS"
     }
 
     private func columnMappingRow(_ tableColumn: ColumnInfo) -> some View {
