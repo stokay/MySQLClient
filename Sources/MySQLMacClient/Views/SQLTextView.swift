@@ -131,6 +131,19 @@ struct SQLTextView: NSViewRepresentable {
     private static let stringLiteralRegex = try! NSRegularExpression(pattern: #"'[^']*'|"[^"]*""#)
     private static let commentRegex = try! NSRegularExpression(pattern: #"--[^\n]*"#)
 
+    /// Above this size, per-edit auto-uppercase and reserved-word/string/
+    /// comment coloring are both skipped. Each is one `NSTextStorage`
+    /// mutation *per regex match* — cheap for an ordinary query, but a
+    /// multi-megabyte paste (confirmed: ~15.7MB, mysqldump-style) can
+    /// produce hundreds of thousands of matches, and auto-uppercase is
+    /// worse still since each of its replacements also goes through
+    /// `shouldChangeText`/`didChangeText` for undo registration. That combo
+    /// froze the app for 2+ minutes with no way back short of Force Quit.
+    /// Past this size the editor still accepts, runs, and lets you edit the
+    /// text — it just renders it as plain, single-color text instead of
+    /// attempting to color/auto-case it.
+    static let largeDocumentCharacterThreshold = 500_000
+
     func makeNSView(context: Context) -> NSScrollView {
         let textView = NSTextView()
         textView.delegate = context.coordinator
@@ -140,8 +153,30 @@ struct SQLTextView: NSViewRepresentable {
         textView.isAutomaticSpellingCorrectionEnabled = false
         textView.isAutomaticTextReplacementEnabled = false
         textView.allowsUndo = true
+        // A SQL editor is plain text by definition, and saying so keeps a
+        // paste from carrying the source app's fonts/colors in as rich
+        // text (which also has to be parsed on the way in). Programmatic
+        // attributes — the syntax highlighting below — are unaffected.
+        textView.isRichText = false
         textView.textContainerInset = NSSize(width: 4, height: 6)
+
+        // The single most important line in this method for large
+        // documents. `highlight()` sets attributes over the whole buffer
+        // on every edit, which invalidates all layout; under TextKit 1's
+        // default *contiguous* layout the next layout query — even one
+        // asking only about the visible rect — then has to re-lay-out the
+        // entire document synchronously before it can answer. Measured on
+        // a real 15.7MB / ~118k-line dump: 85.8 seconds, which is exactly
+        // the "paste never finishes" freeze this was reported as. With
+        // non-contiguous layout the same sequence is 0.007s + 0.000s,
+        // because AppKit lays out only what's on screen and estimates the
+        // rest. (Nothing here can move to TextKit 2, which would do this
+        // by default: `LineNumberRulerView` needs `NSLayoutManager`, and
+        // merely touching `.layoutManager` pins the view to TextKit 1.)
+        textView.layoutManager?.allowsNonContiguousLayout = true
+
         textView.string = text
+        context.coordinator.lastSyncedText = text
         context.coordinator.highlight(textView)
 
         // Non-wrapping editor: the text container is effectively unbounded
@@ -252,7 +287,22 @@ struct SQLTextView: NSViewRepresentable {
             return
         }
 
-        guard textView.string != text else { return }
+        // Compares against `lastSyncedText` — a plain Swift `String` this
+        // struct itself last assigned — rather than `textView.string`,
+        // which re-bridges the text view's `NSString`-backed storage on
+        // every access. Swift's native `String` equality has a fast path
+        // for two values sharing the same underlying storage (a pointer
+        // check, no scan), which `text != lastSyncedText` reliably hits
+        // whenever nothing has actually changed since the last sync;
+        // `text != textView.string` cannot, since the two sides never
+        // share storage. `updateNSView` runs on *every* SwiftUI re-render
+        // of an ancestor view, not just edits — dragging the query panel's
+        // height divider re-renders `MainWindowView.body` on every frame,
+        // for instance — so on a many-megabyte document the bridged
+        // comparison alone was enough to make that drag visibly janky even
+        // though the text itself wasn't changing.
+        guard text != context.coordinator.lastSyncedText else { return }
+        context.coordinator.lastSyncedText = text
         textView.string = text
         context.coordinator.highlight(textView)
     }
@@ -271,6 +321,11 @@ struct SQLTextView: NSViewRepresentable {
         /// view, so `updateNSView` only re-fonts/re-highlights on actual
         /// settings changes (it also runs on every keystroke).
         var lastAppliedEditorSettings = SettingsStore.shared.settings.editor
+
+        /// The exact `text` value last synced with the text view, in
+        /// either direction — see `updateNSView`'s use of it for why this
+        /// exists instead of comparing against `textView.string` directly.
+        var lastSyncedText = ""
 
         /// The editor's own isolated undo stack, handed to the text view
         /// via the `undoManager(for:)` delegate method below.
@@ -293,10 +348,13 @@ struct SQLTextView: NSViewRepresentable {
 
         func textDidChange(_ notification: Notification) {
             guard let textView = notification.object as? NSTextView, !isApplyingKeywordCase else { return }
-            if SettingsStore.shared.settings.editor.autoUppercaseKeywords {
+            let isLargeDocument = (textView.textStorage?.length ?? 0) > SQLTextView.largeDocumentCharacterThreshold
+            if !isLargeDocument, SettingsStore.shared.settings.editor.autoUppercaseKeywords {
                 uppercaseKeywords(in: textView)
             }
-            text.wrappedValue = textView.string
+            let newText = textView.string
+            text.wrappedValue = newText
+            lastSyncedText = newText
             highlight(textView)
         }
 
@@ -358,17 +416,22 @@ struct SQLTextView: NSViewRepresentable {
                 [.font: SQLTextView.editorFont, .foregroundColor: NSColor.labelColor],
                 range: fullRange
             )
-            for match in SQLTextView.keywordRegex.matches(in: string, range: fullRange) {
-                storage.addAttributes(
-                    [.foregroundColor: SQLTextView.keywordColor, .font: SQLTextView.editorBoldFont],
-                    range: match.range
-                )
-            }
-            for match in SQLTextView.stringLiteralRegex.matches(in: string, range: fullRange) {
-                storage.addAttribute(.foregroundColor, value: SQLTextView.stringLiteralColor, range: match.range)
-            }
-            for match in SQLTextView.commentRegex.matches(in: string, range: fullRange) {
-                storage.addAttribute(.foregroundColor, value: SQLTextView.commentColor, range: match.range)
+            // See `largeDocumentCharacterThreshold` — past this size the
+            // buffer stays the plain color/font just applied above instead
+            // of the per-match coloring passes below.
+            if fullRange.length <= SQLTextView.largeDocumentCharacterThreshold {
+                for match in SQLTextView.keywordRegex.matches(in: string, range: fullRange) {
+                    storage.addAttributes(
+                        [.foregroundColor: SQLTextView.keywordColor, .font: SQLTextView.editorBoldFont],
+                        range: match.range
+                    )
+                }
+                for match in SQLTextView.stringLiteralRegex.matches(in: string, range: fullRange) {
+                    storage.addAttribute(.foregroundColor, value: SQLTextView.stringLiteralColor, range: match.range)
+                }
+                for match in SQLTextView.commentRegex.matches(in: string, range: fullRange) {
+                    storage.addAttribute(.foregroundColor, value: SQLTextView.commentColor, range: match.range)
+                }
             }
             storage.endEditing()
 
@@ -388,6 +451,15 @@ final class LineNumberRulerView: NSRulerView {
     /// The line clicked when a gutter drag started — dragging selects from
     /// here to wherever the pointer is now, in either direction.
     private var dragAnchorLineRange: NSRange?
+
+    /// Character offset where each line begins (`lineStartOffsets[0] == 0`
+    /// always). Rebuilt — one `NSString` scan — only when the document's
+    /// length has actually changed since the last build; every other
+    /// lookup is then a binary search instead of a fresh scan. This is what
+    /// lets `drawHashMarksAndLabels` find "what line number does the first
+    /// visible line have" without walking from character 0 every time.
+    private var lineStartOffsets: [Int] = [0]
+    private var lineStartOffsetsTextLength = 0
 
     init(textView: NSTextView, scrollView: NSScrollView) {
         self.textView = textView
@@ -475,23 +547,98 @@ final class LineNumberRulerView: NSRulerView {
         }
 
         let content = textView.string as NSString
-        var lineNumber = 1
-        var characterIndex = 0
+        guard content.length > 0 else {
+            // The only line in an empty document — the "extra line
+            // fragment" is the caret line after a trailing newline too,
+            // handled the same way below once there's real content.
+            if layoutManager.extraLineFragmentTextContainer != nil {
+                let extraRect = layoutManager.extraLineFragmentRect
+                drawNumber(1, atLineTop: extraRect.minY, lineHeight: extraRect.height)
+            }
+            return
+        }
+
+        refreshLineStartOffsetsIfNeeded(for: content)
+
+        // Only the lines that could actually land inside `rect` (plus a
+        // little slack on each side) are walked and measured — not the
+        // whole document. The old version always started at character 0
+        // and walked to the end no matter how small a sliver AppKit asked
+        // to redraw, which happens on every scroll tick; on a
+        // many-thousand-line pasted document that turned every scroll
+        // frame into a full-document walk of expensive `NSLayoutManager`
+        // geometry queries and made scrolling visibly choppy.
+        let overscan: CGFloat = 100
+        func containerY(forRulerY rulerY: CGFloat) -> CGFloat {
+            rulerY - insetHeight - textViewOriginInRuler
+        }
+        let startContainerPoint = NSPoint(x: 0, y: containerY(forRulerY: rect.minY - overscan))
+        let endRulerY = rect.maxY + overscan
+
+        let startGlyphIndex = layoutManager.glyphIndex(for: startContainerPoint, in: container)
+        let startCharacterIndex = layoutManager.numberOfGlyphs > 0
+            ? layoutManager.characterIndexForGlyph(at: startGlyphIndex)
+            : 0
+        var lineIndex = self.lineIndex(forCharacterIndex: min(startCharacterIndex, content.length - 1))
+
+        var lineNumber = lineIndex + 1
+        var characterIndex = lineStartOffsets[lineIndex]
         while characterIndex < content.length {
             let lineRange = content.lineRange(for: NSRange(location: characterIndex, length: 0))
             let glyphRange = layoutManager.glyphRange(forCharacterRange: lineRange, actualCharacterRange: nil)
             let lineRect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: container)
+            if lineRect.minY + insetHeight + textViewOriginInRuler > endRulerY { break }
             let firstFragmentHeight = layoutManager.lineFragmentRect(forGlyphAt: glyphRange.location, effectiveRange: nil).height
             drawNumber(lineNumber, atLineTop: lineRect.minY, lineHeight: firstFragmentHeight)
             characterIndex = NSMaxRange(lineRange)
             lineNumber += 1
+            lineIndex += 1
         }
 
         // The "extra line fragment" is the caret line after a trailing
-        // newline — and the only line at all in an empty document.
-        if layoutManager.extraLineFragmentTextContainer != nil {
+        // newline — only draw it once the walk above actually reached the
+        // end of the document (it may not have, if the visible range ends
+        // well before the last line).
+        if characterIndex >= content.length, layoutManager.extraLineFragmentTextContainer != nil {
             let extraRect = layoutManager.extraLineFragmentRect
-            drawNumber(lineNumber, atLineTop: extraRect.minY, lineHeight: extraRect.height)
+            if extraRect.minY + insetHeight + textViewOriginInRuler <= endRulerY {
+                drawNumber(lineNumber, atLineTop: extraRect.minY, lineHeight: extraRect.height)
+            }
         }
+    }
+
+    /// Rebuilds `lineStartOffsets` when the document's length has changed
+    /// since the last build — one `NSString` scan using `lineRange(for:)`'s
+    /// existing per-line jump (`NSMaxRange`), same traversal the old
+    /// unbounded drawing loop did, just without any `NSLayoutManager`
+    /// geometry queries attached to it.
+    private func refreshLineStartOffsetsIfNeeded(for content: NSString) {
+        guard content.length != lineStartOffsetsTextLength else { return }
+        var offsets: [Int] = [0]
+        var characterIndex = 0
+        while characterIndex < content.length {
+            characterIndex = NSMaxRange(content.lineRange(for: NSRange(location: characterIndex, length: 0)))
+            if characterIndex < content.length {
+                offsets.append(characterIndex)
+            }
+        }
+        lineStartOffsets = offsets
+        lineStartOffsetsTextLength = content.length
+    }
+
+    /// Index into `lineStartOffsets` (i.e. zero-based line number) of the
+    /// line containing `characterIndex`.
+    private func lineIndex(forCharacterIndex characterIndex: Int) -> Int {
+        var low = 0
+        var high = lineStartOffsets.count - 1
+        while low < high {
+            let mid = (low + high + 1) / 2
+            if lineStartOffsets[mid] <= characterIndex {
+                low = mid
+            } else {
+                high = mid - 1
+            }
+        }
+        return low
     }
 }

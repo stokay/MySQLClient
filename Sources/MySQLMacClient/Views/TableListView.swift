@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// Sidebar schema tree: Server > Databases > Tablolar/View'lar/Procedure'lar/Function'lar
-/// > table > Kolonlar/İndeksler. Every level below "Databases" loads lazily,
-/// only when that specific row is first expanded. Triggers/events are still a
-/// later phase.
+/// Sidebar schema tree: Server > Databases > Tablolar/View'lar/Procedure'lar/
+/// Function'lar/Trigger'lar/Event'ler > table > Kolonlar/İndeksler. Every
+/// level below "Databases" loads lazily, only when that specific row is
+/// first expanded.
 ///
 /// Built on a plain `ScrollView`/`LazyVStack`, not `List`/`DisclosureGroup`:
 /// SwiftUI's native `DisclosureGroup` bakes in enough row padding that
@@ -34,6 +34,10 @@ struct TableListView: View {
     let onDropView: (TableInfo) -> Void
     let onAlterRoutine: (RoutineInfo) -> Void
     let onDropRoutine: (RoutineInfo) -> Void
+    let onAlterTrigger: (TriggerInfo) -> Void
+    let onDropTrigger: (TriggerInfo) -> Void
+    let onAlterEvent: (EventInfo) -> Void
+    let onDropEvent: (EventInfo) -> Void
 
     var body: some View {
         Group {
@@ -73,7 +77,11 @@ struct TableListView: View {
                                 onAlterView: onAlterView,
                                 onDropView: onDropView,
                                 onAlterRoutine: onAlterRoutine,
-                                onDropRoutine: onDropRoutine
+                                onDropRoutine: onDropRoutine,
+                                onAlterTrigger: onAlterTrigger,
+                                onDropTrigger: onDropTrigger,
+                                onAlterEvent: onAlterEvent,
+                                onDropEvent: onDropEvent
                             )
                         }
                     }
@@ -264,6 +272,10 @@ private struct DatabaseRow: View {
     let onDropView: (TableInfo) -> Void
     let onAlterRoutine: (RoutineInfo) -> Void
     let onDropRoutine: (RoutineInfo) -> Void
+    let onAlterTrigger: (TriggerInfo) -> Void
+    let onDropTrigger: (TriggerInfo) -> Void
+    let onAlterEvent: (EventInfo) -> Void
+    let onDropEvent: (EventInfo) -> Void
     @State private var isExpanded = false
 
     var body: some View {
@@ -364,6 +376,46 @@ private struct DatabaseRow: View {
                             onDropRoutine: onDropRoutine
                         )
                     }
+                }
+
+                CategoryRow(
+                    title: String(localized: "Triggers"),
+                    systemImage: "bolt",
+                    iconColor: sidebarIconColor { $0.sidebar.triggersGroupIcon },
+                    indent: 14,
+                    items: node.triggerState.items,
+                    isLoading: node.triggerState.isLoading,
+                    isLoaded: node.triggerState.isLoaded,
+                    errorMessage: node.triggerState.errorMessage,
+                    emptyText: String(localized: "No triggers"),
+                    onExpand: { Task { await node.loadTriggersIfNeeded() } }
+                ) { trigger in
+                    TriggerRow(
+                        trigger: trigger,
+                        indent: 28,
+                        onAlterTrigger: onAlterTrigger,
+                        onDropTrigger: onDropTrigger
+                    )
+                }
+
+                CategoryRow(
+                    title: String(localized: "Events"),
+                    systemImage: "clock",
+                    iconColor: sidebarIconColor { $0.sidebar.eventsGroupIcon },
+                    indent: 14,
+                    items: node.eventState.items,
+                    isLoading: node.eventState.isLoading,
+                    isLoaded: node.eventState.isLoaded,
+                    errorMessage: node.eventState.errorMessage,
+                    emptyText: String(localized: "No events"),
+                    onExpand: { Task { await node.loadEventsIfNeeded() } }
+                ) { event in
+                    EventRow(
+                        event: event,
+                        indent: 28,
+                        onAlterEvent: onAlterEvent,
+                        onDropEvent: onDropEvent
+                    )
                 }
             }
         }
@@ -613,6 +665,67 @@ private struct RoutineRow: View {
 
             Button("Drop \(routine.kind.displayName)", role: .destructive) {
                 onDropRoutine(routine)
+            }
+        }
+    }
+}
+
+/// A trigger leaf row. Trailing text shows "BEFORE INSERT"-style timing so
+/// the tree is useful without expanding into the definition — the one thing
+/// `SHOW TRIGGERS` gives for free that `SHOW <kind> STATUS` doesn't.
+private struct TriggerRow: View {
+    let trigger: TriggerInfo
+    let indent: CGFloat
+    let onAlterTrigger: (TriggerInfo) -> Void
+    let onDropTrigger: (TriggerInfo) -> Void
+
+    var body: some View {
+        RowHeader(
+            title: trigger.name,
+            systemImage: "bolt",
+            iconColor: sidebarIconColor { $0.sidebar.triggerIcon },
+            indent: indent,
+            isExpandable: false,
+            isExpanded: false,
+            trailing: "\(trigger.timing) \(trigger.event)"
+        )
+        .contextMenu {
+            Button("Alter \(String(localized: "Trigger"))") {
+                onAlterTrigger(trigger)
+            }
+
+            Button("Drop \(String(localized: "Trigger"))", role: .destructive) {
+                onDropTrigger(trigger)
+            }
+        }
+    }
+}
+
+/// An event leaf row. Trailing text shows `SHOW EVENTS`'s `Status`
+/// (ENABLED/DISABLED/SLAVESIDE_DISABLED).
+private struct EventRow: View {
+    let event: EventInfo
+    let indent: CGFloat
+    let onAlterEvent: (EventInfo) -> Void
+    let onDropEvent: (EventInfo) -> Void
+
+    var body: some View {
+        RowHeader(
+            title: event.name,
+            systemImage: "clock",
+            iconColor: sidebarIconColor { $0.sidebar.eventIcon },
+            indent: indent,
+            isExpandable: false,
+            isExpanded: false,
+            trailing: event.status
+        )
+        .contextMenu {
+            Button("Alter \(String(localized: "Event"))") {
+                onAlterEvent(event)
+            }
+
+            Button("Drop \(String(localized: "Event"))", role: .destructive) {
+                onDropEvent(event)
             }
         }
     }

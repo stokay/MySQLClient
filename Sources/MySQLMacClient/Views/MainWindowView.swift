@@ -44,6 +44,159 @@ private struct NamedObjectCreationRequest: Identifiable {
     let database: String
 }
 
+/// Every "Drop X?" confirmation dialog (plus the shared context-action error
+/// alert) pulled out of `MainWindowView.body` into its own `ViewModifier`.
+/// Adding the trigger/event drop dialogs alongside table/view/routine's
+/// pushed the whole chained `.confirmationDialog(...)` sequence past what
+/// the type checker will resolve inline as part of `body`'s single
+/// expression — this gives that sequence its own boundary instead.
+private struct DropConfirmations: ViewModifier {
+    @Binding var tablePendingTruncate: TableInfo?
+    @Binding var tablePendingDrop: TableInfo?
+    @Binding var routinePendingDrop: RoutineInfo?
+    @Binding var triggerPendingDrop: TriggerInfo?
+    @Binding var eventPendingDrop: EventInfo?
+    @Binding var contextActionError: String?
+    let onTruncateTable: (TableInfo) -> Void
+    let onDropTable: (TableInfo) -> Void
+    let onDropRoutine: (RoutineInfo) -> Void
+    let onDropTrigger: (TriggerInfo) -> Void
+    let onDropEvent: (EventInfo) -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .confirmationDialog(
+                "Delete ALL rows in '\(tablePendingTruncate?.name ?? "")'?",
+                isPresented: Binding(
+                    get: { tablePendingTruncate != nil },
+                    set: { if !$0 { tablePendingTruncate = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("Truncate", role: .destructive) {
+                    if let table = tablePendingTruncate {
+                        onTruncateTable(table)
+                    }
+                    tablePendingTruncate = nil
+                }
+                Button("Cancel", role: .cancel) { tablePendingTruncate = nil }
+            } message: {
+                Text("TRUNCATE TABLE cannot be undone.")
+            }
+            .confirmationDialog(
+                tablePendingDrop?.isView == true
+                    ? "Permanently delete the view '\(tablePendingDrop?.name ?? "")'?"
+                    : "Permanently delete the table '\(tablePendingDrop?.name ?? "")'?",
+                isPresented: Binding(
+                    get: { tablePendingDrop != nil },
+                    set: { if !$0 { tablePendingDrop = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("Drop", role: .destructive) {
+                    if let table = tablePendingDrop {
+                        onDropTable(table)
+                    }
+                    tablePendingDrop = nil
+                }
+                Button("Cancel", role: .cancel) { tablePendingDrop = nil }
+            } message: {
+                Text(
+                    tablePendingDrop?.isView == true
+                        ? "DROP VIEW deletes the view permanently and cannot be undone."
+                        : "DROP TABLE deletes the table and its structure permanently and cannot be undone."
+                )
+            }
+            .confirmationDialog(
+                "Permanently delete the \(routinePendingDrop?.kind.displayName ?? "") '\(routinePendingDrop?.name ?? "")'?",
+                isPresented: Binding(
+                    get: { routinePendingDrop != nil },
+                    set: { if !$0 { routinePendingDrop = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("Drop", role: .destructive) {
+                    if let routine = routinePendingDrop {
+                        onDropRoutine(routine)
+                    }
+                    routinePendingDrop = nil
+                }
+                Button("Cancel", role: .cancel) { routinePendingDrop = nil }
+            } message: {
+                Text("DROP \(routinePendingDrop?.kind.sqlKeyword ?? "") deletes it permanently and cannot be undone.")
+            }
+            .modifier(TriggerEventDropConfirmations(
+                triggerPendingDrop: $triggerPendingDrop,
+                eventPendingDrop: $eventPendingDrop,
+                contextActionError: $contextActionError,
+                onDropTrigger: onDropTrigger,
+                onDropEvent: onDropEvent
+            ))
+    }
+}
+
+/// Split out of `DropConfirmations` for the same type-checking-budget
+/// reason — the shared error `.alert` lives here too since it has to sit
+/// somewhere in this chain, and this is the tail end of it.
+private struct TriggerEventDropConfirmations: ViewModifier {
+    @Binding var triggerPendingDrop: TriggerInfo?
+    @Binding var eventPendingDrop: EventInfo?
+    @Binding var contextActionError: String?
+    let onDropTrigger: (TriggerInfo) -> Void
+    let onDropEvent: (EventInfo) -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .confirmationDialog(
+                "Permanently delete the \(String(localized: "Trigger")) '\(triggerPendingDrop?.name ?? "")'?",
+                isPresented: Binding(
+                    get: { triggerPendingDrop != nil },
+                    set: { if !$0 { triggerPendingDrop = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("Drop", role: .destructive) {
+                    if let trigger = triggerPendingDrop {
+                        onDropTrigger(trigger)
+                    }
+                    triggerPendingDrop = nil
+                }
+                Button("Cancel", role: .cancel) { triggerPendingDrop = nil }
+            } message: {
+                Text("DROP TRIGGER deletes it permanently and cannot be undone.")
+            }
+            .confirmationDialog(
+                "Permanently delete the \(String(localized: "Event")) '\(eventPendingDrop?.name ?? "")'?",
+                isPresented: Binding(
+                    get: { eventPendingDrop != nil },
+                    set: { if !$0 { eventPendingDrop = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("Drop", role: .destructive) {
+                    if let event = eventPendingDrop {
+                        onDropEvent(event)
+                    }
+                    eventPendingDrop = nil
+                }
+                Button("Cancel", role: .cancel) { eventPendingDrop = nil }
+            } message: {
+                Text("DROP EVENT deletes it permanently and cannot be undone.")
+            }
+            .alert(
+                "Error",
+                isPresented: Binding(
+                    get: { contextActionError != nil },
+                    set: { if !$0 { contextActionError = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) { contextActionError = nil }
+            } message: {
+                Text(contextActionError ?? "")
+            }
+    }
+}
+
 struct MainWindowView: View {
     let session: AppSession
     let onDisconnect: () -> Void
@@ -78,6 +231,8 @@ struct MainWindowView: View {
     @State private var tableToImport: TableInfo?
     @State private var databaseToBackUp: DatabaseInfo?
     @State private var routinePendingDrop: RoutineInfo?
+    @State private var triggerPendingDrop: TriggerInfo?
+    @State private var eventPendingDrop: EventInfo?
     @State private var contextActionError: String?
     /// Surfaced from the selected table's grid up to `StatusBarView` — see
     /// `TableDataGridView`'s `onRowCountChange`. `nil` with nothing selected
@@ -113,52 +268,8 @@ struct MainWindowView: View {
     var body: some View {
         VStack(spacing: 0) {
             NavigationSplitView {
-                TableListView(
-                    viewModel: schemaTreeViewModel,
-                    selectedTable: $selectedTable,
-                    insertionBridge: insertionBridge,
-                    onCreateTable: { database in
-                        createTableDefaultDatabase = database
-                        isShowingCreateTable = true
-                    },
-                    onCreateView: { database in
-                        namedObjectCreationRequest = NamedObjectCreationRequest(kind: .view, database: database)
-                    },
-                    onCreateStoredProcedure: { database in
-                        namedObjectCreationRequest = NamedObjectCreationRequest(kind: .storedProcedure, database: database)
-                    },
-                    onCreateFunction: { database in
-                        namedObjectCreationRequest = NamedObjectCreationRequest(kind: .function, database: database)
-                    },
-                    onCreateTrigger: { database in
-                        namedObjectCreationRequest = NamedObjectCreationRequest(kind: .trigger, database: database)
-                    },
-                    onCreateEvent: { database in
-                        namedObjectCreationRequest = NamedObjectCreationRequest(kind: .event, database: database)
-                    },
-                    onBackupDatabase: { databaseToBackUp = $0 },
-                    onTruncateTable: { tablePendingTruncate = $0 },
-                    onDropTable: { tablePendingDrop = $0 },
-                    onInsertQueryTemplate: { table, kind in
-                        Task { await insertQueryTemplate(for: table, kind: kind) }
-                    },
-                    onAlterTable: { tableToAlter = $0 },
-                    onExportTable: { tableToExport = $0 },
-                    onImportTable: { tableToImport = $0 },
-                    onShowTableInfo: { table in
-                        selectedTable = table
-                        insertionBridge.pendingShowInfo = true
-                    },
-                    onAlterView: { view in
-                        Task { await alterView(view) }
-                    },
-                    onDropView: { tablePendingDrop = $0 },
-                    onAlterRoutine: { routine in
-                        Task { await alterRoutine(routine) }
-                    },
-                    onDropRoutine: { routinePendingDrop = $0 }
-                )
-                .navigationSplitViewColumnWidth(min: 200, ideal: 260)
+                sidebarTree
+                    .navigationSplitViewColumnWidth(min: 200, ideal: 260)
             } detail: {
                 detailPane
             }
@@ -286,77 +397,80 @@ struct MainWindowView: View {
         .sheet(item: $databaseToBackUp) { database in
             DatabaseBackupView(service: session.mysqlService, database: database)
         }
-        .confirmationDialog(
-            "Delete ALL rows in '\(tablePendingTruncate?.name ?? "")'?",
-            isPresented: Binding(
-                get: { tablePendingTruncate != nil },
-                set: { if !$0 { tablePendingTruncate = nil } }
-            ),
-            titleVisibility: .visible
-        ) {
-            Button("Truncate", role: .destructive) {
-                if let table = tablePendingTruncate {
-                    Task { await truncateTable(table) }
-                }
-                tablePendingTruncate = nil
-            }
-            Button("Cancel", role: .cancel) { tablePendingTruncate = nil }
-        } message: {
-            Text("TRUNCATE TABLE cannot be undone.")
-        }
-        .confirmationDialog(
-            tablePendingDrop?.isView == true
-                ? "Permanently delete the view '\(tablePendingDrop?.name ?? "")'?"
-                : "Permanently delete the table '\(tablePendingDrop?.name ?? "")'?",
-            isPresented: Binding(
-                get: { tablePendingDrop != nil },
-                set: { if !$0 { tablePendingDrop = nil } }
-            ),
-            titleVisibility: .visible
-        ) {
-            Button("Drop", role: .destructive) {
-                if let table = tablePendingDrop {
-                    Task { await dropTable(table) }
-                }
-                tablePendingDrop = nil
-            }
-            Button("Cancel", role: .cancel) { tablePendingDrop = nil }
-        } message: {
-            Text(
-                tablePendingDrop?.isView == true
-                    ? "DROP VIEW deletes the view permanently and cannot be undone."
-                    : "DROP TABLE deletes the table and its structure permanently and cannot be undone."
-            )
-        }
-        .confirmationDialog(
-            "Permanently delete the \(routinePendingDrop?.kind.displayName ?? "") '\(routinePendingDrop?.name ?? "")'?",
-            isPresented: Binding(
-                get: { routinePendingDrop != nil },
-                set: { if !$0 { routinePendingDrop = nil } }
-            ),
-            titleVisibility: .visible
-        ) {
-            Button("Drop", role: .destructive) {
-                if let routine = routinePendingDrop {
-                    Task { await dropRoutine(routine) }
-                }
-                routinePendingDrop = nil
-            }
-            Button("Cancel", role: .cancel) { routinePendingDrop = nil }
-        } message: {
-            Text("DROP \(routinePendingDrop?.kind.sqlKeyword ?? "") deletes it permanently and cannot be undone.")
-        }
-        .alert(
-            "Error",
-            isPresented: Binding(
-                get: { contextActionError != nil },
-                set: { if !$0 { contextActionError = nil } }
-            )
-        ) {
-            Button("OK", role: .cancel) { contextActionError = nil }
-        } message: {
-            Text(contextActionError ?? "")
-        }
+        .modifier(DropConfirmations(
+            tablePendingTruncate: $tablePendingTruncate,
+            tablePendingDrop: $tablePendingDrop,
+            routinePendingDrop: $routinePendingDrop,
+            triggerPendingDrop: $triggerPendingDrop,
+            eventPendingDrop: $eventPendingDrop,
+            contextActionError: $contextActionError,
+            onTruncateTable: { table in Task { await truncateTable(table) } },
+            onDropTable: { table in Task { await dropTable(table) } },
+            onDropRoutine: { routine in Task { await dropRoutine(routine) } },
+            onDropTrigger: { trigger in Task { await dropTrigger(trigger) } },
+            onDropEvent: { event in Task { await dropEvent(event) } }
+        ))
+    }
+
+    /// Pulled out of `body` — `TableListView`'s growing closure list (now
+    /// 22, one Alter/Drop or Create pair per object kind) pushed the whole
+    /// `NavigationSplitView` past what the type checker will resolve inline;
+    /// splitting it into its own typed property gives it a boundary to stop
+    /// at instead of folding into `body`'s single expression.
+    private var sidebarTree: some View {
+        TableListView(
+            viewModel: schemaTreeViewModel,
+            selectedTable: $selectedTable,
+            insertionBridge: insertionBridge,
+            onCreateTable: { database in
+                createTableDefaultDatabase = database
+                isShowingCreateTable = true
+            },
+            onCreateView: { database in
+                namedObjectCreationRequest = NamedObjectCreationRequest(kind: .view, database: database)
+            },
+            onCreateStoredProcedure: { database in
+                namedObjectCreationRequest = NamedObjectCreationRequest(kind: .storedProcedure, database: database)
+            },
+            onCreateFunction: { database in
+                namedObjectCreationRequest = NamedObjectCreationRequest(kind: .function, database: database)
+            },
+            onCreateTrigger: { database in
+                namedObjectCreationRequest = NamedObjectCreationRequest(kind: .trigger, database: database)
+            },
+            onCreateEvent: { database in
+                namedObjectCreationRequest = NamedObjectCreationRequest(kind: .event, database: database)
+            },
+            onBackupDatabase: { databaseToBackUp = $0 },
+            onTruncateTable: { tablePendingTruncate = $0 },
+            onDropTable: { tablePendingDrop = $0 },
+            onInsertQueryTemplate: { table, kind in
+                Task { await insertQueryTemplate(for: table, kind: kind) }
+            },
+            onAlterTable: { tableToAlter = $0 },
+            onExportTable: { tableToExport = $0 },
+            onImportTable: { tableToImport = $0 },
+            onShowTableInfo: { table in
+                selectedTable = table
+                insertionBridge.pendingShowInfo = true
+            },
+            onAlterView: { view in
+                Task { await alterView(view) }
+            },
+            onDropView: { tablePendingDrop = $0 },
+            onAlterRoutine: { routine in
+                Task { await alterRoutine(routine) }
+            },
+            onDropRoutine: { routinePendingDrop = $0 },
+            onAlterTrigger: { trigger in
+                Task { await alterTrigger(trigger) }
+            },
+            onDropTrigger: { triggerPendingDrop = $0 },
+            onAlterEvent: { event in
+                Task { await alterEvent(event) }
+            },
+            onDropEvent: { eventPendingDrop = $0 }
+        )
     }
 
     /// The SQL console (when open) sits above whichever content follows —
@@ -505,8 +619,10 @@ struct MainWindowView: View {
             let sql = "TRUNCATE TABLE \(qualified)"
             historyRecorder.record(sql, database: table.database, source: .app)
             try await session.mysqlService.execute(sql)
+            AnalyticsService.trackFeatureUsed("truncate_table")
         } catch {
             contextActionError = String(localized: "Truncate failed: \(error.localizedDescription)")
+            AnalyticsService.trackError(error, feature: "truncate_table")
             return
         }
 
@@ -527,8 +643,10 @@ struct MainWindowView: View {
             let statement = table.isView ? "DROP VIEW \(qualified)" : "DROP TABLE \(qualified)"
             historyRecorder.record(statement, database: table.database, source: .app)
             try await session.mysqlService.execute(statement)
+            AnalyticsService.trackFeatureUsed(table.isView ? "drop_view" : "drop_table")
         } catch {
             contextActionError = String(localized: "Drop failed: \(error.localizedDescription)")
+            AnalyticsService.trackError(error, feature: table.isView ? "drop_view" : "drop_table")
             return
         }
 
@@ -598,6 +716,76 @@ struct MainWindowView: View {
 
         if let node = schemaTreeViewModel.databaseNodes.first(where: { $0.info.name == routine.database }) {
             await node.reloadRoutines(routine.kind)
+        }
+    }
+
+    /// "Alter Trigger" context-menu action — same shape as `alterRoutine`.
+    /// MySQL has no `ALTER TRIGGER` at all, so "altering" one always means
+    /// drop-and-recreate; see `TriggerAlterStatement`.
+    private func alterTrigger(_ trigger: TriggerInfo) async {
+        let createStatement: String
+        do {
+            createStatement = try await session.introspectionService.showCreateTrigger(trigger)
+        } catch {
+            let label = String(localized: "Trigger")
+            contextActionError = String(localized: "Could not load \(label) definition: \(error.localizedDescription)")
+            return
+        }
+
+        insertionBridge.pendingAppend = TriggerAlterStatement.format(
+            trigger: trigger,
+            createStatement: createStatement
+        )
+    }
+
+    private func dropTrigger(_ trigger: TriggerInfo) async {
+        do {
+            let qualified = try SchemaIntrospectionService.qualifiedIdentifier(database: trigger.database, name: trigger.name)
+            // `rawQuery`, not `execute` — same prepared-statement-protocol
+            // rejection as `dropRoutine`.
+            let sql = "DROP TRIGGER \(qualified)"
+            historyRecorder.record(sql, database: trigger.database, source: .app)
+            _ = try await session.mysqlService.rawQuery(sql)
+        } catch {
+            contextActionError = String(localized: "Drop failed: \(error.localizedDescription)")
+            return
+        }
+
+        if let node = schemaTreeViewModel.databaseNodes.first(where: { $0.info.name == trigger.database }) {
+            await node.reloadTriggers()
+        }
+    }
+
+    /// "Alter Event" context-menu action — same shape as `alterTrigger`.
+    private func alterEvent(_ event: EventInfo) async {
+        let createStatement: String
+        do {
+            createStatement = try await session.introspectionService.showCreateEvent(event)
+        } catch {
+            let label = String(localized: "Event")
+            contextActionError = String(localized: "Could not load \(label) definition: \(error.localizedDescription)")
+            return
+        }
+
+        insertionBridge.pendingAppend = EventAlterStatement.format(
+            event: event,
+            createStatement: createStatement
+        )
+    }
+
+    private func dropEvent(_ event: EventInfo) async {
+        do {
+            let qualified = try SchemaIntrospectionService.qualifiedIdentifier(database: event.database, name: event.name)
+            let sql = "DROP EVENT \(qualified)"
+            historyRecorder.record(sql, database: event.database, source: .app)
+            _ = try await session.mysqlService.rawQuery(sql)
+        } catch {
+            contextActionError = String(localized: "Drop failed: \(error.localizedDescription)")
+            return
+        }
+
+        if let node = schemaTreeViewModel.databaseNodes.first(where: { $0.info.name == event.database }) {
+            await node.reloadEvents()
         }
     }
 }

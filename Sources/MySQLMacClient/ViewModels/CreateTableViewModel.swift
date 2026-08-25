@@ -225,8 +225,10 @@ final class CreateTableViewModel: ObservableObject {
         do {
             historyRecorder?.record(sql, database: database, source: .app)
             try await service.execute(sql)
+            AnalyticsService.trackFeatureUsed("create_table")
         } catch {
             errorMessage = String(localized: "Could not create table: \(error.localizedDescription)")
+            AnalyticsService.trackError(error, feature: "create_table")
             return nil
         }
 

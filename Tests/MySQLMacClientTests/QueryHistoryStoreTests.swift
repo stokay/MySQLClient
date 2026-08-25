@@ -104,6 +104,22 @@ final class QueryHistoryStoreTests: XCTestCase {
         XCTAssertTrue(store.entries(for: profileA).isEmpty)
     }
 
+    /// A many-megabyte pasted script (e.g. a SQL dump run once) must never
+    /// land in history — `save()` re-writes the whole profile's list to
+    /// disk on every `record()` call, so one giant entry would make every
+    /// *later* query pay a multi-megabyte JSON encode too.
+    func testOversizedSQLIsNotRecorded() {
+        let store = QueryHistoryStore(fileURL: tempFileURL)
+        let huge = String(repeating: "x", count: QueryHistoryStore.maximumRecordedSQLLength + 1)
+        store.record(huge, profileID: profileA)
+        XCTAssertTrue(store.entries(for: profileA).isEmpty)
+
+        // ...and a normal-sized query right at/under the limit still is.
+        let fits = String(repeating: "x", count: QueryHistoryStore.maximumRecordedSQLLength)
+        store.record(fits, profileID: profileA)
+        XCTAssertEqual(store.entries(for: profileA).count, 1)
+    }
+
     func testRecordedSQLIsTrimmed() {
         let store = QueryHistoryStore(fileURL: tempFileURL)
         store.record("\n  SELECT 1  \n", profileID: profileA)

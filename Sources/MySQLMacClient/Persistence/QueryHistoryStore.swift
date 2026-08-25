@@ -23,6 +23,15 @@ final class QueryHistoryStore: ObservableObject {
     /// the user actually wrote.
     static let maximumEntriesPerProfile = 500
 
+    /// Entries longer than this aren't recorded at all. `save()` re-encodes
+    /// and rewrites the *whole* profile's list to disk on every `record()`
+    /// call, so one many-megabyte entry (confirmed real case: a ~15.7MB
+    /// pasted SQL dump) would make every subsequent query — not just this
+    /// one — pay for a multi-megabyte JSON encode and disk write on the
+    /// main actor. A history entry that large also isn't something anyone
+    /// picks out of a menu and re-runs anyway.
+    static let maximumRecordedSQLLength = 200_000
+
     private let fileURL: URL
 
     init(fileURL: URL? = nil) {
@@ -59,7 +68,7 @@ final class QueryHistoryStore: ObservableObject {
         at date: Date = Date()
     ) {
         let trimmed = sql.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        guard !trimmed.isEmpty, trimmed.count <= Self.maximumRecordedSQLLength else { return }
 
         var entries = entriesByProfile[profileID] ?? []
         if let first = entries.first, first.sql == trimmed, first.source == source {

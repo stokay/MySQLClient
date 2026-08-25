@@ -168,10 +168,12 @@ final class SQLConsoleViewModel: ObservableObject {
             try await useCurrentDatabaseIfKnown()
             let result = try await service.rawQuery(sqlToRun)
             await applyResult(result, executedSQL: sqlToRun)
+            AnalyticsService.trackFeatureUsed("sql_query_run")
         } catch {
-            queryErrorMessage = describe(error)
+            queryErrorMessage = describe(error, sql: sqlToRun, serverVersion: await service.serverVersion)
             isShowingQueryResult = false
             queryEditContext = nil
+            AnalyticsService.trackError(error, feature: "sql_query_run")
         }
     }
 
@@ -241,7 +243,8 @@ final class SQLConsoleViewModel: ObservableObject {
                         .trimmingCharacters(in: .whitespaces)
                 }
             } catch {
-                queryErrorMessage = String(localized: "Statement \(index + 1)/\(statements.count) failed: \(describe(error))")
+                let detail = describe(error, sql: statement, serverVersion: await service.serverVersion)
+                queryErrorMessage = String(localized: "Statement \(index + 1)/\(statements.count) failed: \(detail)")
                 isShowingQueryResult = false
                 queryEditContext = nil
                 return
@@ -428,5 +431,81 @@ final class SQLConsoleViewModel: ObservableObject {
             return "\(mysqlError)"
         }
         return error.localizedDescription
+    }
+
+    /// `describe`, plus a nudge toward "Run All" when the failure is
+    /// specifically "Run sent one packet bigger than the server accepts"
+    /// *and* the script would actually split into several statements.
+    ///
+    /// "Run" deliberately sends the editor's text as a single statement, so
+    /// a pasted multi-statement dump hits `max_allowed_packet` as one huge
+    /// packet — while "Run All" splits it and sends each statement on its
+    /// own, which is what the user wanted. The size check isn't enough on
+    /// its own: a single oversized `INSERT` (one extended-values statement
+    /// bigger than the limit) can't be helped by splitting, and suggesting
+    /// it there would just send someone down a dead end.
+    /// `describe`, plus whichever hint the specific failure earns — the
+    /// server's own message says *what* broke, these say what to do about
+    /// it. `serverVersion` is `MySQLService`'s cached `SELECT VERSION()`
+    /// result, passed in rather than awaited here so this stays sync.
+    private func describe(_ error: Error, sql: String, serverVersion: String?) -> String {
+        var described = describe(error)
+        guard case .server(let packet)? = error as? MySQLError else { return described }
+
+        if packet.errorCode == .NET_PACKET_TOO_LARGE, let hint = Self.runAllHint(forFailedSQL: sql) {
+            described += "\n" + hint
+        }
+        if packet.errorCode == .UNKNOWN_COLLATION,
+           let hint = Self.unknownCollationHint(errorMessage: packet.errorMessage, serverVersion: serverVersion) {
+            described += "\n" + hint
+        }
+        return described
+    }
+
+    /// The hint text, or `nil` when splitting wouldn't actually help.
+    /// Internal (not private) so it can be tested without provoking a real
+    /// oversized-packet error from a server.
+    static func runAllHint(forFailedSQL sql: String) -> String? {
+        guard DelimiterScript.allStatements(from: sql).count > 1 else { return nil }
+        return String(localized: "This script holds several statements. \"Run\" sends them as one packet; use \"Run All\" to send them one at a time.")
+    }
+
+    /// Explains an `ER_UNKNOWN_COLLATION` in terms of the two servers
+    /// involved. Restoring a MySQL 8 dump onto MariaDB is the common way
+    /// to hit this — MySQL 8's default `utf8mb4_0900_*` collations don't
+    /// exist in MariaDB at all — and the server's bare "Unknown collation"
+    /// gives no hint that a *server mismatch* is the reason.
+    ///
+    /// Internal for testability: provoking a real one would mean depending
+    /// on which server the test happens to run against, which is exactly
+    /// the variable being described here.
+    static func unknownCollationHint(errorMessage: String, serverVersion: String?) -> String? {
+        guard let collation = errorMessage.firstMatch(of: /Unknown collation: '([^']+)'/)?.1 else { return nil }
+        let collationName = String(collation)
+        let server = serverVersion.map(Self.describeServer)
+
+        // `utf8mb4_0900_ai_ci` and its siblings arrived with MySQL 8.0 and
+        // have no MariaDB equivalent under that name, so this case can say
+        // something much more specific than "not supported".
+        if collationName.contains("_0900_") {
+            if let server {
+                return String(localized: "'\(collationName)' is a MySQL 8.0 collation, but this connection is to \(server). Replace it (utf8mb4_unicode_ci is the usual substitute) or restore into MySQL 8.0 or newer.")
+            }
+            return String(localized: "'\(collationName)' is a MySQL 8.0 collation. Replace it (utf8mb4_unicode_ci is the usual substitute) or restore into MySQL 8.0 or newer.")
+        }
+        if let server {
+            return String(localized: "Collation '\(collationName)' does not exist on \(server). Replace it with one this server supports.")
+        }
+        return String(localized: "Collation '\(collationName)' does not exist on the server you are connected to. Replace it with one this server supports.")
+    }
+
+    /// `SELECT VERSION()`'s raw string as something worth showing a person:
+    /// `"10.4.32-MariaDB"` → `"MariaDB 10.4.32"`, `"8.0.45-cll-lve"` →
+    /// `"MySQL 8.0.45"`. MariaDB puts its name in that string; MySQL's
+    /// suffix is a build tag, so anything without "MariaDB" is MySQL.
+    static func describeServer(_ rawVersion: String) -> String {
+        let number = rawVersion.split(separator: "-").first.map(String.init) ?? rawVersion
+        let isMariaDB = rawVersion.localizedCaseInsensitiveContains("mariadb")
+        return "\(isMariaDB ? "MariaDB" : "MySQL") \(number)"
     }
 }

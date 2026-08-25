@@ -34,6 +34,9 @@ struct AppSettings: Codable, Equatable {
         /// scrolling strip next to text labels, so it needs its own, smaller
         /// setting rather than following the window toolbar's.
         var gridToolbarIconSize: Double = 22
+        /// Opt-out for `AnalyticsService`'s anonymous usage pings — see
+        /// `docs/privacy.html` for what is and isn't collected.
+        var analyticsOptOut = false
 
         init() {}
         init(from decoder: Decoder) throws {
@@ -42,6 +45,7 @@ struct AppSettings: Codable, Equatable {
             confirmRowDeletion = try container.decodeIfPresent(Bool.self, forKey: .confirmRowDeletion) ?? defaults.confirmRowDeletion
             toolbarIconSize = try container.decodeIfPresent(Double.self, forKey: .toolbarIconSize) ?? defaults.toolbarIconSize
             gridToolbarIconSize = try container.decodeIfPresent(Double.self, forKey: .gridToolbarIconSize) ?? defaults.gridToolbarIconSize
+            analyticsOptOut = try container.decodeIfPresent(Bool.self, forKey: .analyticsOptOut) ?? defaults.analyticsOptOut
         }
     }
 
@@ -152,6 +156,10 @@ struct AppSettings: Codable, Equatable {
         var procedureIcon = AdaptiveColorSetting(light: "#e27332", dark: "#fab710")
         var functionsGroupIcon = AdaptiveColorSetting(light: "#ff40ec", dark: "#ffabee")
         var functionIcon = AdaptiveColorSetting(light: "#ff40ec", dark: "#ffabee")
+        var triggersGroupIcon = AdaptiveColorSetting(light: "#c9820a", dark: "#ffcc02")
+        var triggerIcon = AdaptiveColorSetting(light: "#c9820a", dark: "#ffcc02")
+        var eventsGroupIcon = AdaptiveColorSetting(light: "#5e5ce6", dark: "#9b9bff")
+        var eventIcon = AdaptiveColorSetting(light: "#5e5ce6", dark: "#9b9bff")
 
         init() {}
         init(from decoder: Decoder) throws {
@@ -171,6 +179,10 @@ struct AppSettings: Codable, Equatable {
             procedureIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .procedureIcon) ?? defaults.procedureIcon
             functionsGroupIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .functionsGroupIcon) ?? defaults.functionsGroupIcon
             functionIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .functionIcon) ?? defaults.functionIcon
+            triggersGroupIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .triggersGroupIcon) ?? defaults.triggersGroupIcon
+            triggerIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .triggerIcon) ?? defaults.triggerIcon
+            eventsGroupIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .eventsGroupIcon) ?? defaults.eventsGroupIcon
+            eventIcon = try container.decodeIfPresent(AdaptiveColorSetting.self, forKey: .eventIcon) ?? defaults.eventIcon
         }
     }
 

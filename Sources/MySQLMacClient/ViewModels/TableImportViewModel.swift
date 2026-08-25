@@ -216,10 +216,12 @@ final class TableImportViewModel: ObservableObject {
             _ = try await service.rawQuery("COMMIT")
             progress?.completedRows = progress?.totalRows ?? 0
             didFinishSuccessfully = true
+            AnalyticsService.trackFeatureUsed("table_import")
         } catch is CancellationError {
             // User-initiated — not an error to surface.
         } catch {
             errorMessage = describe(error)
+            AnalyticsService.trackError(error, feature: "table_import")
         }
     }
 

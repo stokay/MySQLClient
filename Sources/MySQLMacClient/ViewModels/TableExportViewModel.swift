@@ -241,10 +241,12 @@ final class TableExportViewModel: ObservableObject {
             }
             progress?.completedRows = progress?.totalRows ?? 0
             didFinishSuccessfully = true
+            AnalyticsService.trackFeatureUsed("table_export")
         } catch is CancellationError {
             // User-initiated — not an error to surface.
         } catch {
             errorMessage = describe(error)
+            AnalyticsService.trackError(error, feature: "table_export")
         }
     }
 

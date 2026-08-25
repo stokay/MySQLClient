@@ -85,22 +85,27 @@
     <header>
       <div>
         <h1>MySQL Client</h1>
-        <p>Privacy Policy · Last updated: July 2025</p>
+        <p>Privacy Policy · Last updated: August 2026</p>
       </div>
     </header>
 
     <div class="highlight">
-      <strong>Short version:</strong> MySQL Client does not collect, store, or transmit any personal data to any server. All data stays on your Mac.
+      <strong>Short version:</strong> MySQL Client never collects your name, email, precise location, or anything about your databases (connection details, queries, results, credentials). It does send a small amount of anonymous usage data — see below — which you can turn off at any time in Settings.
     </div>
 
     <h2>1. Information We Collect</h2>
-    <p>MySQL Client does <strong>not</strong> collect any personal information. Specifically:</p>
+    <p>To understand how the app is used and decide which languages and features to work on next, MySQL Client collects anonymous usage analytics: app opens, which features are used (e.g. Table Export, Database Backup, Table Import, running a query), and the numeric error code when an operation fails. Along with these events, we receive basic device context — a randomly generated identifier (not tied to your identity), device model, macOS version, app version, language, timezone, approximate location (country level), and the name of the network operator your connection belongs to (e.g. your internet provider), both derived from your connection. Your IP address itself is used only to look those two up and is discarded immediately — it is never stored or logged. This is sent to a server operated by the developer — never to a third party.</p>
+    <p>We do <strong>not</strong> collect:</p>
     <ul>
-      <li>No analytics or telemetry data is collected</li>
-      <li>No usage data is sent to any external server</li>
-      <li>No advertising identifiers are used</li>
-      <li>No crash reports are automatically uploaded</li>
+      <li>Your name, email address, or Apple ID</li>
+      <li>Your precise location</li>
+      <li>Your IP address (used momentarily to derive country and network operator, then discarded — never stored)</li>
+      <li>Any connection details (host, port, username, password), query content, query results, or database content</li>
+      <li>Database error messages — only the numeric error code is recorded, never the server's message text, which can contain your data</li>
+      <li>Advertising identifiers</li>
+      <li>Crash reports (none are automatically uploaded)</li>
     </ul>
+    <p>You can disable usage analytics at any time in <strong>Settings → General → "Share anonymous usage analytics."</strong></p>
 
     <h2>2. Data Stored Locally on Your Mac</h2>
     <p>The app stores the following data <strong>exclusively on your device</strong>:</p>
@@ -108,16 +113,17 @@
       <li><strong>Connection profiles</strong> (host, port, username, database name): stored in <code>~/Library/Application Support/MySQLMacClient/connections.json</code> inside the app's sandbox container</li>
       <li><strong>Passwords</strong>: stored securely in the macOS Keychain — never written to disk in plaintext</li>
       <li><strong>App preferences</strong> (theme, grid settings, editor font size): stored in the app's sandbox container</li>
+      <li><strong>Anonymous analytics identifier</strong> (a randomly generated ID, not tied to your identity): stored locally so repeated events can be recognized as coming from the same installation; only sent if usage analytics is enabled</li>
     </ul>
 
     <h2>3. Network Access</h2>
-    <p>The app makes outgoing TCP connections <strong>only</strong> to the MySQL servers you explicitly configure. No connections are made to any servers operated by the developer.</p>
+    <p>The app makes outgoing TCP connections to the MySQL servers you explicitly configure, and — unless you disable it in Settings — sends the anonymous usage events described above to a first-party endpoint operated by the developer. No other network connections are made.</p>
 
     <h2>4. Third-Party Services</h2>
-    <p>MySQL Client does not integrate any third-party SDKs, analytics services, advertising networks, or crash reporting frameworks.</p>
+    <p>MySQL Client does not integrate any third-party SDKs, advertising networks, or crash reporting frameworks. The usage analytics described above are sent to infrastructure operated directly by the developer — no third-party analytics provider is used.</p>
 
     <h2>5. Children's Privacy</h2>
-    <p>This app is not directed to children under 13. No information is collected from any user.</p>
+    <p>This app is not directed to children under 13. The anonymous usage analytics described in Section 1 contain no personal information and cannot be used to identify any individual user.</p>
 
     <h2>6. Changes to This Policy</h2>
     <p>If this privacy policy changes, the updated version will be posted at this URL. The "Last updated" date at the top of this page will reflect the change.</p>

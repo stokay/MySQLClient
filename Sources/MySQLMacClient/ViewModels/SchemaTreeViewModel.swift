@@ -31,6 +31,21 @@ final class DatabaseNode: ObservableObject, Identifiable {
         routineStates[kind] ?? RoutineCategoryState()
     }
 
+    /// Triggers and events don't share `RoutineKind`'s `sqlKeyword`/
+    /// `createStatementColumn` shape (different `SHOW`/`SHOW CREATE` column
+    /// names, and there's exactly one of each per database rather than a
+    /// choice of "kind"), so they get their own state each instead of a
+    /// third `RoutineKind` case.
+    struct LazyCategoryState<Item> {
+        var items: [Item] = []
+        var isLoading = false
+        var isLoaded = false
+        var errorMessage: String?
+    }
+
+    @Published private(set) var triggerState = LazyCategoryState<TriggerInfo>()
+    @Published private(set) var eventState = LazyCategoryState<EventInfo>()
+
     private let introspection: SchemaIntrospectionService
 
     init(info: DatabaseInfo, introspection: SchemaIntrospectionService) {
@@ -86,6 +101,46 @@ final class DatabaseNode: ObservableObject, Identifiable {
         state.isLoaded = false
         routineStates[kind] = state
         await loadRoutinesIfNeeded(kind)
+    }
+
+    func loadTriggersIfNeeded() async {
+        guard !triggerState.isLoaded, !triggerState.isLoading else { return }
+        triggerState.isLoading = true
+        triggerState.errorMessage = nil
+        do {
+            triggerState.items = try await introspection.listTriggers(inDatabase: info.name)
+            triggerState.isLoaded = true
+        } catch {
+            let label = String(localized: "Trigger")
+            triggerState.errorMessage = String(localized: "Could not load \(label) list: \(error.localizedDescription)")
+        }
+        triggerState.isLoading = false
+    }
+
+    /// See `reload()` — same "force a fresh fetch" need after Alter/Drop
+    /// changes the list.
+    func reloadTriggers() async {
+        triggerState.isLoaded = false
+        await loadTriggersIfNeeded()
+    }
+
+    func loadEventsIfNeeded() async {
+        guard !eventState.isLoaded, !eventState.isLoading else { return }
+        eventState.isLoading = true
+        eventState.errorMessage = nil
+        do {
+            eventState.items = try await introspection.listEvents(inDatabase: info.name)
+            eventState.isLoaded = true
+        } catch {
+            let label = String(localized: "Event")
+            eventState.errorMessage = String(localized: "Could not load \(label) list: \(error.localizedDescription)")
+        }
+        eventState.isLoading = false
+    }
+
+    func reloadEvents() async {
+        eventState.isLoaded = false
+        await loadEventsIfNeeded()
     }
 }
 

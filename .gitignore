@@ -7,3 +7,7 @@ DerivedData/
 MyAssets/
 MyDocs/
 *.dmg
+server/analytics/config.php
+.vscode/
+CODE_REVIEW.md
+CODE_REVIEW_TR.md

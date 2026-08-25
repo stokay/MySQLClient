@@ -67,6 +67,15 @@ actor MySQLService {
 
     private(set) var isConnected: Bool = false
 
+    /// Whatever `SELECT VERSION()` returned on connect — e.g.
+    /// `"10.4.32-MariaDB"` or `"8.0.45"`. Read once per connection rather
+    /// than per use: it can't change under a live connection, and error
+    /// messages that want to name the server (see
+    /// `SQLConsoleViewModel`'s unknown-collation hint) shouldn't have to
+    /// round-trip to the server to do it. `nil` if that probe failed —
+    /// never a reason to fail the connection itself.
+    private(set) var serverVersion: String?
+
     /// `database: nil` connects with no default schema selected — MySQL
     /// allows this, and the caller is then expected to browse
     /// `SHOW DATABASES` and qualify every query as `` `db`.`table` ``.
@@ -92,6 +101,11 @@ actor MySQLService {
             self.connection = conn
             self.isConnected = true
             self.lastCredentials = (host, port, username, password, database)
+            // Best-effort: a server that won't answer this is still a
+            // perfectly usable connection, so a failure here is swallowed
+            // rather than surfaced.
+            self.serverVersion = try? await conn.simpleQuery("SELECT VERSION() AS version").get()
+                .first?.column("version")?.string
         } catch {
             try? await group.shutdownGracefully()
             throw error
@@ -100,6 +114,7 @@ actor MySQLService {
 
     func disconnect() async throws {
         lastCredentials = nil
+        serverVersion = nil
         guard let conn = connection else { return }
         await acquire()
         defer { release() }
@@ -172,6 +187,22 @@ actor MySQLService {
                     // fails identically either way. Calling a procedure
                     // that returns a result set isn't supported by this
                     // client until MySQLNIO exposes that capability flag.
+                    let resultSets = try await conn.simpleQueryResultSets(sql).get()
+                    return RawQueryResult(resultSets: resultSets, affectedRows: nil, lastInsertID: nil)
+                } catch is MySQLProtocol.COM_STMT_PREPARE_OK.Error {
+                    // Some MariaDB servers reply to `COM_STMT_PREPARE` for
+                    // certain statements (confirmed with `SET GLOBAL
+                    // event_scheduler = ON`) with a shorter payload than
+                    // MySQLNIO's decoder expects — it throws while reading
+                    // one of `COM_STMT_PREPARE_OK`'s fixed fields (missing
+                    // status/statementID/numColumns/numParams/etc.), not a
+                    // clean `ER_UNSUPPORTED_PS` server error, so it doesn't
+                    // hit the catch above. Since the failure happens while
+                    // decoding the *prepare* response — before any
+                    // `COM_STMT_EXECUTE` — nothing has run against the
+                    // server yet, so retrying via the plain-text protocol
+                    // here is exactly as safe as the `ER_UNSUPPORTED_PS`
+                    // case.
                     let resultSets = try await conn.simpleQueryResultSets(sql).get()
                     return RawQueryResult(resultSets: resultSets, affectedRows: nil, lastInsertID: nil)
                 }

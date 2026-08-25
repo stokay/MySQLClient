@@ -99,8 +99,10 @@ final class AlterTableViewModel: ObservableObject {
         do {
             historyRecorder?.record(sql, database: database, source: .app)
             try await service.execute(sql)
+            AnalyticsService.trackFeatureUsed("alter_table")
         } catch {
             errorMessage = String(localized: "Alter failed: \(error.localizedDescription)")
+            AnalyticsService.trackError(error, feature: "alter_table")
             return nil
         }
 

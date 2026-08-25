@@ -187,6 +187,93 @@ final class SchemaIntrospectionServiceTests: XCTestCase {
         _ = try await service.rawQuery("DROP FUNCTION IF EXISTS introspection_test_fn")
     }
 
+    func testListTriggersReturnsCreatedTrigger() async throws {
+        _ = try await service.rawQuery("DROP TRIGGER IF EXISTS introspection_test_trigger")
+        _ = try await service.rawQuery("""
+            CREATE TRIGGER introspection_test_trigger BEFORE INSERT ON widgets
+            FOR EACH ROW
+            BEGIN
+                SET NEW.name = NEW.name;
+            END
+            """)
+
+        let triggers = try await introspection.listTriggers(inDatabase: "mysqlmacclient_test")
+        let trigger = triggers.first { $0.name == "introspection_test_trigger" }
+        XCTAssertEqual(trigger?.table, "widgets")
+        XCTAssertEqual(trigger?.timing, "BEFORE")
+        XCTAssertEqual(trigger?.event, "INSERT")
+
+        _ = try await service.rawQuery("DROP TRIGGER IF EXISTS introspection_test_trigger")
+    }
+
+    /// Same verbatim-storage/no-qualifier-stripping expectation as
+    /// `testShowCreateRoutineReturnsVerbatimProcedureDefinition`, but reading
+    /// the trigger-specific `SQL Original Statement` column.
+    func testShowCreateTriggerReturnsVerbatimDefinition() async throws {
+        _ = try await service.rawQuery("DROP TRIGGER IF EXISTS introspection_test_trigger")
+        _ = try await service.rawQuery("""
+            CREATE TRIGGER introspection_test_trigger BEFORE INSERT ON widgets
+            FOR EACH ROW
+            BEGIN
+                SET NEW.name = NEW.name;
+            END
+            """)
+
+        let createTrigger = try await introspection.showCreateTrigger(
+            TriggerInfo(database: "mysqlmacclient_test", name: "introspection_test_trigger", table: "widgets", timing: "BEFORE", event: "INSERT")
+        )
+
+        // MariaDB's `SQL Original Statement` doesn't backtick-quote the
+        // trigger/table names the way `SHOW CREATE TABLE`/`VIEW` do —
+        // verified against the real local server.
+        XCTAssertTrue(createTrigger.contains("TRIGGER introspection_test_trigger"))
+        XCTAssertTrue(createTrigger.contains("BEFORE INSERT ON widgets"))
+
+        _ = try await service.rawQuery("DROP TRIGGER IF EXISTS introspection_test_trigger")
+    }
+
+    /// `DISABLE` keeps the scheduler from ever actually running this —
+    /// the test only needs the row to exist and report its status.
+    func testListEventsReturnsCreatedEvent() async throws {
+        _ = try await service.rawQuery("DROP EVENT IF EXISTS introspection_test_event")
+        _ = try await service.rawQuery("""
+            CREATE EVENT introspection_test_event
+            ON SCHEDULE EVERY 1 DAY
+            DISABLE
+            DO
+            BEGIN
+                SELECT 1;
+            END
+            """)
+
+        let events = try await introspection.listEvents(inDatabase: "mysqlmacclient_test")
+        let event = events.first { $0.name == "introspection_test_event" }
+        XCTAssertEqual(event?.status, "DISABLED")
+
+        _ = try await service.rawQuery("DROP EVENT IF EXISTS introspection_test_event")
+    }
+
+    func testShowCreateEventReturnsVerbatimDefinition() async throws {
+        _ = try await service.rawQuery("DROP EVENT IF EXISTS introspection_test_event")
+        _ = try await service.rawQuery("""
+            CREATE EVENT introspection_test_event
+            ON SCHEDULE EVERY 1 DAY
+            DISABLE
+            DO
+            BEGIN
+                SELECT 1;
+            END
+            """)
+
+        let createEvent = try await introspection.showCreateEvent(
+            EventInfo(database: "mysqlmacclient_test", name: "introspection_test_event", status: "DISABLED")
+        )
+
+        XCTAssertTrue(createEvent.contains("EVENT `introspection_test_event`"))
+
+        _ = try await service.rawQuery("DROP EVENT IF EXISTS introspection_test_event")
+    }
+
     func testQuotedIdentifierRejectsBacktick() {
         XCTAssertThrowsError(try SchemaIntrospectionService.quotedIdentifier("evil`table"))
     }

@@ -39,6 +39,16 @@ struct SettingsView: View {
 
             Divider().padding(.vertical, 4)
 
+            Toggle("Share anonymous usage analytics", isOn: Binding(
+                get: { !settingsStore.settings.general.analyticsOptOut },
+                set: { settingsStore.settings.general.analyticsOptOut = !$0 }
+            ))
+            Text("Helps prioritize which languages and features to work on next. No connection details, query content, or personal information is ever included — see the Privacy Policy for what's collected.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Divider().padding(.vertical, 4)
+
             languagePicker
 
             Divider().padding(.vertical, 4)
@@ -78,7 +88,7 @@ struct SettingsView: View {
 
             adaptiveColorRow("Text color", \.sidebar.textColor)
 
-            // Eleven rows would push the rest of the tab (and the reset
+            // This many rows would push the rest of the tab (and the reset
             // button) off a reasonably-sized window, so they start folded.
             DisclosureGroup("Tree icon colors") {
                 adaptiveColorRow("Database", \.sidebar.databaseIcon)
@@ -92,6 +102,10 @@ struct SettingsView: View {
                 adaptiveColorRow("Procedure names", \.sidebar.procedureIcon)
                 adaptiveColorRow("Functions group", \.sidebar.functionsGroupIcon)
                 adaptiveColorRow("Function names", \.sidebar.functionIcon)
+                adaptiveColorRow("Triggers group", \.sidebar.triggersGroupIcon)
+                adaptiveColorRow("Trigger names", \.sidebar.triggerIcon)
+                adaptiveColorRow("Events group", \.sidebar.eventsGroupIcon)
+                adaptiveColorRow("Event names", \.sidebar.eventIcon)
             }
             .padding(.top, 4)
 

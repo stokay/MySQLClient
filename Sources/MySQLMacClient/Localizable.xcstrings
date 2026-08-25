@@ -3031,6 +3031,29 @@
         }
       }
     },
+    "Helps prioritize which languages and features to work on next. No connection details, query content, or personal information is ever included — see the Privacy Policy for what's collected.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hilft zu entscheiden, welche Sprachen und Funktionen als Nächstes bearbeitet werden. Verbindungsdetails, Abfrageinhalte oder persönliche Daten sind niemals enthalten — siehe die Datenschutzerklärung für Details."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayuda a priorizar qué idiomas y funciones desarrollar a continuación. Nunca se incluyen datos de conexión, contenido de consultas ni información personal — consulta la Política de Privacidad para más detalles."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sırada hangi dillerin ve özelliklerin ele alınacağına karar vermeye yardımcı olur. Bağlantı bilgileri, sorgu içeriği veya kişisel bilgiler asla dahil edilmez — nelerin toplandığını görmek için Gizlilik Politikası'na bakın."
+          }
+        }
+      }
+    },
     "Hide SQL Query": {
       "extractionState": "manual",
       "localizations": {
@@ -5554,6 +5577,29 @@
         }
       }
     },
+    "Share anonymous usage analytics": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anonyme Nutzungsanalyse teilen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir análisis de uso anónimo"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anonim kullanım analitiği paylaş"
+          }
+        }
+      }
+    },
     "Show line numbers": {
       "extractionState": "manual",
       "localizations": {
@@ -6741,6 +6787,397 @@
     },
     "…": {
       "extractionState": "manual"
+    },
+    "Trigger": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disparador"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger"
+          }
+        }
+      }
+    },
+    "Event": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ereignis"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evento"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event"
+          }
+        }
+      }
+    },
+    "Triggers": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disparadores"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger'lar"
+          }
+        }
+      }
+    },
+    "No triggers": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Trigger"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin disparadores"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger yok"
+          }
+        }
+      }
+    },
+    "Events": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ereignisse"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eventos"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event'ler"
+          }
+        }
+      }
+    },
+    "No events": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Ereignisse"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin eventos"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event yok"
+          }
+        }
+      }
+    },
+    "Triggers group": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Triggergruppe"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupo de Disparadores"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger'lar grubu"
+          }
+        }
+      }
+    },
+    "Trigger names": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Triggernamen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombres de disparador"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger adları"
+          }
+        }
+      }
+    },
+    "Events group": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ereignisgruppe"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupo de Eventos"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event'ler grubu"
+          }
+        }
+      }
+    },
+    "Event names": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ereignisnamen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombres de evento"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event adları"
+          }
+        }
+      }
+    },
+    "DROP TRIGGER deletes it permanently and cannot be undone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP TRIGGER löscht es dauerhaft, dies kann nicht rückgängig gemacht werden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP TRIGGER lo elimina permanentemente y no se puede deshacer."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP TRIGGER kalıcı olarak siler, geri alınamaz."
+          }
+        }
+      }
+    },
+    "DROP EVENT deletes it permanently and cannot be undone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP EVENT löscht es dauerhaft, dies kann nicht rückgängig gemacht werden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP EVENT lo elimina permanentemente y no se puede deshacer."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP EVENT kalıcı olarak siler, geri alınamaz."
+          }
+        }
+      }
+    },
+    "This script holds several statements. \"Run\" sends them as one packet; use \"Run All\" to send them one at a time.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Skript enthält mehrere Anweisungen. „Ausführen“ sendet sie als ein Paket; verwenden Sie „Alles Ausführen“, um sie einzeln zu senden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este script contiene varias sentencias. «Ejecutar» las envía en un solo paquete; use «Ejecutar Todo» para enviarlas una por una."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu script birden fazla ifade içeriyor. “Çalıştır” hepsini tek pakette gönderir; teker teker göndermek için “Tümünü Çalıştır” kullanın."
+          }
+        }
+      }
+    },
+    "'%@' is a MySQL 8.0 collation, but this connection is to %@. Replace it (utf8mb4_unicode_ci is the usual substitute) or restore into MySQL 8.0 or newer.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@“ ist eine MySQL-8.0-Kollation, diese Verbindung geht aber zu %2$@. Ersetzen Sie sie (üblich ist utf8mb4_unicode_ci) oder spielen Sie in MySQL 8.0 oder neuer ein."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%1$@' es una intercalación de MySQL 8.0, pero esta conexión es a %2$@. Sustitúyala (utf8mb4_unicode_ci es lo habitual) o restaure en MySQL 8.0 o posterior."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%1$@' bir MySQL 8.0 collation'ı, bu bağlantı ise %2$@ sunucusuna. Değiştirin (genelde utf8mb4_unicode_ci kullanılır) ya da MySQL 8.0+ sunucuya yükleyin."
+          }
+        }
+      }
+    },
+    "'%@' is a MySQL 8.0 collation. Replace it (utf8mb4_unicode_ci is the usual substitute) or restore into MySQL 8.0 or newer.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ ist eine MySQL-8.0-Kollation. Ersetzen Sie sie (üblich ist utf8mb4_unicode_ci) oder spielen Sie in MySQL 8.0 oder neuer ein."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' es una intercalación de MySQL 8.0. Sustitúyala (utf8mb4_unicode_ci es lo habitual) o restaure en MySQL 8.0 o posterior."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' bir MySQL 8.0 collation'ı. Değiştirin (genelde utf8mb4_unicode_ci kullanılır) ya da MySQL 8.0+ sunucuya yükleyin."
+          }
+        }
+      }
+    },
+    "Collation '%@' does not exist on %@. Replace it with one this server supports.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Kollation „%1$@“ gibt es auf %2$@ nicht. Ersetzen Sie sie durch eine, die dieser Server unterstützt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La intercalación '%1$@' no existe en %2$@. Sustitúyala por una que este servidor admita."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%1$@' collation'ı %2$@ sunucusunda yok. Bu sunucunun desteklediği bir collation ile değiştirin."
+          }
+        }
+      }
+    },
+    "Collation '%@' does not exist on the server you are connected to. Replace it with one this server supports.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Kollation „%@“ gibt es auf dem verbundenen Server nicht. Ersetzen Sie sie durch eine, die dieser Server unterstützt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La intercalación '%@' no existe en el servidor al que está conectado. Sustitúyala por una que este servidor admita."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' collation'ı bağlı olduğunuz sunucuda yok. Bu sunucunun desteklediği bir collation ile değiştirin."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

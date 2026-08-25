@@ -160,6 +160,56 @@ struct SchemaIntrospectionService {
         return raw
     }
 
+    /// `SHOW TRIGGERS FROM db` — an identifier `FROM`, not a `WHERE Db =
+    /// '...'` literal like `listRoutines`; that's the syntax MySQL defines
+    /// for this statement, there's no alternate form to pick between.
+    func listTriggers(inDatabase database: String) async throws -> [TriggerInfo] {
+        let quotedDatabase = try Self.quotedIdentifier(database)
+        let rows = try await service.query("SHOW TRIGGERS FROM \(quotedDatabase)")
+        return rows.compactMap { row -> TriggerInfo? in
+            guard let name = row.column("Trigger")?.string else { return nil }
+            return TriggerInfo(
+                database: database,
+                name: name,
+                table: row.column("Table")?.string ?? "",
+                timing: row.column("Timing")?.string ?? "",
+                event: row.column("Event")?.string ?? ""
+            )
+        }
+    }
+
+    /// `SHOW CREATE TRIGGER` returns the definition in `SQL Original
+    /// Statement` — a different column name than `showCreateRoutine`'s.
+    func showCreateTrigger(_ trigger: TriggerInfo) async throws -> String {
+        let qualified = try Self.qualifiedIdentifier(database: trigger.database, name: trigger.name)
+        let rows = try await service.query("SHOW CREATE TRIGGER \(qualified)")
+        guard let raw = rows.first?.column("SQL Original Statement")?.string else {
+            throw MySQLServiceError.invalidIdentifier(trigger.name)
+        }
+        return raw
+    }
+
+    /// `SHOW EVENTS FROM db` — same identifier-`FROM` shape as
+    /// `listTriggers`.
+    func listEvents(inDatabase database: String) async throws -> [EventInfo] {
+        let quotedDatabase = try Self.quotedIdentifier(database)
+        let rows = try await service.query("SHOW EVENTS FROM \(quotedDatabase)")
+        return rows.compactMap { row -> EventInfo? in
+            guard let name = row.column("Name")?.string else { return nil }
+            return EventInfo(database: database, name: name, status: row.column("Status")?.string ?? "")
+        }
+    }
+
+    /// `SHOW CREATE EVENT` returns the definition in `Create Event`.
+    func showCreateEvent(_ event: EventInfo) async throws -> String {
+        let qualified = try Self.qualifiedIdentifier(database: event.database, name: event.name)
+        let rows = try await service.query("SHOW CREATE EVENT \(qualified)")
+        guard let raw = rows.first?.column("Create Event")?.string else {
+            throw MySQLServiceError.invalidIdentifier(event.name)
+        }
+        return raw
+    }
+
     /// Every character set the server supports, for the "Yeni Tablo" form's
     /// picker — the handful of hardcoded names a static list would have
     /// covered is nowhere near what real servers offer.

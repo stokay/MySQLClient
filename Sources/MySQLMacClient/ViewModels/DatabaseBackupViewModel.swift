@@ -345,10 +345,12 @@ final class DatabaseBackupViewModel: ObservableObject {
             // its atomic replace — the file is genuinely on disk, not just
             // "the last statement inside the closure ran".
             didFinishSuccessfully = true
+            AnalyticsService.trackFeatureUsed("db_backup")
         } catch is CancellationError {
             // User-initiated — not an error to surface.
         } catch {
             errorMessage = describe(error)
+            AnalyticsService.trackError(error, feature: "db_backup")
         }
     }
 

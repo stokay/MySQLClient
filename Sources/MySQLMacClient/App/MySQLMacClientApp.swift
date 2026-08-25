@@ -14,6 +14,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSApp.setActivationPolicy(.regular)
             NSApp.activate(ignoringOtherApps: true)
         }
+
+        AnalyticsService.trackAppOpen()
     }
 
     func applicationDidBecomeActive(_ notification: Notification) {

@@ -30,7 +30,7 @@ A native macOS MySQL management tool built with **Swift 6 / SwiftUI**, available
 - Connection metadata persisted in `~/Library/Application Support/MySQL Client/connections.json`
 
 ### Schema Browser
-- Multi-database tree: databases → **tables, views, stored procedures, functions** (sidebar with `NavigationSplitView`), each category lazily loaded on first expand
+- Multi-database tree: databases → **tables, views, stored procedures, functions, triggers, events** (sidebar with `NavigationSplitView`), each category lazily loaded on first expand
 - Table info panel (column details/types/keys, index list, DDL) and per-object context menus (Alter, Drop, Truncate)
 - Create forms for View / Stored Procedure / Function / Trigger / Event, with `DELIMITER`-block script support for routine bodies
 
@@ -176,8 +176,7 @@ into `MySQLMacClient-<version>.dmg` in the repo root.
 - [x] Create Table / Alter Table forms
 - [x] Settings panel (appearance, grid, editor)
 - [x] Query history persistence
-- [x] Schema tree with views, stored procedures and functions
-- [ ] Browse triggers and events in the schema tree (create forms already exist; they just aren't listed in the tree yet)
+- [x] Schema tree with views, stored procedures, functions, triggers and events
 - [x] Table Export (CSV, HTML, JSON, SQL, Excel) with streaming + progress + cancel
 - [x] Table Import (CSV and Excel `.xlsx`) with column mapping and all-or-nothing transaction
 - [x] Database Backup (SQL dump — structure/data, routines, extended inserts)
