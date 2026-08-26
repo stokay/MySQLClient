@@ -87,8 +87,13 @@ enum AnalyticsService {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
     }
 
+    /// Deliberately not `operatingSystemVersionString` — that string is
+    /// localized (e.g. "Version"/"Build" translated) by the app's own
+    /// language override, which both varies per language and runs longer
+    /// than the plain number. This is locale-independent and short.
     private static var osVersion: String {
-        ProcessInfo.processInfo.operatingSystemVersionString
+        let v = ProcessInfo.processInfo.operatingSystemVersion
+        return "macOS \(v.majorVersion).\(v.minorVersion).\(v.patchVersion)"
     }
 
     /// e.g. "MacBookPro18,3" — via `sysctlbyname`, the standard way to read

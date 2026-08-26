@@ -22,6 +22,24 @@
             "value": "Se realizó la copia de seguridad de %@ correctamente."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ का बैकअप सफलतापूर्वक बना।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utworzono kopię zapasową %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Резервная копия %@ успешно создана."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -43,6 +61,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se exportó %@ correctamente."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ सफलतापूर्वक निर्यात किया गया।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ został pomyślnie wyeksportowany."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ успешно экспортирован."
           }
         },
         "tr": {
@@ -74,6 +110,24 @@
             "value": "%lld objetos listos · %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ऑब्जेक्ट तैयार · %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gotowych obiektów: %lld · %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Готово объектов: %lld · %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -98,6 +152,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld conjuntos de resultados devueltos, %lld filas en total."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld परिणाम सेट लौटाए गए, कुल %lld पंक्तियाँ।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zwrócono zestawów wyników: %lld, łącznie wierszy: %lld."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Возвращено наборов результатов: %lld, всего строк: %lld."
           }
         },
         "tr": {
@@ -160,6 +232,60 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld filas"
+                }
+              }
+            }
+          }
+        },
+        "hi": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld पंक्ति"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld पंक्तियाँ"
+                }
+              }
+            }
+          }
+        },
+        "pl": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld wiersz"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld wierszy"
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld строка"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld строк"
                 }
               }
             }
@@ -242,6 +368,60 @@
             }
           }
         },
+        "hi": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld पंक्ति लौटाई गई।"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld पंक्तियाँ लौटाई गईं।"
+                }
+              }
+            }
+          }
+        },
+        "pl": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Zwrócono %lld wiersz."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Zwrócono %lld wierszy."
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld строка возвращена."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld строк возвращено."
+                }
+              }
+            }
+          }
+        },
         "tr": {
           "variations": {
             "plural": {
@@ -277,6 +457,24 @@
             "value": "%lld seleccionados"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld चयनित"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wybrano: %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбрано: %lld"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -298,6 +496,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld instrucciones ejecutadas. %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld कथन निष्पादित हुए। %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wykonano instrukcji: %lld. %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выполнено инструкций: %lld. %@"
           }
         },
         "tr": {
@@ -329,6 +545,24 @@
             "value": "%lld/%lld objetos — %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld ऑब्जेक्ट — %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld obiektów — %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld объектов — %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -350,6 +584,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld/%lld filas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld पंक्तियाँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld wierszy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld строк"
           }
         },
         "tr": {
@@ -417,6 +669,60 @@
             }
           }
         },
+        "hi": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%llu पंक्ति प्रभावित हुई।"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%llu पंक्तियाँ प्रभावित हुईं।"
+                }
+              }
+            }
+          }
+        },
+        "pl": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Zmodyfikowano %llu wiersz."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Zmodyfikowano %llu wierszy."
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%llu строка затронута."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%llu строк затронуто."
+                }
+              }
+            }
+          }
+        },
         "tr": {
           "variations": {
             "plural": {
@@ -452,6 +758,24 @@
             "value": "(obligatorio)"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(आवश्यक)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(wymagane)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(обязательно)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -473,6 +797,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "(no disponible)"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(अनुपलब्ध)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(niedostępne)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(недоступно)"
           }
         },
         "tr": {
@@ -498,6 +840,24 @@
             "value": "-- Aún no hay cambios --"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-- अभी तक कोई बदलाव नहीं --"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-- brak zmian --"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-- изменений пока нет --"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -519,6 +879,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "-- El SQL aparecerá aquí en cuanto introduzcas un nombre de tabla y al menos un nombre de columna --"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-- टेबल नाम और कम से कम एक कॉलम नाम दर्ज करने पर SQL यहाँ दिखाई देगा --"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-- SQL pojawi się tutaj po wpisaniu nazwy tabeli i przynajmniej jednej nazwy kolumny --"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-- SQL появится здесь, как только вы укажете имя таблицы и хотя бы одно имя столбца --"
           }
         },
         "tr": {
@@ -544,6 +922,24 @@
             "value": "AUTO\nINCR"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ऑटो\nइंक्र"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AUTO\nINKR"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "АВТО\nИНКР"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -565,6 +961,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Añadir instrucción \"CREATE database\""
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"CREATE database\" कथन जोड़ें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj instrukcję „CREATE database”"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить инструкцию «CREATE database»"
           }
         },
         "tr": {
@@ -590,6 +1004,24 @@
             "value": "Añadir instrucciones \"DROP\""
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"DROP\" कथन जोड़ें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj instrukcje „DROP”"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить инструкции «DROP»"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -611,6 +1043,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Añadir instrucción \"USE database\""
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"USE database\" कथन जोड़ें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj instrukcję „USE database”"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить инструкцию «USE database»"
           }
         },
         "tr": {
@@ -636,6 +1086,24 @@
             "value": "Añadir Columna"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कॉलम जोड़ें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj kolumnę"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить столбец"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -657,6 +1125,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Añadir Fila"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पंक्ति जोड़ें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj wiersz"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить строку"
           }
         },
         "tr": {
@@ -682,6 +1168,24 @@
             "value": "Todo"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सभी"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wszystko"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Все"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -700,6 +1204,24 @@
           }
         },
         "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter %@"
+          }
+        },
+        "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Alter %@"
@@ -728,6 +1250,24 @@
             "value": "Alter Table"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter Table"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter Table"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter Table"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -746,6 +1286,24 @@
           }
         },
         "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter Table "
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter Table "
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter Table "
+          }
+        },
+        "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Alter Table "
@@ -774,6 +1332,24 @@
             "value": "Alter View"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter View"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter View"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter View"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -795,6 +1371,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Alter falló: %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter विफल: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter nie powiódł się: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alter не выполнен: %@"
           }
         },
         "tr": {
@@ -820,6 +1414,24 @@
             "value": "Apariencia: %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्वरूप: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wygląd: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оформление: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -841,6 +1453,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aplicar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लागू करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zastosuj"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Применить"
           }
         },
         "tr": {
@@ -866,6 +1496,24 @@
             "value": "Pedir confirmación antes de eliminar una fila"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पंक्ति हटाने से पहले पुष्टि माँगें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pytaj o potwierdzenie przed usunięciem wiersza"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запрашивать подтверждение перед удалением строки"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -887,6 +1535,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Poner palabras clave en MAYÚSCULAS automáticamente"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कीवर्ड को अपने आप UPPERCASE करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatycznie zamieniaj słowa kluczowe na WIELKIE LITERY"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Автоматически писать ключевые слова ЗАГЛАВНЫМИ"
           }
         },
         "tr": {
@@ -912,6 +1578,24 @@
             "value": "Volver a la Vista de Tabla"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल दृश्य पर वापस जाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Powrót do widoku tabeli"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Назад к виду таблицы"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -933,6 +1617,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copia de Seguridad Completada"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बैकअप पूर्ण"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopia zapasowa gotowa"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Резервное копирование завершено"
           }
         },
         "tr": {
@@ -958,6 +1660,24 @@
             "value": "Copia de seguridad..."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बैकअप..."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopia zapasowa…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Резервная копия…"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -979,6 +1699,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "ASIGNACIÓN DE COLUMNAS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कॉलम मैपिंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MAPOWANIE KOLUMN"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "СОПОСТАВЛЕНИЕ СТОЛБЦОВ"
           }
         },
         "tr": {
@@ -1004,6 +1742,24 @@
             "value": "NOMBRE DE COLUMNA"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कॉलम नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NAZWA KOLUMNY"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ИМЯ СТОЛБЦА"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1025,6 +1781,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "COLUMNAS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कॉलम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KOLUMNY"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "СТОЛБЦЫ"
           }
         },
         "tr": {
@@ -1050,6 +1824,24 @@
             "value": "COMENTARIO"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टिप्पणी"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KOMENTARZ"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "КОММЕНТАРИЙ"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1071,6 +1863,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "COLUMNAS CSV"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CSV कॉलम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KOLUMNY CSV"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "СТОЛБЦЫ CSV"
           }
         },
         "tr": {
@@ -1096,6 +1906,24 @@
             "value": "Cancelar"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रद्द करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anuluj"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отмена"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1117,6 +1945,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tamaño de fuente de celda"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेल फ़ॉन्ट आकार"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozmiar czcionki komórki"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер шрифта ячейки"
           }
         },
         "tr": {
@@ -1142,6 +1988,24 @@
             "value": "Color de texto de celda"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेल टेक्स्ट रंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolor tekstu komórki"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет текста ячейки"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1163,6 +2027,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Juego de Caracteres"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Character Set"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zestaw znaków"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кодировка"
           }
         },
         "tr": {
@@ -1188,6 +2070,24 @@
             "value": "Borrar Historial"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इतिहास साफ़ करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyczyść historię"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить историю"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1211,6 +2111,24 @@
             "value": "Borrar Historial de Todas las Conexiones"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सभी कनेक्शनों का इतिहास साफ़ करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyczyść historię wszystkich połączeń"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить историю всех подключений"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1232,6 +2150,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cerrar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बंद करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamknij"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закрыть"
           }
         },
         "tr": {
@@ -1260,6 +2196,24 @@
             "value": "Columna %lld"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कॉलम %lld"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolumna %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Столбец %lld"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1281,6 +2235,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nombres de columna en la primera fila"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पहली पंक्ति में कॉलम नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwy kolumn w pierwszym wierszu"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имена столбцов в первой строке"
           }
         },
         "tr": {
@@ -1306,6 +2278,24 @@
             "value": "Columnas"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कॉलम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolumny"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Столбцы"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1327,6 +2317,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Color de comentario (--)"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टिप्पणी (--) रंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolor komentarza (--)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет комментария (--)"
           }
         },
         "tr": {
@@ -1352,6 +2360,24 @@
             "value": "Completado"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पूर्ण"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukończono"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завершено"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1373,6 +2399,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Conectar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कनेक्ट करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Połącz"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключиться"
           }
         },
         "tr": {
@@ -1398,6 +2442,24 @@
             "value": "Nombre de Conexión"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कनेक्शन नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwa połączenia"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Название подключения"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1419,6 +2481,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se pudo conectar: %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कनेक्ट नहीं हो सका: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się połączyć: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось подключиться: %@"
           }
         },
         "tr": {
@@ -1444,6 +2524,24 @@
             "value": "No se pudo crear la tabla: %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल नहीं बनाई जा सकी: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się utworzyć tabeli: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось создать таблицу: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1465,6 +2563,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se pudo cargar la definición de %@: %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ की परिभाषा लोड नहीं हो सकी: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się wczytać definicji %@: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось загрузить определение %@: %@"
           }
         },
         "tr": {
@@ -1490,6 +2606,24 @@
             "value": "No se pudo cargar la lista de %@: %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ की सूची लोड नहीं हो सकी: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się wczytać listy %@: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось загрузить список %@: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1511,6 +2645,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se pudieron cargar las columnas: %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कॉलम लोड नहीं हो सके: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się wczytać kolumn: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось загрузить столбцы: %@"
           }
         },
         "tr": {
@@ -1536,6 +2688,24 @@
             "value": "No se pudo cargar la lista de bases de datos: %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डेटाबेस सूची लोड नहीं हो सकी: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się wczytać listy baz danych: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось загрузить список баз данных: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1557,6 +2727,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se pudieron cargar los índices: %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इंडेक्स लोड नहीं हो सके: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się wczytać indeksów: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось загрузить индексы: %@"
           }
         },
         "tr": {
@@ -1582,6 +2770,24 @@
             "value": "No se pudo cargar la información de la tabla: %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल जानकारी लोड नहीं हो सकी: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się wczytać informacji o tabeli: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось загрузить информацию о таблице: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1603,6 +2809,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se pudo cargar la lista de tablas: %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल सूची लोड नहीं हो सकी: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się wczytać listy tabel: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось загрузить список таблиц: %@"
           }
         },
         "tr": {
@@ -1628,6 +2852,24 @@
             "value": "No se pudo cargar la lista de procedimientos/funciones; se cargaron las tablas y vistas: %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रोसीज़र/फ़ंक्शन सूची लोड नहीं हो सकी; टेबल और व्यू लोड हो गए: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się wczytać listy procedur/funkcji; tabele i widoki zostały wczytane: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось загрузить список процедур/функций; таблицы и представления загружены: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1649,6 +2891,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se pudo cargar la definición de la vista: %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "व्यू परिभाषा लोड नहीं हो सकी: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się wczytać definicji widoku: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось загрузить определение представления: %@"
           }
         },
         "tr": {
@@ -1674,6 +2934,24 @@
             "value": "No se pudo leer la estructura de la tabla: %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल संरचना पढ़ी नहीं जा सकी: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się odczytać struktury tabeli: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось прочитать структуру таблицы: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1695,6 +2973,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Crear"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बनाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utwórz"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать"
           }
         },
         "tr": {
@@ -1720,6 +3016,24 @@
             "value": "Crear Nueva Tabla"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नई टेबल बनाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utwórz nową tabelę"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать новую таблицу"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1743,6 +3057,24 @@
             "value": "NOMBRE DE BASE DE DATOS"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डेटाबेस नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NAZWA BAZY DANYCH"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ИМЯ БАЗЫ ДАННЫХ"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1764,6 +3096,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "PREDETERMINADO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डिफ़ॉल्ट"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DOMYŚLNIE"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ПО УМОЛЧАНИЮ"
           }
         },
         "tr": {
@@ -1795,6 +3145,24 @@
             "value": "ARCHIVO DE DESTINO"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "गंतव्य फ़ाइल"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PLIK DOCELOWY"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ФАЙЛ НАЗНАЧЕНИЯ"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1816,6 +3184,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "DROP %@ lo elimina permanentemente y no se puede deshacer."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP %@ इसे स्थायी रूप से हटा देता है और इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP %@ usuwa go trwale i nie można tego cofnąć."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP %@ удаляет его безвозвратно, отменить это действие нельзя."
           }
         },
         "tr": {
@@ -1841,6 +3227,24 @@
             "value": "DROP TABLE elimina la tabla y su estructura permanentemente y no se puede deshacer."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP TABLE टेबल और उसकी संरचना को स्थायी रूप से हटा देता है और इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP TABLE trwale usuwa tabelę i jej strukturę — nie można tego cofnąć."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP TABLE безвозвратно удаляет таблицу и её структуру, отменить это действие нельзя."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1862,6 +3266,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "DROP VIEW elimina la vista permanentemente y no se puede deshacer."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP VIEW व्यू को स्थायी रूप से हटा देता है और इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP VIEW trwale usuwa widok i nie można tego cofnąć."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP VIEW безвозвратно удаляет представление, отменить это действие нельзя."
           }
         },
         "tr": {
@@ -1887,6 +3309,24 @@
             "value": "Oscuro"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डार्क"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ciemny"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тёмная"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1908,6 +3348,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cuadrícula de Datos"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डेटा ग्रिड"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siatka danych"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таблица данных"
           }
         },
         "tr": {
@@ -1933,6 +3391,24 @@
             "value": "Solo datos"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "केवल डेटा"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tylko dane"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Только данные"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -1954,6 +3430,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Los datos se importaron correctamente en %@."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डेटा सफलतापूर्वक %@ में आयात किया गया।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dane zostały pomyślnie zaimportowane do %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Данные успешно импортированы в %@."
           }
         },
         "tr": {
@@ -1979,6 +3473,24 @@
             "value": "Base de Datos"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डेटाबेस"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baza danych"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "База данных"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2000,6 +3512,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "LIMIT de SELECT predeterminado"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डिफ़ॉल्ट SELECT LIMIT"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domyślny SELECT LIMIT"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LIMIT по умолчанию для SELECT"
           }
         },
         "tr": {
@@ -2025,6 +3555,24 @@
             "value": "Tamaño de página predeterminado"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डिफ़ॉल्ट पेज आकार"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domyślny rozmiar strony"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер страницы по умолчанию"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2046,6 +3594,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Eliminar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हटाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usuń"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить"
           }
         },
         "tr": {
@@ -2071,6 +3637,24 @@
             "value": "¿Eliminar TODAS las filas de \"%@\"?"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' में सभी पंक्तियाँ हटाएँ?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usunąć WSZYSTKIE wiersze w „%@”?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить ВСЕ строки в «%@»?"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2092,6 +3676,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Eliminar conexión"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कनेक्शन हटाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usuń połączenie"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить подключение"
           }
         },
         "tr": {
@@ -2117,6 +3719,24 @@
             "value": "¿Eliminar la conexión \"%@\"?"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कनेक्शन '%@' हटाएँ?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usunąć połączenie „%@”?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить подключение «%@»?"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2138,6 +3758,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "¿Eliminar esta fila?"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यह पंक्ति हटाएँ?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usunąć ten wiersz?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить эту строку?"
           }
         },
         "tr": {
@@ -2163,6 +3801,24 @@
             "value": "Deseleccionar Todo"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सभी अचयनित करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odznacz wszystko"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Снять выделение со всех"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2186,6 +3842,24 @@
             "value": "Desconectar"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डिस्कनेक्ट करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozłącz"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отключиться"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2204,6 +3878,24 @@
           }
         },
         "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop"
+          }
+        },
+        "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Drop"
@@ -2232,6 +3924,24 @@
             "value": "Drop %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2250,6 +3960,24 @@
           }
         },
         "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop Table"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop Table"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop Table"
+          }
+        },
+        "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Drop Table"
@@ -2278,6 +4006,24 @@
             "value": "Drop View"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop View"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop View"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop View"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2299,6 +4045,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drop falló: %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop विफल: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop nie powiódł się: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop не выполнен: %@"
           }
         },
         "tr": {
@@ -2330,6 +4094,24 @@
             "value": "COLUMNAS DE EXCEL"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EXCEL कॉलम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KOLUMNY EXCEL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "СТОЛБЦЫ EXCEL"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2353,6 +4135,24 @@
             "value": "EXPORTAR COMO SQL"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL के रूप में निर्यात करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EKSPORTUJ JAKO SQL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ЭКСПОРТ КАК SQL"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2374,6 +4174,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Editable"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "संपादन योग्य"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edytowalne"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Редактируется"
           }
         },
         "tr": {
@@ -2402,6 +4220,24 @@
             "value": "Error"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "त्रुटि"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Błąd"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ошибка"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2423,6 +4259,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Color de mensaje de error"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "त्रुटि संदेश रंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolor komunikatu o błędzie"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет сообщения об ошибке"
           }
         },
         "tr": {
@@ -2448,6 +4302,24 @@
             "value": "Nombre de Evento"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इवेंट नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwa zdarzenia"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имя события"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2469,6 +4341,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Evento..."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इवेंट..."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zdarzenie…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Событие…"
           }
         },
         "tr": {
@@ -2494,6 +4384,24 @@
             "value": "Exportar"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निर्यात करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eksportuj"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Экспорт"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2515,6 +4423,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Exportar "
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निर्यात करें "
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eksportuj "
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Экспорт "
           }
         },
         "tr": {
@@ -2540,6 +4466,24 @@
             "value": "Exportación Completada"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निर्यात पूर्ण"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eksport ukończony"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Экспорт завершён"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2561,6 +4505,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Exportar base de datos a archivo · %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डेटाबेस को फ़ाइल में निर्यात करें · %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eksportuj bazę danych do pliku · %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Экспорт базы данных в файл · %@"
           }
         },
         "tr": {
@@ -2586,6 +4548,24 @@
             "value": "Exportar..."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निर्यात करें..."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eksportuj…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Экспорт…"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2607,6 +4587,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "CAMPOS A EXPORTAR"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "निर्यात करने के लिए फ़ील्ड"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POLA DO WYEKSPORTOWANIA"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ПОЛЯ ДЛЯ ЭКСПОРТА"
           }
         },
         "tr": {
@@ -2632,6 +4630,24 @@
             "value": "Columna de filtro"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़िल्टर कॉलम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolumna filtra"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Столбец фильтра"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2653,6 +4669,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Valor de filtro"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़िल्टर मान"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wartość filtra"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Значение фильтра"
           }
         },
         "tr": {
@@ -2678,6 +4712,24 @@
             "value": "La primera fila es un encabezado"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पहली पंक्ति एक हेडर है"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pierwszy wiersz to nagłówek"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Первая строка — заголовок"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2699,6 +4751,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tamaño de fuente"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ॉन्ट आकार"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozmiar czcionki"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер шрифта"
           }
         },
         "tr": {
@@ -2724,6 +4794,24 @@
             "value": "Función"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ंक्शन"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Funkcja"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Функция"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2745,6 +4833,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nombre de Función"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ंक्शन नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwa funkcji"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имя функции"
           }
         },
         "tr": {
@@ -2770,6 +4876,24 @@
             "value": "Nombres de función"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ंक्शन नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwy funkcji"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имена функций"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2791,6 +4915,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Función..."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ंक्शन..."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Funkcja…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Функция…"
           }
         },
         "tr": {
@@ -2816,6 +4958,24 @@
             "value": "Función: %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ंक्शन: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Funkcja: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Функция: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2837,6 +4997,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Funciones"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ंक्शन"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Funkcje"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Функции"
           }
         },
         "tr": {
@@ -2862,6 +5040,24 @@
             "value": "Grupo de Funciones"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ंक्शन समूह"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupa funkcji"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Группа функций"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2883,6 +5079,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "General"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सामान्य"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogólne"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Общие"
           }
         },
         "tr": {
@@ -2908,6 +5122,24 @@
             "value": "Generar instrucciones INSERT extendidas"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विस्तारित INSERT कथन बनाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generuj rozszerzone instrukcje INSERT"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создавать расширенные инструкции INSERT"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2929,6 +5161,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vista de Cuadrícula"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ग्रिड दृश्य"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widok siatki"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вид таблицы"
           }
         },
         "tr": {
@@ -2954,6 +5204,24 @@
             "value": "Color de línea de cuadrícula"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ग्रिड लाइन रंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolor linii siatki"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет линий сетки"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -2975,6 +5243,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Color de fondo del encabezado"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हेडर पृष्ठभूमि रंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolor tła nagłówka"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет фона заголовка"
           }
         },
         "tr": {
@@ -3000,6 +5286,24 @@
             "value": "Tamaño de fuente del encabezado"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हेडर फ़ॉन्ट आकार"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozmiar czcionki nagłówka"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер шрифта заголовка"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3021,6 +5325,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Color de texto del encabezado"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हेडर टेक्स्ट रंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolor tekstu nagłówka"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет текста заголовка"
           }
         },
         "tr": {
@@ -3046,6 +5368,24 @@
             "value": "Ayuda a priorizar qué idiomas y funciones desarrollar a continuación. Nunca se incluyen datos de conexión, contenido de consultas ni información personal — consulta la Política de Privacidad para más detalles."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यह तय करने में मदद करता है कि आगे किन भाषाओं और सुविधाओं पर काम किया जाए। इसमें कनेक्शन विवरण, क्वेरी सामग्री या व्यक्तिगत जानकारी कभी शामिल नहीं होती — क्या एकत्र किया जाता है, यह जानने के लिए गोपनीयता नीति देखें।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomaga określić, które języki i funkcje rozwijać w następnej kolejności. Nigdy nie obejmuje danych połączenia, treści zapytań ani informacji osobistych — zobacz Politykę prywatności, aby dowiedzieć się, co jest zbierane."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Помогает решить, какие языки и функции разрабатывать дальше. Данные о подключении, содержимое запросов и личная информация никогда не передаются — что именно собирается, см. в Политике конфиденциальности."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3067,6 +5407,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ocultar Consulta SQL"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL क्वेरी छिपाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukryj zapytanie SQL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрыть SQL-запрос"
           }
         },
         "tr": {
@@ -3092,6 +5450,24 @@
             "value": "Ocultar contraseña"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पासवर्ड छिपाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukryj hasło"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрыть пароль"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3113,6 +5489,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "El historial está vacío"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इतिहास खाली है"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historia jest pusta"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История пуста"
           }
         },
         "tr": {
@@ -3138,6 +5532,24 @@
             "value": "El historial se guarda solo en este Mac, hasta %lld consultas por conexión."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इतिहास केवल इस Mac पर रखा जाता है, प्रति कनेक्शन अधिकतम %lld क्वेरी।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historia jest przechowywana tylko na tym Macu, maksymalnie %lld zapytań na połączenie."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История хранится только на этом Mac, до %lld запросов на подключение."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3159,6 +5571,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Historial: consultas recientes ejecutadas en esta conexión — la consulta seleccionada se añade al editor"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इतिहास: इस कनेक्शन पर हाल ही में चलाई गई क्वेरी — चयनित क्वेरी संपादक में जोड़ दी जाती है"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historia: ostatnie zapytania wykonane w tym połączeniu — wybrane zapytanie zostaje dodane do edytora"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История: последние запросы, выполненные в этом подключении — выбранный запрос добавляется в редактор"
           }
         },
         "tr": {
@@ -3184,6 +5614,24 @@
             "value": "Servidor"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "होस्ट"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Хост"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3205,6 +5653,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "IMPORTAR COLUMNAS DESDE ARCHIVO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ाइल से कॉलम आयात करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IMPORTUJ KOLUMNY Z PLIKU"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ИМПОРТ СТОЛБЦОВ ИЗ ФАЙЛА"
           }
         },
         "tr": {
@@ -3233,6 +5699,24 @@
             "value": "Importar"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आयात करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importuj"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импорт"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3254,6 +5738,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Importar "
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आयात करें "
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importuj "
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импорт "
           }
         },
         "tr": {
@@ -3279,6 +5781,24 @@
             "value": "Importar Columnas"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कॉलम आयात करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importuj kolumny"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импорт столбцов"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3300,6 +5820,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Importación Completada"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आयात पूर्ण"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import ukończony"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импорт завершён"
           }
         },
         "tr": {
@@ -3325,6 +5863,24 @@
             "value": "Importar..."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आयात करें..."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importuj…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импорт…"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3346,6 +5902,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Índices"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इंडेक्स"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indeksy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Индексы"
           }
         },
         "tr": {
@@ -3371,6 +5945,24 @@
             "value": "Información"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "जानकारी"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informacje"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Инфо"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3392,6 +5984,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vista de Información"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "जानकारी दृश्य"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widok informacji"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вид «Инфо»"
           }
         },
         "tr": {
@@ -3417,6 +6027,24 @@
             "value": "Información — %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "जानकारी — %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informacje — %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Инфо — %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3438,6 +6066,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Insertar Consulta SQL"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL क्वेरी सम्मिलित करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wstaw zapytanie SQL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вставить SQL-запрос"
           }
         },
         "tr": {
@@ -3463,6 +6109,24 @@
             "value": "%@ no válido."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अमान्य %@।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nieprawidłowe: %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Недопустимое значение: %@."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3484,6 +6148,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Longitud no válida para la columna \"%@\": %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कॉलम \"%@\" के लिए अमान्य लंबाई: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nieprawidłowa długość kolumny „%@”: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Недопустимая длина для столбца «%@»: %@"
           }
         },
         "tr": {
@@ -3509,6 +6191,24 @@
             "value": "Nombre de tabla/columna no válido: %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अमान्य टेबल/कॉलम नाम: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nieprawidłowa nazwa tabeli/kolumny: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Недопустимое имя таблицы или столбца: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3530,6 +6230,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Error de Llavero (%d): %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keychain त्रुटि (%d): %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Błąd pęku kluczy (%d): %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ошибка связки ключей (%d): %@"
           }
         },
         "tr": {
@@ -3555,6 +6273,24 @@
             "value": "Color de palabra clave"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कीवर्ड रंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolor słów kluczowych"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет ключевых слов"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3576,6 +6312,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "LONGITUD"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लंबाई"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DŁUGOŚĆ"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ДЛИНА"
           }
         },
         "tr": {
@@ -3601,6 +6355,24 @@
             "value": "Idioma"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "भाषा"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Język"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Язык"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3622,6 +6394,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Más Tarde"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बाद में"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Później"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Позже"
           }
         },
         "tr": {
@@ -3647,6 +6437,24 @@
             "value": "Claro"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लाइट"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jasny"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Светлая"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3668,6 +6476,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Limitado"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सीमित"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ograniczone"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ограничено"
           }
         },
         "tr": {
@@ -3693,6 +6519,24 @@
             "value": "Cargando columnas…"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कॉलम लोड हो रहे हैं…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wczytywanie kolumn…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузка столбцов…"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3714,6 +6558,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cargando objetos…"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ऑब्जेक्ट लोड हो रहे हैं…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wczytywanie obiektów…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузка объектов…"
           }
         },
         "tr": {
@@ -3739,6 +6601,24 @@
             "value": "Cargando estructura de la tabla…"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल संरचना लोड हो रही है…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wczytywanie struktury tabeli…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузка структуры таблицы…"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3760,6 +6640,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cargando…"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लोड हो रहा है…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wczytywanie…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузка…"
           }
         },
         "tr": {
@@ -3785,6 +6683,24 @@
             "value": "Bloquear instrucciones INSERT"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "INSERT कथन लॉक करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blokuj instrukcje INSERT"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Блокировать инструкции INSERT"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3806,6 +6722,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bloquear tablas para lectura"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पढ़ने के लिए टेबल लॉक करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blokuj tabele do odczytu"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Блокировать таблицы для чтения"
           }
         },
         "tr": {
@@ -3831,6 +6765,24 @@
             "value": "Tamaño de icono de la barra de herramientas principal"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मुख्य टूलबार आइकन आकार"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozmiar ikon głównego paska narzędzi"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер значков основной панели инструментов"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3852,6 +6804,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "NO\nNULO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नॉट\nनल"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NIE\nNULL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "НЕ\nNULL"
           }
         },
         "tr": {
@@ -3877,6 +6847,24 @@
             "value": "Nueva Conexión"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नया कनेक्शन"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nowe połączenie"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новое подключение"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3898,6 +6886,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nuevo Evento"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नया इवेंट"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nowe zdarzenie"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новое событие"
           }
         },
         "tr": {
@@ -3923,6 +6929,24 @@
             "value": "Nueva Función"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नया फ़ंक्शन"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nowa funkcja"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новая функция"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3944,6 +6968,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nueva Conexión MySQL"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नया MySQL कनेक्शन"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nowe połączenie MySQL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новое подключение MySQL"
           }
         },
         "tr": {
@@ -3969,6 +7011,24 @@
             "value": "Nuevo Procedimiento Almacenado"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नई Stored Procedure"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nowa procedura składowana"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новая хранимая процедура"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -3990,6 +7050,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nueva Tabla"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नई टेबल"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nowa tabela"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новая таблица"
           }
         },
         "tr": {
@@ -4015,6 +7093,24 @@
             "value": "Nuevo Disparador"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नया Trigger"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nowy wyzwalacz"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новый триггер"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4036,6 +7132,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nueva Vista"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नया व्यू"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nowy widok"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новое представление"
           }
         },
         "tr": {
@@ -4061,6 +7175,24 @@
             "value": "No se realizaron cambios."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई बदलाव नहीं किया गया।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie wprowadzono żadnych zmian."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменения не были внесены."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4082,6 +7214,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sin columnas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई कॉलम नहीं"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak kolumn"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет столбцов"
           }
         },
         "tr": {
@@ -4107,6 +7257,24 @@
             "value": "No se encontraron datos en el archivo."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ाइल में कोई डेटा नहीं मिला।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie znaleziono danych w pliku."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В файле не найдено данных."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4128,6 +7296,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se encontraron bases de datos."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई डेटाबेस नहीं मिला।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie znaleziono baz danych."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Базы данных не найдены."
           }
         },
         "tr": {
@@ -4153,6 +7339,24 @@
             "value": "Sin funciones"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई फ़ंक्शन नहीं"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak funkcji"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет функций"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4174,6 +7378,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sin índices"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई इंडेक्स नहीं"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak indeksów"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет индексов"
           }
         },
         "tr": {
@@ -4199,6 +7421,24 @@
             "value": "Sin procedimientos"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई प्रोसीज़र नहीं"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak procedur"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет процедур"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4220,6 +7460,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aún no hay conexiones guardadas."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अभी तक कोई सहेजा गया कनेक्शन नहीं है।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak zapisanych połączeń."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранённых подключений пока нет."
           }
         },
         "tr": {
@@ -4245,6 +7503,24 @@
             "value": "Sin tablas"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई टेबल नहीं"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak tabel"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет таблиц"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4266,6 +7542,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sin vistas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई व्यू नहीं"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak widoków"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет представлений"
           }
         },
         "tr": {
@@ -4291,6 +7585,24 @@
             "value": "Ninguno"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई नहीं"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4312,6 +7624,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "No conectado a ninguna base de datos."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "किसी डेटाबेस से जुड़ा नहीं है।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak połączenia z bazą danych."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет подключения к базе данных."
           }
         },
         "tr": {
@@ -4337,6 +7667,24 @@
             "value": "Nota"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नोट"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uwaga"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Примечание"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4358,6 +7706,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "OBJETOS"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ऑब्जेक्ट"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OBIEKTY"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ОБЪЕКТЫ"
           }
         },
         "tr": {
@@ -4383,6 +7749,24 @@
             "value": "Aceptar"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ठीक है"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ОК"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4404,6 +7788,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "OPCIONES QUE AFECTAN AL ORIGEN"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्रोत को प्रभावित करने वाले विकल्प"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPCJE WPŁYWAJĄCE NA ŹRÓDŁO"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ПАРАМЕТРЫ, ВЛИЯЮЩИЕ НА ИСТОЧНИК"
           }
         },
         "tr": {
@@ -4429,6 +7831,24 @@
             "value": "OPCIONES ESCRITAS EN EL ARCHIVO"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ाइल में लिखे गए विकल्प"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPCJE ZAPISANE W PLIKU"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ПАРАМЕТРЫ, ЗАПИСАННЫЕ В ФАЙЛ"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4450,6 +7870,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Solo se crea la estructura de la tabla — no se importan registros. Revisa los tipos sugeridos a continuación antes de crear."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "केवल टेबल संरचना बनाई जाती है — कोई रिकॉर्ड आयात नहीं किया जाता। बनाने से पहले नीचे सुझाए गए प्रकार देख लें।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tworzona jest tylko struktura tabeli — żadne rekordy nie są importowane. Przed utworzeniem sprawdź proponowane poniżej typy."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создаётся только структура таблицы — записи не импортируются. Перед созданием проверьте предложенные ниже типы."
           }
         },
         "tr": {
@@ -4475,6 +7913,24 @@
             "value": "Opcional"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "वैकल्पिक"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opcjonalne"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Необязательно"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4496,6 +7952,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Opcional — si está vacío, se listan todos"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "वैकल्पिक — खाली होने पर सभी सूचीबद्ध होंगे"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opcjonalne — jeśli puste, wyświetla wszystkie"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Необязательно — если пусто, выводятся все"
           }
         },
         "tr": {
@@ -4524,6 +7998,24 @@
             "value": "Tamaño de página:"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पेज आकार:"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozmiar strony:"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер страницы:"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4545,6 +8037,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Contraseña"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पासवर्ड"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hasło"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пароль"
           }
         },
         "tr": {
@@ -4570,6 +8080,24 @@
             "value": "¿Eliminar %@ \"%@\" permanentemente?"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ '%2$@' को स्थायी रूप से हटाएँ?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trwale usunąć %1$@ „%2$@”?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить %1$@ «%2$@» безвозвратно?"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4593,6 +8121,24 @@
             "value": "¿Eliminar la tabla \"%@\" permanentemente?"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल '%@' को स्थायी रूप से हटाएँ?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trwale usunąć tabelę „%@”?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить таблицу «%@» безвозвратно?"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4614,6 +8160,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "¿Eliminar la vista \"%@\" permanentemente?"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "व्यू '%@' को स्थायी रूप से हटाएँ?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trwale usunąć widok „%@”?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить представление «%@» безвозвратно?"
           }
         },
         "tr": {
@@ -4642,6 +8206,24 @@
             "value": "El puerto debe ser numérico."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पोर्ट संख्यात्मक होना चाहिए।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Port musi być liczbą."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Порт должен быть числом."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4663,6 +8245,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Procedimiento"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रोसीज़र"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedura"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Процедура"
           }
         },
         "tr": {
@@ -4688,6 +8288,24 @@
             "value": "Nombres de procedimiento"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रोसीज़र नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwy procedur"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имена процедур"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4709,6 +8327,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Procedimiento: %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रोसीज़र: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedura: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Процедура: %@"
           }
         },
         "tr": {
@@ -4734,6 +8370,24 @@
             "value": "Procedimientos"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रोसीज़र"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedury"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Процедуры"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4755,6 +8409,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Grupo de Procedimientos"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रोसीज़र समूह"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupa procedur"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Группа процедур"
           }
         },
         "tr": {
@@ -4780,6 +8452,24 @@
             "value": "Consulta completada, sin resultados."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "क्वेरी पूर्ण, कोई परिणाम नहीं।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zapytanie ukończone, brak wyników."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запрос выполнен, результатов нет."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4801,6 +8491,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Historial de consultas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "क्वेरी इतिहास"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historia zapytań"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История запросов"
           }
         },
         "tr": {
@@ -4826,6 +8534,24 @@
             "value": "LEER DESDE ARCHIVO"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ाइल से पढ़ें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ODCZYT Z PLIKU"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ЧТЕНИЕ ИЗ ФАЙЛА"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4847,6 +8573,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Solo Lectura"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "केवल पढ़ने के लिए"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tylko do odczytu"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Только чтение"
           }
         },
         "tr": {
@@ -4872,6 +8616,24 @@
             "value": "Rehacer (⇧⌘Z)"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फिर से करें (⇧⌘Z)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponów (⇧⌘Z)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторить (⇧⌘Z)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4893,6 +8655,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Actualizar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रीफ़्रेश करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odśwież"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обновить"
           }
         },
         "tr": {
@@ -4918,6 +8698,24 @@
             "value": "Restablecer Valores Predeterminados"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डिफ़ॉल्ट पर रीसेट करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przywróć domyślne"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сбросить к значениям по умолчанию"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4939,6 +8737,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reiniciar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पुनः आरंभ करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchom ponownie"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перезапустить"
           }
         },
         "tr": {
@@ -4964,6 +8780,24 @@
             "value": "Reinicio Necesario"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पुनः आरंभ आवश्यक"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wymagane ponowne uruchomienie"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Требуется перезапуск"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -4985,6 +8819,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reinicia la app para que el cambio de idioma surta efecto."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "भाषा परिवर्तन प्रभावी होने के लिए ऐप को पुनः आरंभ करें।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchom aplikację ponownie, aby zmiana języka zaczęła obowiązywać."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перезапустите приложение, чтобы изменение языка вступило в силу."
           }
         },
         "tr": {
@@ -5010,6 +8862,24 @@
             "value": "Resultado %lld (%lld)"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "परिणाम %lld (%lld)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wynik %lld (%lld)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Результат %lld (%lld)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5031,6 +8901,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Altura de fila"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पंक्ति ऊँचाई"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wysokość wiersza"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Высота строки"
           }
         },
         "tr": {
@@ -5056,6 +8944,24 @@
             "value": "Espaciado de fila"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पंक्ति स्पेसिंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odstęp między wierszami"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Межстрочный интервал"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5077,6 +8983,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ejecutar"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "चलाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchom"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выполнить"
           }
         },
         "tr": {
@@ -5102,6 +9026,24 @@
             "value": "Ejecutar Todo"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सभी चलाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchom wszystko"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выполнить всё"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5123,6 +9065,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ejecutar Consulta SQL"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL क्वेरी चलाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchom zapytanie SQL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выполнить SQL-запрос"
           }
         },
         "tr": {
@@ -5148,6 +9108,24 @@
             "value": "Ejecuta en orden cada instrucción separada por \";\" sin DELIMITER (⇧⌘↩). Un CREATE PROCEDURE/FUNCTION/TRIGGER con cuerpo BEGIN…END sigue necesitando DELIMITER."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हर \";\"-विभाजित कथन को क्रम से बिना DELIMITER के चलाता है (⇧⌘↩)। BEGIN…END बॉडी वाले CREATE PROCEDURE/FUNCTION/TRIGGER को अब भी DELIMITER चाहिए।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchamia po kolei każdą instrukcję rozdzieloną „;” bez DELIMITER (⇧⌘↩). CREATE PROCEDURE/FUNCTION/TRIGGER z treścią BEGIN…END nadal wymaga DELIMITER."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выполняет по порядку каждую инструкцию, разделённую «;», без DELIMITER (⇧⌘↩). Для CREATE PROCEDURE/FUNCTION/TRIGGER с телом BEGIN…END DELIMITER всё же нужен."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5171,6 +9149,24 @@
             "value": "Ejecuta el texto seleccionado si lo hay; si no, toda la consulta (⌘↩)"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यदि चयनित टेक्स्ट है तो उसे चलाता है, अन्यथा पूरी क्वेरी (⌘↩)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchamia zaznaczony tekst, jeśli istnieje, w przeciwnym razie całe zapytanie (⌘↩)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выполняет выделенный текст, если он есть, иначе весь запрос (⌘↩)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5192,6 +9188,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "GUARDAR EN ARCHIVO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फ़ाइल में सहेजें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ZAPISZ DO PLIKU"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "СОХРАНИТЬ В ФАЙЛ"
           }
         },
         "tr": {
@@ -5220,6 +9234,24 @@
             "value": "HOJA"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "शीट"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ARKUSZ"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ЛИСТ"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5246,6 +9278,24 @@
             "value": "Editor SQL"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL संपादक"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edytor SQL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Редактор SQL"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5267,6 +9317,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "VISTA PREVIA DE SQL"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL पूर्वावलोकन"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PODGLĄD SQL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ПРЕДПРОСМОТР SQL"
           }
         },
         "tr": {
@@ -5292,6 +9360,24 @@
             "value": "Consulta SQL"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL क्वेरी"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zapytanie SQL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SQL-запрос"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5313,6 +9399,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Guardar contraseña"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पासवर्ड सहेजें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zapisz hasło"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранить пароль"
           }
         },
         "tr": {
@@ -5338,6 +9442,24 @@
             "value": "Guardar historial de consultas"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "क्वेरी इतिहास सहेजें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zapisuj historię zapytań"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранять историю запросов"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5359,6 +9481,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Conexiones Guardadas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सहेजे गए कनेक्शन"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zapisane połączenia"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранённые подключения"
           }
         },
         "tr": {
@@ -5384,6 +9524,24 @@
             "value": "El esquema (CREATE TABLE IF NOT EXISTS) y los datos (INSERT INTO) se exportan juntos."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्कीमा (CREATE TABLE IF NOT EXISTS) और डेटा (INSERT INTO) एक साथ निर्यात किए जाते हैं।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schemat (CREATE TABLE IF NOT EXISTS) i dane (INSERT INTO) są eksportowane razem."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Схема (CREATE TABLE IF NOT EXISTS) и данные (INSERT INTO) экспортируются вместе."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5405,6 +9563,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Seleccionar Todo"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सभी चुनें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaznacz wszystko"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбрать всё"
           }
         },
         "tr": {
@@ -5430,6 +9606,24 @@
             "value": "Selecciona una tabla"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "एक टेबल चुनें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wybierz tabelę"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите таблицу"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5451,6 +9645,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Seleccionar columna"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कॉलम चुनें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wybierz kolumnę"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите столбец"
           }
         },
         "tr": {
@@ -5476,6 +9688,24 @@
             "value": "Color de fondo de fila seleccionada"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "चयनित पंक्ति पृष्ठभूमि रंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolor tła zaznaczonego wiersza"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет фона выбранной строки"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5497,6 +9727,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Color de texto de fila seleccionada"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "चयनित पंक्ति टेक्स्ट रंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolor tekstu zaznaczonego wiersza"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет текста выбранной строки"
           }
         },
         "tr": {
@@ -5522,6 +9770,24 @@
             "value": "Establecer FOREIGN_KEY_CHECKS=0"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOREIGN_KEY_CHECKS=0 सेट करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustaw FOREIGN_KEY_CHECKS=0"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Установить FOREIGN_KEY_CHECKS=0"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5543,6 +9809,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ajustes"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेटिंग्स"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustawienia"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройки"
           }
         },
         "tr": {
@@ -5569,6 +9853,24 @@
             "value": "Ajustes (⌘,)"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेटिंग्स (⌘,)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustawienia (⌘,)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройки (⌘,)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5590,6 +9892,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Compartir análisis de uso anónimo"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अनाम उपयोग विश्लेषण साझा करें"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Udostępniaj anonimowe dane analityczne"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отправлять анонимную аналитику использования"
           }
         },
         "tr": {
@@ -5615,6 +9935,24 @@
             "value": "Mostrar números de línea"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पंक्ति संख्याएँ दिखाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokazuj numery wierszy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показывать номера строк"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5636,6 +9974,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostrar contraseña"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पासवर्ड दिखाएँ"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaż hasło"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показать пароль"
           }
         },
         "tr": {
@@ -5661,6 +10017,24 @@
             "value": "Barra Lateral"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "साइडबार"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Panel boczny"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Боковая панель"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5682,6 +10056,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Transacción única (single transaction)"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "एकल ट्रांज़ैक्शन (single transaction)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jedna transakcja (single transaction)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Одна транзакция (single transaction)"
           }
         },
         "tr": {
@@ -5707,6 +10099,24 @@
             "value": "Instrucción %lld/%lld fallida: %@"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कथन %lld/%lld विफल: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instrukcja %lld/%lld nie powiodła się: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Инструкция %lld/%lld не выполнена: %@"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5728,6 +10138,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tamaño de fuente de mensaje de estado/error"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्थिति/त्रुटि संदेश फ़ॉन्ट आकार"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozmiar czcionki komunikatów o stanie/błędach"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер шрифта сообщений о состоянии/ошибках"
           }
         },
         "tr": {
@@ -5753,6 +10181,24 @@
             "value": "Nombre de Procedimiento Almacenado"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stored Procedure नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwa procedury składowanej"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имя хранимой процедуры"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5774,6 +10220,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Procedimiento Almacenado..."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stored Procedure..."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedura składowana…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Хранимая процедура…"
           }
         },
         "tr": {
@@ -5799,6 +10263,24 @@
             "value": "Procedimientos Almacenados"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stored Procedures"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procedury składowane"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Хранимые процедуры"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5820,6 +10302,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Color de cadena ('...')"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्ट्रिंग ('...') रंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolor łańcucha ('...')"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет строки ('...')"
           }
         },
         "tr": {
@@ -5845,6 +10345,24 @@
             "value": "Estructura + datos"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "संरचना + डेटा"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Struktura + dane"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Структура + данные"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5866,6 +10384,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Solo estructura"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "केवल संरचना"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tylko struktura"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Только структура"
           }
         },
         "tr": {
@@ -5891,6 +10427,24 @@
             "value": "Sistema"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सिस्टम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Systemowy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Системный"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5912,6 +10466,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "COLUMNAS DE LA TABLA"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल कॉलम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KOLUMNY TABELI"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "СТОЛБЦЫ ТАБЛИЦЫ"
           }
         },
         "tr": {
@@ -5937,6 +10509,24 @@
             "value": "TRUNCATE TABLE no se puede deshacer."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TRUNCATE TABLE को पूर्ववत नहीं किया जा सकता।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TRUNCATE TABLE nie można cofnąć."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TRUNCATE TABLE нельзя отменить."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -5958,6 +10548,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "TIPO"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रकार"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TYP"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ТИП"
           }
         },
         "tr": {
@@ -5983,6 +10591,24 @@
             "value": "Nombre de Tabla"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwa tabeli"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имя таблицы"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6004,6 +10630,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "El nombre de la tabla no puede estar vacío."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल नाम खाली नहीं हो सकता।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwa tabeli nie może być pusta."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имя таблицы не может быть пустым."
           }
         },
         "tr": {
@@ -6029,6 +10673,24 @@
             "value": "Nombres de tabla"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwy tabel"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имена таблиц"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6050,6 +10712,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tamaño de icono de la barra de herramientas de tabla"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल टूलबार आइकन आकार"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozmiar ikon paska narzędzi tabeli"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер значков панели инструментов таблицы"
           }
         },
         "tr": {
@@ -6075,6 +10755,24 @@
             "value": "Tabla..."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल..."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tabela…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таблица…"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6096,6 +10794,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tabla: %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tabela: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таблица: %@"
           }
         },
         "tr": {
@@ -6121,6 +10837,24 @@
             "value": "Tabla: %@ (%lld filas)"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल: %@ (%lld पंक्तियाँ)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tabela: %@ (%lld wierszy)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таблица: %@ (%lld строк)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6142,6 +10876,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tablas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tabele"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таблицы"
           }
         },
         "tr": {
@@ -6167,6 +10919,24 @@
             "value": "Grupo de Tablas"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेबल समूह"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupa tabel"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Группа таблиц"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6188,6 +10958,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vista de Texto"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेक्स्ट दृश्य"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widok tekstowy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Текстовый вид"
           }
         },
         "tr": {
@@ -6213,6 +11001,24 @@
             "value": "Color de texto"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टेक्स्ट रंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolor tekstu"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет текста"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6234,6 +11040,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se exporta la definición de la vista (CREATE OR REPLACE VIEW) — una vista no tiene filas propias, por lo que no se escriben datos por separado."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "व्यू परिभाषा (CREATE OR REPLACE VIEW) निर्यात की जाती है — व्यू की अपनी कोई पंक्तियाँ नहीं होतीं, इसलिए अलग से कोई डेटा नहीं लिखा जाता।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eksportowana jest definicja widoku (CREATE OR REPLACE VIEW) — widok nie ma własnych wierszy, więc żadne dane nie są zapisywane osobno."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Экспортируется определение представления (CREATE OR REPLACE VIEW) — у представления нет собственных строк, поэтому данные отдельно не записываются."
           }
         },
         "tr": {
@@ -6259,6 +11083,24 @@
             "value": "Tema"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "थीम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Motyw"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тема"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6280,6 +11122,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esta acción no se puede deshacer."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इस कार्रवाई को पूर्ववत नहीं किया जा सकता।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tej czynności nie można cofnąć."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Это действие нельзя отменить."
           }
         },
         "tr": {
@@ -6305,6 +11165,24 @@
             "value": "Este resultado no es editable (requiere una sola tabla y una columna de clave primaria en el resultado)."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यह परिणाम संपादन योग्य नहीं है (परिणाम में एक ही टेबल और एक primary key कॉलम आवश्यक है)।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tego wyniku nie można edytować (wymagana jest jedna tabela i kolumna klucza głównego w wyniku)."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Этот результат нельзя редактировать (требуется одна таблица и столбец первичного ключа в результате)."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6326,6 +11204,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esta tabla (%lld filas) supera el límite de Excel de %lld filas. Usa el formato CSV, SQL o HTML en su lugar."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यह टेबल (%lld पंक्तियाँ) Excel की %lld पंक्तियों की सीमा से अधिक है। कृपया इसके बजाय CSV, SQL या HTML प्रारूप का उपयोग करें।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta tabela (%lld wierszy) przekracza limit Excela wynoszący %lld wierszy. Użyj zamiast tego formatu CSV, SQL lub HTML."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эта таблица (%lld строк) превышает лимит Excel в %lld строк. Используйте вместо этого формат CSV, SQL или HTML."
           }
         },
         "tr": {
@@ -6351,6 +11247,24 @@
             "value": "Esta tabla no tiene clave primaria; la edición está desactivada."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इस टेबल में कोई primary key नहीं है; संपादन अक्षम है।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta tabela nie ma klucza głównego; edycja jest wyłączona."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У этой таблицы нет первичного ключа; редактирование отключено."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6372,6 +11286,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Colores de icono del árbol"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ट्री आइकन रंग"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolory ikon drzewa"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвета значков дерева"
           }
         },
         "tr": {
@@ -6397,6 +11329,24 @@
             "value": "Nombre de Disparador"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwa wyzwalacza"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имя триггера"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6420,6 +11370,24 @@
             "value": "Disparador..."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger..."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyzwalacz…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Триггер…"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6438,6 +11406,24 @@
           }
         },
         "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate"
+          }
+        },
+        "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Truncate"
@@ -6466,6 +11452,24 @@
             "value": "Truncate Table"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate Table"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate Table"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate Table"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6487,6 +11491,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Truncate falló: %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate विफल: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate nie powiódł się: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truncate не выполнен: %@"
           }
         },
         "tr": {
@@ -6518,6 +11540,24 @@
             "value": "Deshacer (⌘Z)"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पूर्ववत करें (⌘Z)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cofnij (⌘Z)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отменить (⌘Z)"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6539,6 +11579,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nombre de Usuario"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "उपयोगकर्ता नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwa użytkownika"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имя пользователя"
           }
         },
         "tr": {
@@ -6564,6 +11622,24 @@
             "value": "Nombre de Vista"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "व्यू नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwa widoku"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имя представления"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6585,6 +11661,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nombres de vista"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "व्यू नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwy widoków"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имена представлений"
           }
         },
         "tr": {
@@ -6610,6 +11704,24 @@
             "value": "Vista..."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "व्यू..."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widok…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Представление…"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6631,6 +11743,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vista: %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "व्यू: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widok: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Представление: %@"
           }
         },
         "tr": {
@@ -6656,6 +11786,24 @@
             "value": "Vistas"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "व्यू"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widoki"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Представления"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6677,6 +11825,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Grupo de Vistas"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "व्यू समूह"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupa widoków"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Группа представлений"
           }
         },
         "tr": {
@@ -6702,6 +11868,24 @@
             "value": "Si está desactivado, se ignora el tamaño de página y se carga la tabla completa."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बंद होने पर, पेज आकार अनदेखा किया जाता है और पूरी टेबल लोड होती है।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gdy wyłączone, rozmiar strony jest ignorowany i wczytywana jest cała tabela."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Если выключено, размер страницы игнорируется и загружается вся таблица."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6723,6 +11907,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Debes añadir al menos una columna."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आपको कम से कम एक कॉलम जोड़ना होगा।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Musisz dodać przynajmniej jedną kolumnę."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Необходимо добавить хотя бы один столбец."
           }
         },
         "tr": {
@@ -6748,6 +11950,24 @@
             "value": "Debes asignar al menos una columna para importar."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आयात करने के लिए आपको कम से कम एक कॉलम मैप करना होगा।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aby zaimportować, musisz zmapować przynajmniej jedną kolumnę."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для импорта необходимо сопоставить хотя бы один столбец."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6769,6 +11989,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "desconocido"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अज्ञात"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nieznane"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "неизвестно"
           }
         },
         "tr": {
@@ -6803,6 +12041,24 @@
             "value": "Disparador"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyzwalacz"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Триггер"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6824,6 +12080,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Evento"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इवेंट"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zdarzenie"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Событие"
           }
         },
         "tr": {
@@ -6849,6 +12123,24 @@
             "value": "Disparadores"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Triggers"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyzwalacze"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Триггеры"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6870,6 +12162,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sin disparadores"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई Trigger नहीं"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak wyzwalaczy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет триггеров"
           }
         },
         "tr": {
@@ -6895,6 +12205,24 @@
             "value": "Eventos"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इवेंट"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zdarzenia"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "События"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6916,6 +12244,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sin eventos"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कोई इवेंट नहीं"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak zdarzeń"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет событий"
           }
         },
         "tr": {
@@ -6941,6 +12287,24 @@
             "value": "Grupo de Disparadores"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger समूह"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupa wyzwalaczy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Группа триггеров"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -6962,6 +12326,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nombres de disparador"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwy wyzwalaczy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имена триггеров"
           }
         },
         "tr": {
@@ -6987,6 +12369,24 @@
             "value": "Grupo de Eventos"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इवेंट समूह"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grupa zdarzeń"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Группа событий"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -7008,6 +12408,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nombres de evento"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इवेंट नाम"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwy zdarzeń"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имена событий"
           }
         },
         "tr": {
@@ -7033,6 +12451,24 @@
             "value": "DROP TRIGGER lo elimina permanentemente y no se puede deshacer."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP TRIGGER इसे स्थायी रूप से हटा देता है और इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP TRIGGER usuwa go trwale i nie można tego cofnąć."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP TRIGGER удаляет его безвозвратно, отменить это действие нельзя."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -7054,6 +12490,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "DROP EVENT lo elimina permanentemente y no se puede deshacer."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP EVENT इसे स्थायी रूप से हटा देता है और इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP EVENT usuwa je trwale i nie można tego cofnąć."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DROP EVENT удаляет его безвозвратно, отменить это действие нельзя."
           }
         },
         "tr": {
@@ -7079,6 +12533,24 @@
             "value": "Este script contiene varias sentencias. «Ejecutar» las envía en un solo paquete; use «Ejecutar Todo» para enviarlas una por una."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इस स्क्रिप्ट में कई कथन हैं। \"चलाएँ\" उन्हें एक पैकेट के रूप में भेजता है; उन्हें एक-एक करके भेजने के लिए \"सभी चलाएँ\" का उपयोग करें।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten skrypt zawiera kilka instrukcji. „Uruchom” wysyła je jako jeden pakiet; użyj „Uruchom wszystko”, aby wysłać je pojedynczo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Этот скрипт содержит несколько инструкций. «Выполнить» отправляет их одним пакетом; используйте «Выполнить всё», чтобы отправлять их по одной."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -7100,6 +12572,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "'%1$@' es una intercalación de MySQL 8.0, pero esta conexión es a %2$@. Sustitúyala (utf8mb4_unicode_ci es lo habitual) o restaure en MySQL 8.0 o posterior."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%1$@' एक MySQL 8.0 collation है, लेकिन यह कनेक्शन %2$@ से है। इसे बदलें (आमतौर पर utf8mb4_unicode_ci उपयुक्त है) या MySQL 8.0 या नए संस्करण में पुनर्स्थापित करें।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%1$@” to porządek sortowania z MySQL 8.0, ale to połączenie dotyczy %2$@. Zastąp go (zwykle odpowiedni jest utf8mb4_unicode_ci) albo przywróć w MySQL 8.0 lub nowszym."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%1$@» — параметр сортировки MySQL 8.0, но это соединение выполнено с %2$@. Замените его (обычно подходит utf8mb4_unicode_ci) или восстановите в MySQL 8.0 или новее."
           }
         },
         "tr": {
@@ -7125,6 +12615,24 @@
             "value": "'%@' es una intercalación de MySQL 8.0. Sustitúyala (utf8mb4_unicode_ci es lo habitual) o restaure en MySQL 8.0 o posterior."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' एक MySQL 8.0 collation है। इसे बदलें (आमतौर पर utf8mb4_unicode_ci उपयुक्त है) या MySQL 8.0 या नए संस्करण में पुनर्स्थापित करें।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@” to porządek sortowania z MySQL 8.0. Zastąp go (zwykle odpowiedni jest utf8mb4_unicode_ci) albo przywróć w MySQL 8.0 lub nowszym."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«%@» — параметр сортировки MySQL 8.0. Замените его (обычно подходит utf8mb4_unicode_ci) или восстановите в MySQL 8.0 или новее."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -7148,6 +12656,24 @@
             "value": "La intercalación '%1$@' no existe en %2$@. Sustitúyala por una que este servidor admita."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collation '%1$@' %2$@ पर मौजूद नहीं है। इसे इस सर्वर द्वारा समर्थित किसी collation से बदलें।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Porządek sortowania „%1$@” nie istnieje na %2$@. Zastąp go takim, który obsługuje ten serwer."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Параметр сортировки «%1$@» отсутствует на %2$@. Замените его на поддерживаемый этим сервером."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
@@ -7169,6 +12695,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "La intercalación '%@' no existe en el servidor al que está conectado. Sustitúyala por una que este servidor admita."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collation '%@' उस सर्वर पर मौजूद नहीं है जिससे आप जुड़े हैं। इसे इस सर्वर द्वारा समर्थित किसी collation से बदलें।"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Porządek sortowania „%@” nie istnieje na serwerze, z którym jesteś połączony. Zastąp go takim, który obsługuje ten serwer."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Параметр сортировки «%@» отсутствует на сервере, к которому вы подключены. Замените его на поддерживаемый этим сервером."
           }
         },
         "tr": {

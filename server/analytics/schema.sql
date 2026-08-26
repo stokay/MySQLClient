@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS analytics_events (
     -- 'someone@example.com' for key 'PRIMARY'").
     error_code VARCHAR(191) NULL,
     app_version VARCHAR(20) NULL,
-    os_version VARCHAR(20) NULL,
+    os_version VARCHAR(40) NULL,    
     device_model VARCHAR(64) NULL,
     language VARCHAR(10) NULL,
     timezone VARCHAR(64) NULL,

@@ -12,6 +12,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case english = "en"
     case spanish = "es"
     case german = "de"
+    case hindi = "hi"
+    case russian = "ru"
+    case polish = "pl"
 
     var id: String { rawValue }
 
@@ -29,6 +32,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         case .english: return "English"
         case .spanish: return "Español"
         case .german: return "Deutsch"
+        case .hindi: return "हिन्दी"
+        case .russian: return "Русский"
+        case .polish: return "Polski"
         }
     }
 
