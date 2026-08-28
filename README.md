@@ -3,7 +3,7 @@
 [![version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fstokay%2FMySQLClient%2Fmain%2Fproject.yml&query=%24.targets.MySQLMacClient.settings.base.MARKETING_VERSION&label=version&color=blue)](project.yml)
 [![build](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fstokay%2FMySQLClient%2Fmain%2Fproject.yml&query=%24.targets.MySQLMacClient.settings.base.CURRENT_PROJECT_VERSION&label=build&color=blue)](project.yml)
 
-A native macOS MySQL management tool built with **Swift 6 / SwiftUI**, available in **English, Turkish, Spanish, German, Hindi, Russian and Polish**. Designed as a personal desktop client for managing MySQL databases — local (XAMPP) or remote (cPanel shared hosting, etc.).
+A native macOS MySQL management tool built with **Swift 6 / SwiftUI**, available in **English, Turkish, Spanish, German, Hindi, Russian, Polish, French, Portuguese (Brazil), Japanese and Simplified Chinese**. Designed as a personal desktop client for managing MySQL databases — local (XAMPP) or remote (cPanel shared hosting, etc.).
 
 > **Status:** Active development · Full-featured desktop client · App-sandboxed, packaged as a signed macOS app (DMG)
 
@@ -61,13 +61,13 @@ A native macOS MySQL management tool built with **Swift 6 / SwiftUI**, available
 - All file writes go through an atomic temp-file-then-replace step, so a failed or cancelled run never touches (or deletes) a pre-existing file at the destination
 
 ### Localization
-- Full **English, Turkish, Spanish, German, Hindi, Russian and Polish** interface, driven by a String Catalog (`Localizable.xcstrings`)
+- Full **English, Turkish, Spanish, German, Hindi, Russian, Polish, French, Portuguese (Brazil), Japanese and Simplified Chinese** interface, driven by a String Catalog (`Localizable.xcstrings`)
 - Follows the macOS system language by default, with an in-app override in Settings ▸ General ▸ Language (applied on next launch)
-- Note: localization only resolves in a real `.app` bundle. Under `swift run` the catalog lives in `Bundle.module` while SwiftUI reads `Bundle.main`, so every lookup falls back to the English source string — use `scripts/run-localized.sh [en|tr|es|de|hi|ru|pl|system]` to check translations
+- Note: localization only resolves in a real `.app` bundle. Under `swift run` the catalog lives in `Bundle.module` while SwiftUI reads `Bundle.main`, so every lookup falls back to the English source string — use `scripts/run-localized.sh [en|tr|es|de|hi|ru|pl|fr|pt-BR|ja|zh-Hans|system]` to check translations
 
 ### Settings
 - Light / Dark / System appearance picker
-- Interface language (System / Türkçe / English)
+- Interface language (System / English / Türkçe / Español / Deutsch / हिन्दी / Русский / Polski / Français / Português (Brasil) / 日本語 / 简体中文)
 - Sidebar width, grid row height, alternating row colors
 - SQL editor font size configuration
 - Grid ↔ Text view toggle for query results
@@ -81,7 +81,7 @@ A native macOS MySQL management tool built with **Swift 6 / SwiftUI**, available
 | Language | Swift 6 (strict concurrency) |
 | UI | SwiftUI + AppKit (`NSTableView` for grids, `NSTextView` for SQL editor) |
 | MySQL | [stokay/mysql-nio](https://github.com/stokay/mysql-nio) — a pinned fork of [vapor/mysql-nio](https://github.com/vapor/mysql-nio) adding `CLIENT_MULTI_RESULTS` support (needed for procedure calls returning result sets); pure Swift, async/await, no C bindings |
-| Localization | String Catalog (`Localizable.xcstrings`), English source with Turkish, Spanish, German, Hindi, Russian and Polish translations |
+| Localization | String Catalog (`Localizable.xcstrings`), English source with Turkish, Spanish, German, Hindi, Russian, Polish, French, Portuguese (Brazil), Japanese and Simplified Chinese translations |
 | Secrets | macOS Keychain via Security framework |
 | Build (dev) | Swift Package Manager — `swift run` / `open Package.swift`, no `.xcodeproj` needed day-to-day |
 | Build (release) | [XcodeGen](https://github.com/yonaskolb/XcodeGen) generates a signed, App-Sandboxed `.xcodeproj` from `project.yml` for Release builds / DMG packaging (`scripts/build-dmg.sh`) |
@@ -101,7 +101,7 @@ Sources/MySQLMacClient/
 │                    #   (hand-rolled zip/XML writer), AtomicFileWriter
 ├── Import/          # CSVImportParser (streaming RFC4180 reader), XLSXImportParser
 │                    #   (hand-rolled zip/XML reader + inflate), MinimalZipReader
-├── Localizable.xcstrings  # String Catalog: English source + Turkish/Spanish/German/Hindi/Russian/Polish translations
+├── Localizable.xcstrings  # String Catalog: English source + Turkish/Spanish/German/Hindi/Russian/Polish/French/Portuguese(BR)/Japanese/Simplified Chinese translations
 ├── ViewModels/      # TableDataVM, TableExportVM, TableImportVM, DatabaseBackupVM,
 │                    #   SQLConsoleVM, SchemaTreeVM, AlterTableVM, CreateTableVM, ...
 ├── Views/           # SwiftUI views + AppKit bridging (SpreadsheetGridView, SQLTextView)
@@ -181,7 +181,7 @@ into `MySQLMacClient-<version>.dmg` in the repo root.
 - [x] Table Import (CSV and Excel `.xlsx`) with column mapping and all-or-nothing transaction
 - [x] Database Backup (SQL dump — structure/data, routines, extended inserts)
 - [x] Packaged `.app` bundle with icon & Info.plist, App Sandbox entitlements, DMG build script
-- [x] English, Turkish, Spanish, German, Hindi, Russian and Polish localization with an in-app language picker
+- [x] English, Turkish, Spanish, German, Hindi, Russian, Polish, French, Portuguese (Brazil), Japanese and Simplified Chinese localization with an in-app language picker
 - [ ] Connection pooling — `MySQLService` currently holds a single connection per session, serialized behind a FIFO acquire/release gate (the wire protocol can't have two requests in flight at once); a long-running export/backup and interactive grid browsing today queue behind each other rather than running on separate connections
 
 ---

@@ -215,6 +215,7 @@ struct MainWindowView: View {
     @StateObject private var console: SQLConsoleViewModel
     @State private var selectedTable: TableInfo?
     @State private var isShowingCreateTable = false
+    @State private var isShowingCreateDatabase = false
     /// Set when the create-table sheet is opened from a table's context
     /// menu, so the form pre-selects that table's database instead of the
     /// currently selected one.
@@ -359,6 +360,14 @@ struct MainWindowView: View {
                 }
             }
         }
+        .sheet(isPresented: $isShowingCreateDatabase) {
+            CreateDatabaseView(
+                service: session.mysqlService,
+                historyRecorder: historyRecorder
+            ) { _ in
+                Task { await schemaTreeViewModel.loadDatabases() }
+            }
+        }
         .sheet(item: $namedObjectCreationRequest) { request in
             CreateNamedSchemaObjectView(
                 title: request.kind.title,
@@ -422,6 +431,8 @@ struct MainWindowView: View {
             viewModel: schemaTreeViewModel,
             selectedTable: $selectedTable,
             insertionBridge: insertionBridge,
+            profile: session.profile,
+            onCreateDatabase: { isShowingCreateDatabase = true },
             onCreateTable: { database in
                 createTableDefaultDatabase = database
                 isShowingCreateTable = true

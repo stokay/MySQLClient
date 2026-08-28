@@ -7,20 +7,15 @@
  * up the same config.php), then open
  * https://tokay.tr/MySQLClient/analytics/dashboard.php
  *
- * Access: HTTP Basic auth, credentials from config.php
+ * Access: a login form (not the browser's native Basic Auth popup — that
+ * can't carry a "remember me" checkbox), credentials from config.php
  * (`dashboard_user` / `dashboard_pass`). The page refuses to render at
  * all while the password is still the placeholder — analytics data
- * shouldn't sit on a public URL.
- *
- * cPanel note: on CGI/FastCGI PHP, Apache does not hand the
- * Authorization header to PHP unless asked, so $_SERVER['PHP_AUTH_USER']
- * comes up empty and the login prompt loops forever. The header fallback
- * below covers the common case; if it still loops, add this to a
- * .htaccess file in this directory:
- *
- *     RewriteEngine On
- *     RewriteCond %{HTTP:Authorization} ^(.*)$
- *     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+ * shouldn't sit on a public URL. On success, a signed cookie
+ * (HMAC of the username keyed by the password — no server-side session
+ * storage needed) is set: session-only by default, or ~90 days if
+ * "remember me" was checked. Nothing about the password itself is ever
+ * stored in the cookie.
  */
 
 declare(strict_types=1);
@@ -30,6 +25,8 @@ $config = require __DIR__ . '/config.php';
 // ---------------------------------------------------------------------
 // Auth
 // ---------------------------------------------------------------------
+const DASHBOARD_AUTH_COOKIE = 'mysqlclient_dash_auth';
+
 $expectedUser = (string) ($config['dashboard_user'] ?? '');
 $expectedPass = (string) ($config['dashboard_pass'] ?? '');
 
@@ -38,24 +35,99 @@ if ($expectedPass === '' || $expectedPass === 'CHANGE_ME') {
     exit('Set dashboard_user / dashboard_pass in config.php before using this page.');
 }
 
-$givenUser = $_SERVER['PHP_AUTH_USER'] ?? '';
-$givenPass = $_SERVER['PHP_AUTH_PW'] ?? '';
+/** The cookie never carries the password itself — just proof it was known at login time. */
+function dashboardAuthToken(string $user, string $pass): string
+{
+    return hash_hmac('sha256', $user, $pass);
+}
 
-// CGI/FastCGI fallback: decode the raw Authorization header ourselves.
-if ($givenUser === '') {
-    $header = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-    if (is_string($header) && stripos($header, 'basic ') === 0) {
-        $decoded = base64_decode(substr($header, 6), true);
-        if (is_string($decoded) && str_contains($decoded, ':')) {
-            [$givenUser, $givenPass] = explode(':', $decoded, 2);
-        }
+$isAuthenticated = isset($_COOKIE[DASHBOARD_AUTH_COOKIE])
+    && hash_equals(dashboardAuthToken($expectedUser, $expectedPass), (string) $_COOKIE[DASHBOARD_AUTH_COOKIE]);
+
+$loginError = null;
+if (!$isAuthenticated && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['dashboard_login'])) {
+    $givenUser = (string) ($_POST['username'] ?? '');
+    $givenPass = (string) ($_POST['password'] ?? '');
+    if (hash_equals($expectedUser, $givenUser) && hash_equals($expectedPass, $givenPass)) {
+        $rememberMe = !empty($_POST['remember_me']);
+        setcookie(DASHBOARD_AUTH_COOKIE, dashboardAuthToken($expectedUser, $expectedPass), [
+            'expires' => $rememberMe ? time() + 60 * 60 * 24 * 90 : 0, // 0 = until the browser closes
+            'path' => '/',
+            'secure' => true,
+            'httponly' => true,
+            'samesite' => 'Strict',
+        ]);
+        $isAuthenticated = true;
+    } else {
+        $loginError = 'Incorrect username or password.';
     }
 }
 
-if (!hash_equals($expectedUser, (string) $givenUser) || !hash_equals($expectedPass, (string) $givenPass)) {
-    header('WWW-Authenticate: Basic realm="MySQL Client Analytics"');
-    http_response_code(401);
-    exit('Authentication required.');
+if (!$isAuthenticated) {
+    http_response_code(200);
+    ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>MySQL Client — Analytics</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --surface: #ffffff; --border: #e4e7ec; --text: #16191d;
+    --muted: #6b7482; --accent: #3b6ef5; --danger: #d93a3a;
+    --shadow: 0 1px 2px rgba(16,20,28,.06), 0 4px 16px rgba(16,20,28,.05);
+    --radius: 12px; color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117; --surface: #151a21; --border: #262d38; --text: #e6edf3;
+      --muted: #8b949e; --accent: #5b8cff; --danger: #f0665f;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text); min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  }
+  form {
+    width: 100%; max-width: 320px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px;
+  }
+  h1 { font-size: 17px; font-weight: 650; margin-bottom: 20px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 6px; }
+  input[type="text"], input[type="password"] {
+    width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--text); font: inherit;
+  }
+  .remember { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; color: var(--text); }
+  .remember input { width: auto; }
+  button {
+    width: 100%; margin-top: 20px; padding: 10px; border-radius: 8px; border: none;
+    background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  .error { color: var(--danger); font-size: 13px; margin-top: 12px; }
+</style>
+</head>
+<body>
+  <form method="post" autocomplete="off">
+    <h1>MySQL Client — Analytics</h1>
+    <label for="username">Username</label>
+    <input id="username" type="text" name="username" autofocus required>
+    <label for="password">Password</label>
+    <input id="password" type="password" name="password" required>
+    <label class="remember"><input type="checkbox" name="remember_me" value="1"> Remember me</label>
+    <?php if ($loginError !== null): ?><div class="error"><?= htmlspecialchars($loginError, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
+    <button type="submit" name="dashboard_login" value="1">Sign in</button>
+  </form>
+</body>
+</html>
+    <?php
+    exit;
 }
 
 // ---------------------------------------------------------------------
@@ -73,6 +145,17 @@ $days = $rangeDays[$range];
 // review you may specifically want to confirm the build phoned home.
 $excludeReview = ($_GET['review'] ?? '0') !== '1';
 
+// Your own device, from config.php — hidden by default for the same
+// reason as review traffic: your own testing shouldn't drown out real
+// usage in these numbers. Validated as a UUID shape before use since it
+// goes into raw SQL below; a blank/malformed config value just disables
+// the toggle rather than being spliced in as-is.
+$ownDeviceId = (string) ($config['own_device_id'] ?? '');
+if (!preg_match('/^[0-9A-Fa-f-]{36}$/', $ownDeviceId)) {
+    $ownDeviceId = null;
+}
+$excludeMine = ($_GET['mine'] ?? '0') !== '1';
+
 $conditions = [];
 if ($days !== null) {
     // $days comes from the whitelist above, never from raw input.
@@ -81,7 +164,19 @@ if ($days !== null) {
 if ($excludeReview) {
     $conditions[] = "(network_asn IS NULL OR network_asn NOT LIKE 'AS714%')";
 }
+if ($excludeMine && $ownDeviceId !== null) {
+    $conditions[] = "device_id != '{$ownDeviceId}'"; // regex-validated above, safe to interpolate
+}
 $where = $conditions ? implode(' AND ', $conditions) : '1=1';
+
+/** Builds a query string for the current page carrying all three filters — the single place that knows how they combine, so no toggle link can forget one. */
+function filterUrl(string $range, bool $excludeReview, bool $excludeMine): string
+{
+    $params = ['range' => $range];
+    if (!$excludeReview) { $params['review'] = '1'; }
+    if (!$excludeMine) { $params['mine'] = '1'; }
+    return '?' . http_build_query($params);
+}
 
 // ---------------------------------------------------------------------
 // Queries
@@ -170,7 +265,7 @@ $networks = q($pdo, "
 ");
 
 $recent = q($pdo, "
-    SELECT device_id, event_name, feature, error_code, app_version, country, created_at
+    SELECT device_id, event_name, feature, error_code, app_version, country, language, created_at
     FROM analytics_events WHERE {$where}
     ORDER BY id DESC LIMIT 60
 ");
@@ -182,6 +277,15 @@ $reviewCount = (int) ($pdo->query("
     WHERE network_asn LIKE 'AS714%'
     " . ($days !== null ? "AND created_at >= DATE_SUB(NOW(), INTERVAL {$days} DAY)" : '')
 )->fetch()['c'] ?? 0);
+
+$ownCount = 0;
+if ($ownDeviceId !== null) {
+    $ownCount = (int) ($pdo->query("
+        SELECT COUNT(*) AS c FROM analytics_events
+        WHERE device_id = '{$ownDeviceId}'
+        " . ($days !== null ? "AND created_at >= DATE_SUB(NOW(), INTERVAL {$days} DAY)" : '')
+    )->fetch()['c'] ?? 0);
+}
 
 // Fill gaps so the chart shows quiet days as zero rather than skipping them.
 $series = [];
@@ -407,14 +511,20 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
     <div class="controls">
       <nav class="segmented">
         <?php foreach ($rangeLabels as $key => $label): ?>
-          <a href="?range=<?= h($key) ?><?= $excludeReview ? '' : '&review=1' ?>"
+          <a href="<?= h(filterUrl($key, $excludeReview, $excludeMine)) ?>"
              aria-current="<?= $key === $range ? 'true' : 'false' ?>"><?= h($label) ?></a>
         <?php endforeach; ?>
       </nav>
       <a class="btn <?= $excludeReview ? 'on' : '' ?>"
-         href="?range=<?= h($range) ?><?= $excludeReview ? '&review=1' : '' ?>">
+         href="<?= h(filterUrl($range, !$excludeReview, $excludeMine)) ?>">
         <?= $excludeReview ? 'Review traffic hidden' : 'Review traffic shown' ?>
       </a>
+      <?php if ($ownDeviceId !== null): ?>
+      <a class="btn <?= $excludeMine ? 'on' : '' ?>"
+         href="<?= h(filterUrl($range, $excludeReview, !$excludeMine)) ?>">
+        <?= $excludeMine ? 'My testing hidden' : 'My testing shown' ?>
+      </a>
+      <?php endif; ?>
       <button class="btn" id="theme" type="button" title="Toggle theme">Theme</button>
     </div>
   </header>
@@ -422,7 +532,14 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
   <?php if ($excludeReview && $reviewCount > 0): ?>
     <div class="banner">
       <span><strong><?= number_format($reviewCount) ?></strong> event<?= $reviewCount === 1 ? '' : 's' ?> from Apple's network (AS714) hidden — likely App Review.</span>
-      <a href="?range=<?= h($range) ?>&review=1">Show them</a>
+      <a href="<?= h(filterUrl($range, false, $excludeMine)) ?>">Show them</a>
+    </div>
+  <?php endif; ?>
+
+  <?php if ($excludeMine && $ownCount > 0): ?>
+    <div class="banner">
+      <span><strong><?= number_format($ownCount) ?></strong> event<?= $ownCount === 1 ? '' : 's' ?> from your own device hidden.</span>
+      <a href="<?= h(filterUrl($range, $excludeReview, false)) ?>">Show them</a>
     </div>
   <?php endif; ?>
 
@@ -644,6 +761,7 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
       <thead><tr>
         <th data-sortable data-type="text">When</th>
         <th data-sortable data-type="text">Country</th>
+        <th data-sortable data-type="text">Language</th>
         <th data-sortable data-type="text">Event</th>
         <th data-sortable data-type="text">Detail</th>
         <th data-sortable data-type="text">Version</th>
@@ -653,10 +771,10 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
         <tr>
           <td class="mono" data-sort="<?= h($row['created_at']) ?>"><?= h(date('d M H:i', strtotime((string) $row['created_at']))) ?></td>
           <td class="country" data-cc="<?= h($row['country']) ?>"><?= h($row['country'] ?? '—') ?></td>
+          <td class="lang" data-lc="<?= h($row['language']) ?>"><?= h($row['language'] ?? '—') ?></td>
           <td><?= h(str_replace('_', ' ', (string) $row['event_name'])) ?></td>
           <td class="mono"><?= h($row['error_code'] ?? $row['feature'] ?? '—') ?></td>
           <td class="mono"><?= h($row['app_version'] ?? '—') ?></td>
-          
         </tr>
       <?php endforeach; ?>
       </tbody>

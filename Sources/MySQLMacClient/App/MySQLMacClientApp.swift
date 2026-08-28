@@ -20,10 +20,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidBecomeActive(_ notification: Notification) {
         // Only when nothing is key yet (the launch case) — unconditionally
-        // fronting the first window here would yank focus away from the
-        // Ayarlar window on every app re-activation.
+        // fronting a window here would yank focus away from the Ayarlar
+        // window on every app re-activation.
+        //
+        // `NSApp.windows` is emphatically *not* just this app's visible
+        // windows: AppKit keeps invisible helpers in there too (a
+        // zero-size `TUINSWindow` for text input, in this app's case), and
+        // after the main window is closed that helper is all that's left —
+        // SwiftUI drops its own window from the list entirely. Reaching
+        // for `.first` therefore used to grab the helper and make it
+        // *visible*, which told AppKit "a window is already showing", so
+        // SwiftUI never restored the real one. Net effect: closing the
+        // window, switching to another app, then clicking the Dock icon
+        // brought nothing back. Filtering to a window that can actually
+        // become main is what keeps that from happening; when the real
+        // window is gone this now correctly does nothing and lets
+        // SwiftUI's own reopen handling recreate it.
         if NSApp.keyWindow == nil {
-            NSApp.windows.first?.makeKeyAndOrderFront(nil)
+            NSApp.windows.first { $0.canBecomeMain && !($0 is NSPanel) }?
+                .makeKeyAndOrderFront(nil)
         }
     }
 }

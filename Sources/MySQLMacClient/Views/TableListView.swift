@@ -14,6 +14,11 @@ struct TableListView: View {
     @ObservedObject var viewModel: SchemaTreeViewModel
     @Binding var selectedTable: TableInfo?
     let insertionBridge: SQLInsertionBridge
+    /// The connection's own identity, shown as a root row above the
+    /// database list — the one sidebar row that isn't scoped to any single
+    /// database.
+    let profile: ConnectionProfile
+    let onCreateDatabase: () -> Void
     /// Context-menu actions on a table row — owned by `MainWindowView`,
     /// which has the session/sheet/confirmation state they need.
     let onCreateTable: (String) -> Void
@@ -39,55 +44,69 @@ struct TableListView: View {
     let onAlterEvent: (EventInfo) -> Void
     let onDropEvent: (EventInfo) -> Void
 
+    /// The database whose row should show the highlight — either clicked
+    /// directly, or (via the `onChange` below) wherever `selectedTable`
+    /// just moved to, so selecting a table always drags the highlight
+    /// along with it instead of leaving a stale one behind on whatever
+    /// database was last clicked directly. Purely a display concern, so it
+    /// lives here rather than being threaded up to `MainWindowView`
+    /// alongside `selectedTable`.
+    @State private var selectedDatabaseName: String?
+
     var body: some View {
-        Group {
-            if viewModel.isLoading && viewModel.databaseNodes.isEmpty {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
-                    .foregroundStyle(.red)
-                    .padding()
-            } else if viewModel.databaseNodes.isEmpty {
-                Text("No databases found.")
-                    .foregroundStyle(.secondary)
-                    .padding()
-            } else {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(viewModel.databaseNodes) { node in
-                            DatabaseRow(
-                                node: node,
-                                selectedTable: $selectedTable,
-                                insertionBridge: insertionBridge,
-                                onCreateTable: onCreateTable,
-                                onCreateView: onCreateView,
-                                onCreateStoredProcedure: onCreateStoredProcedure,
-                                onCreateFunction: onCreateFunction,
-                                onCreateTrigger: onCreateTrigger,
-                                onCreateEvent: onCreateEvent,
-                                onBackupDatabase: onBackupDatabase,
-                                onTruncateTable: onTruncateTable,
-                                onDropTable: onDropTable,
-                                onInsertQueryTemplate: onInsertQueryTemplate,
-                                onAlterTable: onAlterTable,
-                                onExportTable: onExportTable,
-                                onImportTable: onImportTable,
-                                onShowTableInfo: onShowTableInfo,
-                                onAlterView: onAlterView,
-                                onDropView: onDropView,
-                                onAlterRoutine: onAlterRoutine,
-                                onDropRoutine: onDropRoutine,
-                                onAlterTrigger: onAlterTrigger,
-                                onDropTrigger: onDropTrigger,
-                                onAlterEvent: onAlterEvent,
-                                onDropEvent: onDropEvent
-                            )
-                        }
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ConnectionRow(profile: profile, onCreateDatabase: onCreateDatabase)
+
+                if viewModel.isLoading && viewModel.databaseNodes.isEmpty {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                } else if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                        .foregroundStyle(.red)
+                        .padding()
+                } else if viewModel.databaseNodes.isEmpty {
+                    Text("No databases found.")
+                        .foregroundStyle(.secondary)
+                        .padding()
+                } else {
+                    ForEach(viewModel.databaseNodes) { node in
+                        DatabaseRow(
+                            node: node,
+                            selectedTable: $selectedTable,
+                            selectedDatabase: $selectedDatabaseName,
+                            insertionBridge: insertionBridge,
+                            onCreateTable: onCreateTable,
+                            onCreateView: onCreateView,
+                            onCreateStoredProcedure: onCreateStoredProcedure,
+                            onCreateFunction: onCreateFunction,
+                            onCreateTrigger: onCreateTrigger,
+                            onCreateEvent: onCreateEvent,
+                            onBackupDatabase: onBackupDatabase,
+                            onTruncateTable: onTruncateTable,
+                            onDropTable: onDropTable,
+                            onInsertQueryTemplate: onInsertQueryTemplate,
+                            onAlterTable: onAlterTable,
+                            onExportTable: onExportTable,
+                            onImportTable: onImportTable,
+                            onShowTableInfo: onShowTableInfo,
+                            onAlterView: onAlterView,
+                            onDropView: onDropView,
+                            onAlterRoutine: onAlterRoutine,
+                            onDropRoutine: onDropRoutine,
+                            onAlterTrigger: onAlterTrigger,
+                            onDropTrigger: onDropTrigger,
+                            onAlterEvent: onAlterEvent,
+                            onDropEvent: onDropEvent
+                        )
                     }
-                    .padding(.vertical, 4)
                 }
             }
+            .padding(.vertical, 4)
+        }
+        .onChange(of: selectedTable) { _, newValue in
+            selectedDatabaseName = newValue?.database
         }
         .toolbar {
             ToolbarItem {
@@ -114,6 +133,11 @@ private struct RowHeader: View {
     let isExpanded: Bool
     var trailing: String? = nil
     var isSelected: Bool = false
+    /// Set when something *inside* this row (a table under a database, for
+    /// instance) is the current selection — a lighter-weight signal than
+    /// `isSelected`'s full highlight, so a database can show "this is where
+    /// your selected table lives" without looking like it's selected itself.
+    var isBold: Bool = false
     var onToggle: (() -> Void)? = nil
     var onSelect: (() -> Void)? = nil
     var onDoubleClick: (() -> Void)? = nil
@@ -138,7 +162,17 @@ private struct RowHeader: View {
                     Image(systemName: "chevron.right")
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
                         .contentShape(Rectangle())
-                        .onTapGesture { onToggle?() }
+                        // `.highPriorityGesture` (not `.onTapGesture`) is
+                        // load-bearing: a plain `.onTapGesture` here doesn't
+                        // stop the row-wide `.onTapGesture` below from
+                        // *also* firing for the same tap — SwiftUI doesn't
+                        // treat nested tap gestures as mutually exclusive by
+                        // default. Without this, expanding a row via its
+                        // chevron always selected it too, which stayed
+                        // invisible until a database's `isSelected`
+                        // highlight and `isBold` (independent state) could
+                        // end up lit on two different rows at once.
+                        .highPriorityGesture(TapGesture().onEnded { onToggle?() })
                 } else {
                     Color.clear
                 }
@@ -153,7 +187,7 @@ private struct RowHeader: View {
                 .frame(width: fontSize + 3)
 
             Text(title)
-                .font(.system(size: fontSize))
+                .font(.system(size: fontSize, weight: isBold ? .bold : .regular))
                 .lineLimit(1)
 
             Spacer(minLength: 4)
@@ -250,9 +284,41 @@ private struct CategoryRow<Item: Identifiable, RowContent: View>: View {
     }
 }
 
+/// The tree's root row — the connection itself, shown as `username@host`
+/// above every database. Not expandable/selectable, just a label plus a
+/// context menu; the actual identity lives in `ConnectionProfile`, not a
+/// tree node, so there's no loading state to show here.
+private struct ConnectionRow: View {
+    let profile: ConnectionProfile
+    let onCreateDatabase: () -> Void
+
+    var body: some View {
+        RowHeader(
+            title: "\(profile.username)@\(profile.host)",
+            systemImage: "server.rack",
+            // Reuses the database row's color rather than adding a
+            // dedicated setting for a single row — see the create-database
+            // feature's plan notes.
+            iconColor: sidebarIconColor { $0.sidebar.databaseIcon },
+            indent: 0,
+            isExpandable: false,
+            isExpanded: false
+        )
+        .contextMenu {
+            Button("Create Database...") {
+                onCreateDatabase()
+            }
+        }
+    }
+}
+
 private struct DatabaseRow: View {
     @ObservedObject var node: DatabaseNode
     @Binding var selectedTable: TableInfo?
+    /// Which database was last clicked directly (not a table inside it) —
+    /// separate from `selectedTable`, so a database can be highlighted
+    /// without anything underneath it being selected.
+    @Binding var selectedDatabase: String?
     let insertionBridge: SQLInsertionBridge
     let onCreateTable: (String) -> Void
     let onCreateView: (String) -> Void
@@ -287,8 +353,17 @@ private struct DatabaseRow: View {
                 indent: 0,
                 isExpandable: true,
                 isExpanded: isExpanded,
+                isSelected: selectedDatabase == node.info.name,
+                // A table under this database is the current selection —
+                // bold rather than a full highlight, so it reads as "this
+                // is where your selection lives" without competing with
+                // `isSelected`'s stronger highlight for the same row.
+                isBold: selectedTable?.database == node.info.name,
                 onToggle: toggle,
-                onSelect: toggle
+                onSelect: {
+                    selectedDatabase = node.info.name
+                    toggle()
+                }
             )
             .contextMenu {
                 databaseContextMenu
@@ -419,6 +494,11 @@ private struct DatabaseRow: View {
                 }
             }
         }
+        // Nests the whole database (its own row plus everything under it)
+        // one level in from the connection root above it — shifting this
+        // single outer padding moves every descendant's already-relative
+        // indent along with it, rather than bumping each one by hand.
+        .padding(.leading, 14)
     }
 
     private func toggle() {
