@@ -53,6 +53,7 @@ struct SpreadsheetGridView: NSViewRepresentable {
         context.coordinator.refreshHeaderTitles()
         context.coordinator.reloadPreservingActiveEdit()
         context.coordinator.focusPendingRowIfNeeded()
+        context.coordinator.autosizeColumnsIfNeeded()
     }
 
     func makeCoordinator() -> Coordinator {
@@ -64,6 +65,13 @@ struct SpreadsheetGridView: NSViewRepresentable {
         var viewModel: TableDataViewModel
         weak var tableView: NSTableView?
         private var lastColumnSignature: [String] = []
+        /// Set once the first page of a freshly selected table has been
+        /// autosized (see `autosizeColumnsIfNeeded()`) — a table switch
+        /// tears down this whole view (and its `Coordinator`) via
+        /// `TableDataGridView`'s `.id(selectedTable.id)`, so `false` here
+        /// always means "genuinely new table, not yet fitted", never a
+        /// stale leftover from the previous one.
+        private var hasAutosizedColumns = false
         /// The selected row tracked by ID rather than by index: AppKit's
         /// selection is index-based, and a `reloadData()` right after an
         /// insert (the flag-clearing update that follows "Satır Ekle")
@@ -317,6 +325,7 @@ struct SpreadsheetGridView: NSViewRepresentable {
 
         func rebuildColumns() {
             guard let tableView else { return }
+            hasAutosizedColumns = false
             for column in tableView.tableColumns {
                 tableView.removeTableColumn(column)
             }
@@ -338,6 +347,37 @@ struct SpreadsheetGridView: NSViewRepresentable {
                 tableColumn.width = 140
                 tableColumn.minWidth = 60
                 tableView.addTableColumn(tableColumn)
+            }
+        }
+
+        /// Widens each data column, once per freshly selected table, to fit
+        /// its header and the widest value in the loaded page — replacing
+        /// the flat 140pt default from `rebuildColumns()`. Gated on
+        /// `viewModel.isLoading` so it fires exactly once, right after the
+        /// initial `load()` completes, rather than on the empty/transient
+        /// state before any data has arrived; a later sort, page turn, or
+        /// filter leaves widths (including any the user dragged by hand)
+        /// alone.
+        func autosizeColumnsIfNeeded() {
+            guard !hasAutosizedColumns, !viewModel.isLoading, let tableView else { return }
+            hasAutosizedColumns = true
+
+            let font = NSFont.systemFont(ofSize: CGFloat(SettingsStore.shared.settings.grid.cellFontSize))
+            let minWidth: CGFloat = 60
+            let maxWidth: CGFloat = 400
+            // Room for the cell text field's own insets plus a little
+            // breathing space — without this, a value exactly as wide as
+            // the column starts eliding immediately.
+            let horizontalPadding: CGFloat = 24
+
+            for tableColumn in tableView.tableColumns where tableColumn.identifier != Self.deleteColumnID {
+                let columnName = tableColumn.identifier.rawValue
+                var widest = (tableColumn.headerCell as? ColoredHeaderCell)?.attributedStringValue.size().width ?? 0
+                for row in viewModel.rows {
+                    let text = row.editedText[columnName] ?? ""
+                    widest = max(widest, (text as NSString).size(withAttributes: [.font: font]).width)
+                }
+                tableColumn.width = min(max(widest + horizontalPadding, minWidth), maxWidth)
             }
         }
 

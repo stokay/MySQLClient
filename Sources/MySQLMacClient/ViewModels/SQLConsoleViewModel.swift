@@ -332,6 +332,24 @@ final class SQLConsoleViewModel: ObservableObject {
         await onQueryResultCleared?()
     }
 
+    /// Same reset as `clearQueryResult()`, minus the `onQueryResultCleared`
+    /// callback — for when the sidebar selection is moving to a *different*
+    /// table, whose own `TableDataGridView` already loads itself via its
+    /// `.task(id:)`. Calling `clearQueryResult()` there raced that load:
+    /// `onQueryResultCleared` is rebound to the new table the instant its
+    /// view appears, so the awaited callback landed on the new view's
+    /// model too, firing a second concurrent query over the same
+    /// connection — mysql-nio only tolerates one at a time and asserted
+    /// "Statement not closed", crashing the app. Synchronous and
+    /// callback-free closes that race entirely.
+    func resetQueryResultForTableSwitch() {
+        isShowingQueryResult = false
+        queryResultSets = []
+        selectedResultSetIndex = 0
+        queryMessage = nil
+        queryEditContext = nil
+    }
+
     func commitQueryResultEdit(rowId: TableRow.ID, column: String, newText: String) async {
         // `queryEditContext` is only ever non-nil for a single result set
         // (see `applyResult`), so editing always targets set 0.

@@ -156,6 +156,17 @@ final class GridTextCellView: NSView {
         super.init(frame: frameRect)
         textField.isBordered = false
         textField.drawsBackground = false
+        // The trailing constraint below is `lessThanOrEqualTo`, so a value
+        // wider than its column compresses horizontally instead of
+        // overflowing — without these, the compressed field wrapped onto
+        // several lines to keep showing all of it, and past a certain
+        // width autofit (`SpreadsheetGridView`/`QueryResultGridView` cap at
+        // 400pt) that overflowed the fixed row height into an unreadable
+        // smear. Truncating to one line with an ellipsis keeps every row
+        // exactly `rowHeight` tall regardless of content length.
+        textField.lineBreakMode = .byTruncatingTail
+        textField.cell?.wraps = false
+        textField.cell?.isScrollable = false
         textField.translatesAutoresizingMaskIntoConstraints = false
         addSubview(textField)
         NSLayoutConstraint.activate([

@@ -7,7 +7,7 @@
 # both read Bundle.main — so under `swift run` every lookup misses and falls
 # back to the English key. Only a real .app bundle resolves the catalog.
 #
-# Usage: scripts/run-localized.sh [en|tr|es|de|hi|ru|pl|fr|pt-BR|ja|zh-Hans|system]
+# Usage: scripts/run-localized.sh [en|tr|es|de|hi|ru|pl|fr|pt-BR|ja|zh-Hans|ko|ar|it|zh-Hant|id|vi|th|system]
 set -euo pipefail
 
 LANG_CODE="${1:-system}"

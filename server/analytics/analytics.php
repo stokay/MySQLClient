@@ -89,6 +89,15 @@ $deviceModel = analytics_string($body, 'device_model', 64);
 $language = analytics_string($body, 'language', 10);
 $timezone = analytics_string($body, 'timezone', 64);
 
+// Allowlisted, not just length-capped — the app only ever has these two
+// values (no "follow system" option), so anything else is rejected
+// rather than stored as-is.
+$appearance = $body['appearance'] ?? null;
+if ($appearance !== null && !in_array($appearance, ['light', 'dark'], true)) {
+    http_response_code(400);
+    exit;
+}
+
 // Numeric only, deliberately — the client never sends the server's
 // free-text error message (see schema.sql for why). Anything else in
 // this field is rejected outright rather than coerced.
@@ -166,9 +175,9 @@ try {
 
     $statement = $pdo->prepare(
         'INSERT INTO analytics_events
-            (device_id, event_name, feature, error_code, app_version, os_version, device_model, language, timezone, country, network_org, network_asn)
+            (device_id, event_name, feature, error_code, app_version, os_version, device_model, language, timezone, country, network_org, network_asn, appearance)
          VALUES
-            (:device_id, :event_name, :feature, :error_code, :app_version, :os_version, :device_model, :language, :timezone, :country, :network_org, :network_asn)'
+            (:device_id, :event_name, :feature, :error_code, :app_version, :os_version, :device_model, :language, :timezone, :country, :network_org, :network_asn, :appearance)'
     );
     $statement->execute([
         'device_id' => $deviceId,
@@ -183,6 +192,7 @@ try {
         'country' => $country,
         'network_org' => $networkOrg,
         'network_asn' => $networkAsn,
+        'appearance' => $appearance,
     ]);
 } catch (Throwable $e) {
     http_response_code(500);

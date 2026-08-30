@@ -37,6 +37,16 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
         case .dark: return NSAppearance(named: .darkAqua)
         }
     }
+
+    /// Reads the persisted choice directly from `UserDefaults`, for
+    /// call sites (`AnalyticsService`) that need the current value without
+    /// holding a reference to the `@MainActor` `AppearanceStore` instance.
+    /// Same key and fallback as `AppearanceStore.init()` — kept in sync by
+    /// living right next to it.
+    static var current: AppearanceMode {
+        let raw = UserDefaults.standard.string(forKey: AppearanceStore.defaultsKey) ?? AppearanceMode.light.rawValue
+        return AppearanceMode(rawValue: raw) ?? .light
+    }
 }
 
 /// `.preferredColorScheme` (set from `mode.colorScheme`) covers SwiftUI's
@@ -47,7 +57,7 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
 /// effective appearance, not SwiftUI's environment.
 @MainActor
 final class AppearanceStore: ObservableObject {
-    private static let defaultsKey = "appearanceMode"
+    fileprivate nonisolated static let defaultsKey = "appearanceMode"
 
     @Published var mode: AppearanceMode {
         didSet {

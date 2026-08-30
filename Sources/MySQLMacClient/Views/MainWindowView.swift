@@ -289,6 +289,17 @@ struct MainWindowView: View {
             if newValue == nil {
                 console.onQueryResultCleared = nil
                 selectedTableRowCount = nil
+            } else if console.isShowingQueryResult {
+                // Selecting a *different* table while a query's results are
+                // still on screen: `TableDataGridView` checks
+                // `isShowingQueryResult` before its own grid, so without
+                // this the newly selected table kept showing the previous
+                // query's stale rows instead of its own data. Synchronous
+                // reset, not `clearQueryResult()` — that one also awaits
+                // `onQueryResultCleared`, which races the new table's own
+                // `.task(id:)` load and crashed mysql-nio with two
+                // concurrent queries on one connection.
+                console.resetQueryResultForTableSwitch()
             }
         }
         .onChange(of: insertionBridge.pendingText) { _, newValue in
@@ -603,9 +614,11 @@ struct MainWindowView: View {
 
     /// "SQL Sorgu Ekle" context-menu action: fetches the table's real
     /// column list, builds the statement skeleton, and routes it through
-    /// the insertion bridge. The table is selected first so its grid (and
-    /// the note in the header showing which table the columns came from)
-    /// is visible alongside the appended statement.
+    /// the insertion bridge. Deliberately does *not* change `selectedTable`
+    /// — the statement is fully qualified with its own database/table
+    /// name, so nothing needs the grid to jump there, and doing so used to
+    /// switch whatever table's data was on screen to this one's the moment
+    /// a template was picked, before the user ever pressed Run.
     private func insertQueryTemplate(for table: TableInfo, kind: SQLTemplate.Kind) async {
         let columns: [ColumnInfo]
         do {
@@ -615,7 +628,6 @@ struct MainWindowView: View {
             return
         }
 
-        selectedTable = table
         insertionBridge.pendingAppend = SQLTemplate.generate(
             kind,
             database: table.database,

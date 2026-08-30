@@ -258,6 +258,23 @@ $models = q($pdo, "
     GROUP BY device_model ORDER BY devices DESC LIMIT 30
 ");
 
+$appearances = q($pdo, "
+    SELECT appearance, COUNT(DISTINCT device_id) AS devices, COUNT(*) AS events
+    FROM analytics_events WHERE {$where} AND appearance IS NOT NULL
+    GROUP BY appearance ORDER BY devices DESC
+");
+// Share of events in each mode, for the KPI tile — events rather than
+// devices, since it's "how much activity happens in each mode" rather
+// than "how many people use each mode".
+$appearanceTotal = array_sum(array_column($appearances, 'events'));
+$darkEventShare = 0;
+$lightEventShare = 0;
+foreach ($appearances as $row) {
+    $pct = $appearanceTotal > 0 ? (int) round(((int) $row['events'] / $appearanceTotal) * 100) : 0;
+    if ($row['appearance'] === 'dark') { $darkEventShare = $pct; }
+    if ($row['appearance'] === 'light') { $lightEventShare = $pct; }
+}
+
 $networks = q($pdo, "
     SELECT network_org, network_asn, COUNT(DISTINCT device_id) AS devices, COUNT(*) AS events
     FROM analytics_events WHERE {$where} AND network_org IS NOT NULL
@@ -265,7 +282,7 @@ $networks = q($pdo, "
 ");
 
 $recent = q($pdo, "
-    SELECT device_id, event_name, feature, error_code, app_version, country, language, created_at
+    SELECT device_id, event_name, feature, error_code, app_version, country, language, appearance, created_at
     FROM analytics_events WHERE {$where}
     ORDER BY id DESC LIMIT 60
 ");
@@ -548,6 +565,10 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
     <div class="kpi"><div class="label">Unique devices</div><div class="value"><?= number_format((int) $kpi['devices']) ?></div></div>
     <div class="kpi"><div class="label">App opens</div><div class="value"><?= number_format((int) $kpi['opens']) ?></div></div>
     <div class="kpi <?= (int) $kpi['errors'] > 0 ? 'danger' : '' ?>"><div class="label">Errors</div><div class="value"><?= number_format((int) $kpi['errors']) ?></div></div>
+    <div class="kpi">
+      <div class="label">Appearance</div>
+      <div class="value" style="font-size: 22px;">🌙 <?= $darkEventShare ?>%<span style="color: var(--muted); font-weight: 450; margin: 0 6px;">/</span>☀️ <?= $lightEventShare ?>%</div>
+    </div>
   </section>
 
   <section class="card">
@@ -762,6 +783,7 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
         <th data-sortable data-type="text">When</th>
         <th data-sortable data-type="text">Country</th>
         <th data-sortable data-type="text">Language</th>
+        <th data-sortable data-type="text">Mode</th>
         <th data-sortable data-type="text">Event</th>
         <th data-sortable data-type="text">Detail</th>
         <th data-sortable data-type="text">Version</th>
@@ -772,6 +794,7 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
           <td class="mono" data-sort="<?= h($row['created_at']) ?>"><?= h(date('d M H:i', strtotime((string) $row['created_at']))) ?></td>
           <td class="country" data-cc="<?= h($row['country']) ?>"><?= h($row['country'] ?? '—') ?></td>
           <td class="lang" data-lc="<?= h($row['language']) ?>"><?= h($row['language'] ?? '—') ?></td>
+          <td data-sort="<?= h($row['appearance']) ?>"><?= $row['appearance'] === 'dark' ? '🌙' : ($row['appearance'] === 'light' ? '☀️' : '—') ?></td>
           <td><?= h(str_replace('_', ' ', (string) $row['event_name'])) ?></td>
           <td class="mono"><?= h($row['error_code'] ?? $row['feature'] ?? '—') ?></td>
           <td class="mono"><?= h($row['app_version'] ?? '—') ?></td>

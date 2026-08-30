@@ -29,6 +29,10 @@ CREATE TABLE IF NOT EXISTS analytics_events (
     -- IP ranges. Describes the network, not the person.
     network_org VARCHAR(128) NULL,
     network_asn VARCHAR(64) NULL,
+    -- Always 'light' or 'dark' — this app has no "follow system" option,
+    -- so the client always knows one or the other. VARCHAR rather than
+    -- ENUM so a future third value never needs a schema migration.
+    appearance VARCHAR(8) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     KEY idx_event_name (event_name),
@@ -123,3 +127,11 @@ INSERT INTO mysql_error_codes (code, description) VALUES
 --     ADD COLUMN network_org VARCHAR(128) NULL AFTER country,
 --     ADD COLUMN network_asn VARCHAR(64) NULL AFTER network_org,
 --     ADD KEY idx_network_asn (network_asn);
+
+-- ---------------------------------------------------------------------
+-- Migration, for a database created before the appearance column
+-- existed. Skip on a fresh install. Existing rows keep NULL — the app
+-- never sent this value before, so there is nothing to backfill.
+-- ---------------------------------------------------------------------
+-- ALTER TABLE analytics_events
+--     ADD COLUMN appearance VARCHAR(8) NULL AFTER network_asn;

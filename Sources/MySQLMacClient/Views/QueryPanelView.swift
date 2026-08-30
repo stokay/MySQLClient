@@ -154,6 +154,13 @@ struct QueryPanelView: View {
                     .lineLimit(1)
                 }
                 .toggleStyle(.button)
+                // Nothing for this to control before a query has actually
+                // run — `isQueryResultEditable` also requires a live
+                // `queryEditContext`, which only exists once results are on
+                // screen. Left enabled, toggling it here looked like it did
+                // nothing (because it didn't), which read as broken rather
+                // than as "not applicable yet".
+                .disabled(!console.isShowingQueryResult)
             }
             .fixedSize()
             .padding(.horizontal, 8)

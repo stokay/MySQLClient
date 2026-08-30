@@ -157,14 +157,30 @@ struct QueryResultGridView: NSViewRepresentable {
                 tableView.addTableColumn(deleteColumn)
             }
 
+            // Same one-shot autofit as `SpreadsheetGridView` — sized here,
+            // not gated behind a loading flag, because `rows` (set just
+            // before this is called, in `updateNSView`/`makeCoordinator`)
+            // is always this result set's actual data by the time a new
+            // query's columns show up; there's no async load in between to
+            // wait out.
+            let font = NSFont.systemFont(ofSize: CGFloat(SettingsStore.shared.settings.grid.cellFontSize))
+            let minWidth: CGFloat = 60
+            let maxWidth: CGFloat = 400
+            let horizontalPadding: CGFloat = 24
+
             for name in columnNames {
                 let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier(name))
                 let headerCell = ColoredHeaderCell()
                 let title = primaryKeyColumns.contains(name) ? "🔑 \(name)" : name
                 headerCell.attributedStringValue = ColoredHeaderCell.title(title)
                 column.headerCell = headerCell
-                column.width = 140
-                column.minWidth = 60
+                var widest = headerCell.attributedStringValue.size().width
+                for row in rows {
+                    let text = row.editedText[name] ?? ""
+                    widest = max(widest, (text as NSString).size(withAttributes: [.font: font]).width)
+                }
+                column.width = min(max(widest + horizontalPadding, minWidth), maxWidth)
+                column.minWidth = minWidth
                 tableView.addTableColumn(column)
             }
         }

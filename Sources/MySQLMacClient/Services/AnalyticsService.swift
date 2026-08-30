@@ -58,7 +58,8 @@ enum AnalyticsService {
             osVersion: osVersion,
             deviceModel: deviceModel,
             language: Bundle.main.preferredLocalizations.first ?? "en",
-            timezone: TimeZone.current.identifier
+            timezone: TimeZone.current.identifier,
+            appearance: AppearanceMode.current.rawValue
         )
 
         let url = endpoint
@@ -120,6 +121,10 @@ enum AnalyticsService {
         let deviceModel: String
         let language: String
         let timezone: String
+        /// "light" or "dark" — this app has no "follow system" option
+        /// (`AppearanceMode` is just the two cases), so this is always one
+        /// of the two, never ambiguous.
+        let appearance: String
 
         enum CodingKeys: String, CodingKey {
             case deviceID = "device_id"
@@ -131,6 +136,7 @@ enum AnalyticsService {
             case deviceModel = "device_model"
             case language
             case timezone
+            case appearance
         }
     }
 }
