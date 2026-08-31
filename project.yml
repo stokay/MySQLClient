@@ -50,7 +50,7 @@ targets:
       properties:
         CFBundleDisplayName: "MySQL Client"
         CFBundleShortVersionString: "1.7.0"
-        CFBundleVersion: "14"
+        CFBundleVersion: "16"
         LSApplicationCategoryType: "public.app-category.developer-tools"
         CFBundleIconName: AppIcon
         NSHumanReadableCopyright: "Copyright © 2025 Sedat Tokay. All rights reserved."
@@ -87,7 +87,7 @@ targets:
         # bağlı) "MySQL Client" yapar, Bundle ID'ye dokunmaz.
         PRODUCT_NAME: "MySQL Client"
         MARKETING_VERSION: "1.7.0"
-        CURRENT_PROJECT_VERSION: "14"
+        CURRENT_PROJECT_VERSION: "16"
         ENABLE_HARDENED_RUNTIME: YES
         # Extracts every `Text("…")` / `String(localized:)` literal into
         # Localizable.xcstrings during the build, so the catalog stays in
