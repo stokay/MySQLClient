@@ -1,12 +1,12 @@
 {
-  "originHash" : "a995e8d94f98bba9239092a361cea05a31de6c7e734a24a86233bce1d28e6fdc",
+  "originHash" : "35fb435209ee83a49aca13cb5ea916a1f087509ef03f0f2616fe95c064b93d70",
   "pins" : [
     {
       "identity" : "mysql-nio",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/stokay/mysql-nio.git",
       "state" : {
-        "revision" : "a637f93245d7b01cb9f2ca86024b9b7d2a3a137a"
+        "revision" : "568062c1ed9243743d51241f5093b7eed3498841"
       }
     },
     {

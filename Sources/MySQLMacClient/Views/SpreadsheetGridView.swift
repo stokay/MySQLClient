@@ -38,6 +38,9 @@ struct SpreadsheetGridView: NSViewRepresentable {
         scrollView.hasHorizontalScroller = true
         scrollView.drawsBackground = false
 
+        tableView.target = context.coordinator
+        tableView.action = #selector(Coordinator.tableViewClicked(_:))
+
         context.coordinator.tableView = tableView
         context.coordinator.rebuildColumns()
         return scrollView
@@ -438,6 +441,12 @@ struct SpreadsheetGridView: NSViewRepresentable {
             }
 
             let columnName = tableColumn.identifier.rawValue
+            // A `TEXT`/`BLOB` column shows a `<N bytes>` placeholder and
+            // opens the value editor instead of editing in place — the
+            // reuse pool is per column (the identifier *is* the column
+            // name), so wiring the click recognizer at creation time can
+            // never leak onto a different kind of column.
+            let isLargeObject = viewModel.columns.first(where: { $0.name == columnName })?.isLargeObject ?? false
             let cell: GridTextCellView
             if let reused = tableView.makeView(withIdentifier: tableColumn.identifier, owner: self) as? GridTextCellView {
                 cell = reused
@@ -453,7 +462,7 @@ struct SpreadsheetGridView: NSViewRepresentable {
             // Placeholder text is never part of `stringValue`, so it can't
             // leak into the inserted values.
             cell.textField.placeholderString = dataRow.isDraft ? draftPlaceholder(forColumn: columnName) : nil
-            cell.textField.isEditable = viewModel.hasPrimaryKey
+            cell.textField.isEditable = viewModel.hasPrimaryKey && !isLargeObject
             cell.textField.font = .systemFont(ofSize: CGFloat(SettingsStore.shared.settings.grid.cellFontSize))
             applyGridTextColor(to: cell.textField, isSelected: tableView.selectedRowIndexes.contains(row))
             cell.textField.identifier = Self.cellIdentifier(rowID: dataRow.id, column: columnName)
@@ -470,6 +479,27 @@ struct SpreadsheetGridView: NSViewRepresentable {
             if column.isAutoIncrement { return "AUTO_INCREMENT" }
             if let defaultValue = column.defaultValue { return defaultValue.isEmpty ? "''" : defaultValue }
             return column.isNullable ? "NULL" : String(localized: "(required)")
+        }
+
+        /// Opens the value editor when a `TEXT`/`BLOB` placeholder is
+        /// clicked.
+        ///
+        /// Driven by the table view's own `action` rather than a gesture
+        /// recognizer on the cell: `NSTableView` handles mouse events itself
+        /// to run selection, so a recognizer attached to a cell never sees
+        /// the click. `clickedRow`/`clickedColumn` are exactly what AppKit
+        /// resolved for this event, so there is also nothing to map back
+        /// through the reuse pool.
+        @objc func tableViewClicked(_ sender: NSTableView) {
+            let row = sender.clickedRow
+            let columnIndex = sender.clickedColumn
+            guard row >= 0, row < viewModel.rows.count,
+                  columnIndex >= 0, columnIndex < sender.tableColumns.count else { return }
+            let identifier = sender.tableColumns[columnIndex].identifier
+            guard identifier != Self.deleteColumnID,
+                  viewModel.columns.first(where: { $0.name == identifier.rawValue })?.isLargeObject == true
+            else { return }
+            viewModel.beginEditingLargeValue(rowID: viewModel.rows[row].id, column: identifier.rawValue)
         }
 
         @objc private func deleteTapped(_ sender: NSButton) {

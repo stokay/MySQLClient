@@ -83,6 +83,8 @@ enum XLSXWorkbookBuilder {
             return "<c r=\"\(reference)\"><v>\(value)</v></c>"
         case .string(let value):
             return inlineStringCellXML(reference: reference, text: value)
+        case .text(let value):
+            return inlineStringCellXML(reference: reference, text: value)
         case .date(let value):
             return inlineStringCellXML(reference: reference, text: RowValue.dateFormatter.string(from: value))
         case .blob(let value):

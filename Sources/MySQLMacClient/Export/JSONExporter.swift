@@ -21,6 +21,7 @@ enum JSONExporter {
         case .int(let value): return String(value)
         case .double(let value): return String(value)
         case .string(let value): return "\"\(escapeString(value))\""
+        case .text(let value): return "\"\(escapeString(value))\""
         case .date(let value): return "\"\(escapeString(RowValue.dateFormatter.string(from: value)))\""
         case .blob(let value): return "\"\(value.base64EncodedString())\""
         }

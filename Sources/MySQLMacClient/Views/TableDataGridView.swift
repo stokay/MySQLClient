@@ -119,6 +119,11 @@ struct TableDataGridView: View {
         .onChange(of: viewModel.totalRowCount, initial: true) { _, newValue in
             onRowCountChange(newValue)
         }
+        .sheet(item: $viewModel.largeValueEdit) { edit in
+            LargeValueEditorView(edit: edit) { newText in
+                Task { await viewModel.commitEdit(rowId: edit.rowID, column: edit.column, newText: newText) }
+            }
+        }
     }
 
     /// The current rows (main table or query result — whichever is on

@@ -49,6 +49,10 @@ final class SQLConsoleViewModel: ObservableObject {
     @Published private(set) var queryResultSets: [QueryResultSet] = []
     @Published var selectedResultSetIndex = 0
     @Published var isQueryResultEditableRequested = false
+    /// The `TEXT`/`BLOB` cell whose value editor is open, if any — the query
+    /// grid's half of the same placeholder-and-panel treatment the table
+    /// grid uses.
+    @Published var largeValueEdit: LargeValueEdit?
     @Published private(set) var queryEditContext: QueryEditContext?
 
     /// The result set currently on screen — the grid and the row-editing
@@ -271,13 +275,15 @@ final class SQLConsoleViewModel: ObservableObject {
     }
 
     private func applyResult(_ result: RawQueryResult, executedSQL: String) async {
-        let sets: [QueryResultSet] = result.resultSets.enumerated().compactMap { index, rows in
-            guard let firstRow = rows.first else { return nil }
-            let columnNames = firstRow.columnDefinitions.map(\.name)
-            return QueryResultSet(
+        // Not `compactMap` on `rows.first`: a `SELECT` that matched nothing
+        // is still a result set, and dropping it here is what used to leave
+        // the *previous* contents on screen (see `MySQLResultSet` in the
+        // mysql-nio fork for how the columns survive an empty result).
+        let sets: [QueryResultSet] = result.resultSets.enumerated().map { index, resultSet in
+            QueryResultSet(
                 id: index,
-                columns: columnNames,
-                rows: rows.map { mysqlRow in
+                columns: resultSet.columns.map(\.name),
+                rows: resultSet.rows.map { mysqlRow in
                     var values: [String: RowValue] = [:]
                     for definition in mysqlRow.columnDefinitions {
                         if let data = mysqlRow.column(definition.name) {
@@ -289,6 +295,11 @@ final class SQLConsoleViewModel: ObservableObject {
             )
         }
 
+        // No result set at all now means exactly one thing — a statement
+        // that doesn't produce one (`INSERT`, `UPDATE`, `USE`, DDL). The
+        // grid underneath goes back to showing the selected table, so it
+        // has to be reloaded: a write that just changed those very rows
+        // would otherwise leave its own pre-write data on screen.
         guard let first = sets.first else {
             queryResultSets = []
             selectedResultSetIndex = 0
@@ -299,6 +310,7 @@ final class SQLConsoleViewModel: ObservableObject {
             } else {
                 queryMessage = String(localized: "Query completed, no results.")
             }
+            await onQueryResultCleared?()
             return
         }
 
@@ -348,6 +360,34 @@ final class SQLConsoleViewModel: ObservableObject {
         selectedResultSetIndex = 0
         queryMessage = nil
         queryEditContext = nil
+    }
+
+    /// Opens the value editor for a `TEXT`/`BLOB` cell of the result grid.
+    /// Read-only whenever the result itself isn't editable — an arbitrary
+    /// join or aggregate has no row to write back to.
+    func beginEditingLargeValue(rowID: TableRow.ID, column: String) {
+        guard let row = selectedResultSet?.rows.first(where: { $0.id == rowID }) else { return }
+        let stored = row.originalValues[column]
+        if let stored, case .blob(let bytes) = stored {
+            largeValueEdit = LargeValueEdit(
+                rowID: rowID,
+                column: column,
+                text: "",
+                isBinary: true,
+                isEditable: false,
+                byteCount: bytes.count
+            )
+            return
+        }
+        let text = stored?.editableText ?? row.editedText[column] ?? ""
+        largeValueEdit = LargeValueEdit(
+            rowID: rowID,
+            column: column,
+            text: text,
+            isBinary: false,
+            isEditable: isQueryResultEditable,
+            byteCount: text.utf8.count
+        )
     }
 
     func commitQueryResultEdit(rowId: TableRow.ID, column: String, newText: String) async {

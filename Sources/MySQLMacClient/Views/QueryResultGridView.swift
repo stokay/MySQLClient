@@ -14,6 +14,23 @@ struct QueryResultGridView: NSViewRepresentable {
     let isEditable: Bool
     let onCommitEdit: (TableRow.ID, String, String) -> Void
     let onDeleteRow: (TableRow) -> Void
+    /// Opens the value editor for a `TEXT`/`BLOB` cell.
+    let onOpenLargeValue: (TableRow.ID, String) -> Void
+
+    /// Which columns hold `TEXT`/`BLOB` values. A query result carries no
+    /// schema, so this is read off the values themselves — and taken
+    /// column-wide as soon as *any* row has one, so that a `NULL` in the
+    /// same column behaves like its neighbours rather than being the one
+    /// inline-editable cell in the column.
+    private var largeObjectColumns: Set<String> {
+        var result: Set<String> = []
+        for row in rows {
+            for (name, value) in row.originalValues where value.isLargeObject {
+                result.insert(name)
+            }
+        }
+        return result
+    }
     /// See `SpreadsheetGridView` — settings changes re-invoke `updateNSView`.
     @EnvironmentObject private var settingsStore: SettingsStore
 
@@ -37,6 +54,9 @@ struct QueryResultGridView: NSViewRepresentable {
         scrollView.hasHorizontalScroller = true
         scrollView.drawsBackground = false
 
+        tableView.target = context.coordinator
+        tableView.action = #selector(Coordinator.tableViewClicked(_:))
+
         context.coordinator.tableView = tableView
         context.coordinator.rebuildColumns(columnNames: columnNames, isEditable: isEditable)
         return scrollView
@@ -48,6 +68,8 @@ struct QueryResultGridView: NSViewRepresentable {
         context.coordinator.isEditable = isEditable
         context.coordinator.onCommitEdit = onCommitEdit
         context.coordinator.onDeleteRow = onDeleteRow
+        context.coordinator.onOpenLargeValue = onOpenLargeValue
+        context.coordinator.largeObjectColumns = largeObjectColumns
         if let tableView = context.coordinator.tableView {
             tableView.rowHeight = CGFloat(settingsStore.settings.grid.rowHeight)
             tableView.headerView?.needsDisplay = true
@@ -67,6 +89,8 @@ struct QueryResultGridView: NSViewRepresentable {
         var isEditable: Bool
         var onCommitEdit: (TableRow.ID, String, String) -> Void
         var onDeleteRow: (TableRow) -> Void
+        var onOpenLargeValue: (TableRow.ID, String) -> Void = { _, _ in }
+        var largeObjectColumns: Set<String> = []
         weak var tableView: NSTableView?
 
         private var lastColumnNames: [String] = []
@@ -212,6 +236,11 @@ struct QueryResultGridView: NSViewRepresentable {
 
             let columnName = tableColumn.identifier.rawValue
             let dataRow = rows[row]
+            // Same treatment as the table grid: a `TEXT`/`BLOB` column shows
+            // its `<N bytes>` placeholder and opens the value editor rather
+            // than editing in place. Reuse pools are per column, so the
+            // click recognizer can only ever land on this kind of column.
+            let isLargeObject = largeObjectColumns.contains(columnName)
             let cell: GridTextCellView
             if let reused = tableView.makeView(withIdentifier: tableColumn.identifier, owner: self) as? GridTextCellView {
                 cell = reused
@@ -220,12 +249,27 @@ struct QueryResultGridView: NSViewRepresentable {
                 cell.identifier = tableColumn.identifier
             }
             cell.textField.stringValue = dataRow.editedText[columnName] ?? ""
-            cell.textField.isEditable = isEditable
+            cell.textField.isEditable = isEditable && !isLargeObject
             cell.textField.font = .systemFont(ofSize: CGFloat(SettingsStore.shared.settings.grid.cellFontSize))
             applyGridTextColor(to: cell.textField, isSelected: tableView.selectedRowIndexes.contains(row))
-            cell.textField.delegate = isEditable ? self : nil
+            cell.textField.delegate = (isEditable && !isLargeObject) ? self : nil
             cell.textField.identifier = NSUserInterfaceItemIdentifier("\(row)|\(columnName)")
             return cell
+        }
+
+        /// Opens the value editor when a `TEXT`/`BLOB` placeholder is
+        /// clicked — see `SpreadsheetGridView.Coordinator.tableViewClicked`
+        /// for why this hangs off the table view's `action` instead of a
+        /// gesture recognizer on the cell.
+        @objc func tableViewClicked(_ sender: NSTableView) {
+            let row = sender.clickedRow
+            let columnIndex = sender.clickedColumn
+            guard row >= 0, row < rows.count,
+                  columnIndex >= 0, columnIndex < sender.tableColumns.count else { return }
+            let identifier = sender.tableColumns[columnIndex].identifier
+            guard identifier != Self.deleteColumnID,
+                  largeObjectColumns.contains(identifier.rawValue) else { return }
+            onOpenLargeValue(rows[row].id, identifier.rawValue)
         }
 
         @objc private func deleteTapped(_ sender: NSButton) {

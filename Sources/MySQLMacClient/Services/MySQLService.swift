@@ -17,19 +17,22 @@ struct ExecuteResult: Sendable {
 /// it's a SELECT (rows matter) or an INSERT/UPDATE/DDL (affected-row count
 /// matters), so this carries both.
 struct RawQueryResult: Sendable {
-    /// One entry per result set. Ordinary statements produce at most one;
-    /// a `CALL` to a procedure whose body runs several `SELECT`s produces
-    /// one per `SELECT`, which the console shows as separate tabs. Empty
-    /// for a write/DDL.
-    let resultSets: [[MySQLRow]]
+    /// One entry per result set, each with its own columns. Ordinary
+    /// statements produce at most one; a `CALL` to a procedure whose body
+    /// runs several `SELECT`s produces one per `SELECT`, which the console
+    /// shows as separate tabs. Empty for a write/DDL — and *only* for
+    /// those: a `SELECT` that matched nothing still produces one entry,
+    /// with its columns and no rows, so the console can draw an empty grid
+    /// with real headers instead of leaving the previous result on screen.
+    let resultSets: [MySQLResultSet]
     let affectedRows: UInt64?
     let lastInsertID: UInt64?
 
-    /// The first result set — what a single-result caller means by "the
-    /// rows", and what the grid shows when it isn't tab-aware.
-    var rows: [MySQLRow] { resultSets.first ?? [] }
+    /// The first result set's rows — what a single-result caller means by
+    /// "the rows", and what the grid shows when it isn't tab-aware.
+    var rows: [MySQLRow] { resultSets.first?.rows ?? [] }
 
-    init(resultSets: [[MySQLRow]], affectedRows: UInt64?, lastInsertID: UInt64?) {
+    init(resultSets: [MySQLResultSet], affectedRows: UInt64?, lastInsertID: UInt64?) {
         self.resultSets = resultSets
         self.affectedRows = affectedRows
         self.lastInsertID = lastInsertID

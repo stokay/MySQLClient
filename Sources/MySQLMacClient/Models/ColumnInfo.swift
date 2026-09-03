@@ -11,4 +11,23 @@ struct ColumnInfo: Identifiable, Equatable, Hashable {
     /// Column comment (from `SHOW FULL COLUMNS`). Defaulted so the many
     /// existing call sites that don't care about comments keep compiling.
     var comment: String? = nil
+
+    /// `TEXT`/`BLOB`-family columns, which the grid shows as a `<N bytes>`
+    /// placeholder and edits in the value editor instead of inline.
+    ///
+    /// Driven by the declared type rather than by the value, so an empty or
+    /// `NULL` cell in a `TEXT` column behaves like every other cell in it —
+    /// a value-driven test would leave exactly those cells inline-editable
+    /// and inconsistent with their neighbours.
+    var isLargeObject: Bool {
+        let base = mysqlType
+            .lowercased()
+            .prefix { $0 != "(" && $0 != " " }
+        return Self.largeObjectTypes.contains(String(base))
+    }
+
+    private static let largeObjectTypes: Set<String> = [
+        "tinytext", "text", "mediumtext", "longtext",
+        "tinyblob", "blob", "mediumblob", "longblob",
+    ]
 }

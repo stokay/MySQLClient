@@ -38,10 +38,24 @@ struct TableRow: Identifiable {
     }
 
     /// Call after a successful UPDATE so the edited columns stop being "dirty".
+    ///
+    /// A `TEXT` column keeps its `.text` case rather than collapsing to
+    /// `.string`, and its `editedText` is re-normalised to the resulting
+    /// `<N bytes>` placeholder — otherwise the cell would sit there showing
+    /// the full multi-line value (and dragging the row's height over its
+    /// neighbours) until the next reload.
     mutating func acceptEdits(for columnNames: [String]) {
         for column in columnNames {
             guard let text = editedText[column] else { continue }
-            originalValues[column] = text.isEmpty ? .null : .string(text)
+            let wasText = originalValues[column]?.isLargeObject ?? false
+            let accepted: RowValue
+            if text.isEmpty {
+                accepted = .null
+            } else {
+                accepted = wasText ? .text(text) : .string(text)
+            }
+            originalValues[column] = accepted
+            editedText[column] = accepted.displayString
         }
     }
 }

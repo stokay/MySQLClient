@@ -29,6 +29,31 @@ final class MySQLServiceRawQueryTests: XCTestCase {
         XCTAssertNil(result.affectedRows, "a SELECT never produces an affected-row count")
     }
 
+    /// A `SELECT` that matches nothing is still a result set, and has to
+    /// survive as one — with its columns — all the way up. Dropping it
+    /// (which is what filtering empty row-groups used to do) left the query
+    /// console unable to tell it apart from an `INSERT`/`USE`, so it fell
+    /// back to showing whatever the grid held before.
+    func testRawQueryEmptySelectKeepsItsColumns() async throws {
+        let result = try await service.rawQuery("SELECT name, quantity FROM widgets WHERE name = 'nothing matches this'")
+        XCTAssertEqual(result.resultSets.count, 1, "an empty SELECT is still one result set")
+        XCTAssertTrue(result.rows.isEmpty)
+        XCTAssertEqual(
+            result.resultSets.first?.columns.map(\.name),
+            ["name", "quantity"],
+            "the columns the server announced must survive having no rows"
+        )
+        XCTAssertNil(result.affectedRows, "a SELECT never produces an affected-row count")
+    }
+
+    /// The other half of the distinction above: a statement that genuinely
+    /// returns no result set contributes no entry at all.
+    func testRawQueryWriteProducesNoResultSet() async throws {
+        let result = try await service.rawQuery("UPDATE widgets SET quantity = quantity WHERE name = 'nothing matches this'")
+        XCTAssertTrue(result.resultSets.isEmpty, "a write announces no columns, so there is no result set")
+        XCTAssertEqual(result.affectedRows, 0)
+    }
+
     func testRawQueryUpdateReturnsAffectedCountAndNoRows() async throws {
         let result = try await service.rawQuery("UPDATE widgets SET quantity = 500 WHERE name = 'Bolt'")
         XCTAssertTrue(result.rows.isEmpty)
@@ -121,8 +146,8 @@ final class MySQLServiceRawQueryTests: XCTestCase {
 
         let result = try await service.rawQuery("CALL raw_query_test_two_selects()")
         XCTAssertEqual(result.resultSets.count, 2, "both result sets should arrive, kept separate")
-        XCTAssertEqual(result.resultSets.first?.first?.column("name")?.string, "Bolt")
-        XCTAssertEqual(result.resultSets.last?.first?.column("quantity")?.int, 250)
+        XCTAssertEqual(result.resultSets.first?.rows.first?.column("name")?.string, "Bolt")
+        XCTAssertEqual(result.resultSets.last?.rows.first?.column("quantity")?.int, 250)
         XCTAssertEqual(result.rows.count, 1, "`rows` is the first result set")
 
         let followUp = try await service.rawQuery("SELECT 7 AS answer")

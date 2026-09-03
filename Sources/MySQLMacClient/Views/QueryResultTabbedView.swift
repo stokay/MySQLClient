@@ -27,6 +27,9 @@ struct QueryResultTabbedView: View {
                 },
                 onDeleteRow: { row in
                     Task { await console.deleteQueryResultRow(row) }
+                },
+                onOpenLargeValue: { rowID, column in
+                    console.beginEditingLargeValue(rowID: rowID, column: column)
                 }
             )
             // Switching tabs is a different result set, not an update to the
@@ -35,6 +38,11 @@ struct QueryResultTabbedView: View {
             // result sets that happen to share column names still reset
             // cleanly (the grid's own column diffing sees no change there).
             .id(console.selectedResultSetIndex)
+        }
+        .sheet(item: $console.largeValueEdit) { edit in
+            LargeValueEditorView(edit: edit) { newText in
+                Task { await console.commitQueryResultEdit(rowId: edit.rowID, column: edit.column, newText: newText) }
+            }
         }
     }
 

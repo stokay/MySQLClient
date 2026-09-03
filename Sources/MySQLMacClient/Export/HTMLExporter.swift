@@ -42,6 +42,7 @@ enum HTMLExporter {
         case .int(let value): return String(value)
         case .double(let value): return String(value)
         case .string(let value): return value
+        case .text(let value): return value
         case .date(let value): return RowValue.dateFormatter.string(from: value)
         case .blob(let value): return value.base64EncodedString()
         }

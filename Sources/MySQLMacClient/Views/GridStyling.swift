@@ -167,6 +167,11 @@ final class GridTextCellView: NSView {
         textField.lineBreakMode = .byTruncatingTail
         textField.cell?.wraps = false
         textField.cell?.isScrollable = false
+        // `wraps = false` only stops wrapping at the *width* boundary; an
+        // embedded "\n" still lays out on its own line, so a value with line
+        // breaks in it grew past the fixed row height and printed over the
+        // rows above and below. Single-line mode collapses those too.
+        textField.usesSingleLineMode = true
         textField.translatesAutoresizingMaskIntoConstraints = false
         addSubview(textField)
         NSLayoutConstraint.activate([

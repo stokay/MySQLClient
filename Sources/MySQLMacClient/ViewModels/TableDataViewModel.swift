@@ -31,6 +31,9 @@ final class TableDataViewModel: ObservableObject {
     /// its selection has to be re-found) from an in-place change like a
     /// committed cell edit (where its own selection is still valid).
     @Published private(set) var dataVersion: Int = 0
+    /// The `TEXT`/`BLOB` cell whose value editor is open, if any — set when
+    /// the grid's placeholder is clicked, cleared when the sheet closes.
+    @Published var largeValueEdit: LargeValueEdit?
 
     let databaseName: String
     let tableName: String
@@ -198,6 +201,37 @@ final class TableDataViewModel: ObservableObject {
     }
 
     // MARK: - Editing
+
+    /// Opens the value editor for a `TEXT`/`BLOB` cell. The draft row has no
+    /// stored value behind it yet, so it opens empty and editable — that is
+    /// the only way to fill a `TEXT` column on a row being added.
+    func beginEditingLargeValue(rowID: TableRow.ID, column: String) {
+        guard let row = rows.first(where: { $0.id == rowID }) else { return }
+        let stored = row.originalValues[column]
+        if let data = stored, case .blob(let bytes) = data {
+            largeValueEdit = LargeValueEdit(
+                rowID: rowID,
+                column: column,
+                text: "",
+                isBinary: true,
+                isEditable: false,
+                byteCount: bytes.count
+            )
+            return
+        }
+        // `editedText` rather than the stored value: an edit made in this
+        // session but not yet written (a draft row, or a value typed and
+        // not committed) is what the user expects to see.
+        let text = stored?.editableText ?? row.editedText[column] ?? ""
+        largeValueEdit = LargeValueEdit(
+            rowID: rowID,
+            column: column,
+            text: text,
+            isBinary: false,
+            isEditable: true,
+            byteCount: text.utf8.count
+        )
+    }
 
     func commitEdit(rowId: TableRow.ID, column: String, newText: String) async {
         guard hasPrimaryKey, let index = rows.firstIndex(where: { $0.id == rowId }) else { return }

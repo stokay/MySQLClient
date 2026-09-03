@@ -23,13 +23,17 @@ configs:
   DeveloperID: release
 
 packages:
-  # Kept in lockstep with Package.swift: a fork of vapor/mysql-nio 1.9.1
-  # pinned to an exact revision, adding CLIENT_MULTI_RESULTS + multi-result-set
-  # draining so CALLing a procedure that returns a SELECT works (upstream
-  # fails it with ER_SP_BADSELECT).
+  # Kept in lockstep with Package.swift — the Xcode project reads THIS pin,
+  # not that one, so bumping the fork means editing both or the xcodebuild
+  # path fails to compile while `swift build` still succeeds. A fork of
+  # vapor/mysql-nio 1.9.1 pinned to an exact revision, adding
+  # CLIENT_MULTI_RESULTS + multi-result-set draining so CALLing a procedure
+  # that returns a SELECT works (upstream fails it with ER_SP_BADSELECT),
+  # plus result sets that carry their own columns so an empty SELECT keeps
+  # its headers.
   mysql-nio:
     url: https://github.com/stokay/mysql-nio.git
-    revision: a637f93245d7b01cb9f2ca86024b9b7d2a3a137a
+    revision: 568062c1ed9243743d51241f5093b7eed3498841
 
 targets:
   MySQLMacClient:
