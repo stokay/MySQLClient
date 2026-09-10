@@ -214,6 +214,12 @@ struct MainWindowView: View {
     /// move up from being per-table state).
     @StateObject private var console: SQLConsoleViewModel
     @State private var selectedTable: TableInfo?
+    /// The sidebar's highlighted database — set by clicking a database row
+    /// directly, and dragged along by `TableListView` whenever
+    /// `selectedTable` moves. Owned here (rather than inside
+    /// `TableListView`, where it used to live) because it's what feeds
+    /// `console.currentDatabaseHint`: see the `onChange` below.
+    @State private var selectedDatabaseName: String?
     @State private var isShowingCreateTable = false
     @State private var isShowingCreateDatabase = false
     /// Set when the create-table sheet is opened from a table's context
@@ -280,12 +286,20 @@ struct MainWindowView: View {
         .task {
             await schemaTreeViewModel.loadDatabases()
         }
+        // The console's "what schema does an unqualified name mean" guess
+        // follows the sidebar's highlighted *database*, not the selected
+        // table: a database row can be selected with no table under it
+        // chosen (a freshly opened database, or one whose tables the user
+        // hasn't clicked into), and pasted unqualified SQL has to work
+        // there too. `TableListView` keeps this in step with `selectedTable`,
+        // so table selections still move the hint — via this one path.
+        .onChange(of: selectedDatabaseName) { _, newValue in
+            console.currentDatabaseHint = newValue
+        }
         .onChange(of: selectedTable) { _, newValue in
-            // Keeps the console's "what schema does an unqualified table
-            // name mean" guess in sync with the sidebar, and drops the
-            // no-longer-relevant table-grid reload hookup once nothing is
-            // selected (see `SQLConsoleViewModel.onQueryResultCleared`).
-            console.currentDatabaseHint = newValue?.database
+            // Drops the no-longer-relevant table-grid reload hookup once
+            // nothing is selected (see
+            // `SQLConsoleViewModel.onQueryResultCleared`).
             if newValue == nil {
                 console.onQueryResultCleared = nil
                 selectedTableRowCount = nil
@@ -441,6 +455,7 @@ struct MainWindowView: View {
         TableListView(
             viewModel: schemaTreeViewModel,
             selectedTable: $selectedTable,
+            selectedDatabaseName: $selectedDatabaseName,
             insertionBridge: insertionBridge,
             profile: session.profile,
             onCreateDatabase: { isShowingCreateDatabase = true },

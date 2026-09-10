@@ -56,6 +56,8 @@ struct QueryPanelView: View {
             }
         }()
 
+        let hasMessage = color != .clear
+
         return Label(message, systemImage: icon)
             .font(.system(size: CGFloat(settingsStore.settings.editor.statusFontSize)))
             .foregroundStyle(color)
@@ -67,10 +69,24 @@ struct QueryPanelView: View {
             .lineLimit(1)
             .truncationMode(.tail)
             .help(message)
+            // Drag-selecting works on what's rendered, which the truncation
+            // above cuts short — so the context menu copies the *whole*
+            // message instead. A server error worth reading is usually one
+            // worth pasting somewhere, and re-typing it off a tooltip was
+            // the only way before this.
+            .textSelection(.enabled)
+            .contextMenu {
+                if hasMessage {
+                    Button("Copy") {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(message, forType: .string)
+                    }
+                }
+            }
             .padding(.horizontal, 8)
             .padding(.vertical, 5)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .opacity(color == .clear ? 0 : 1)
+            .opacity(hasMessage ? 1 : 0)
     }
 
     /// See the identical treatment (and the reasoning in its comment) on

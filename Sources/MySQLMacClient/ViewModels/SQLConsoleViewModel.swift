@@ -174,11 +174,68 @@ final class SQLConsoleViewModel: ObservableObject {
             await applyResult(result, executedSQL: sqlToRun)
             AnalyticsService.trackFeatureUsed("sql_query_run")
         } catch {
+            // A pasted multi-statement dump is the overwhelmingly common
+            // reason a one-packet send fails this way — so just run it the
+            // way the user meant, instead of making them find another
+            // button. Safe to retry: both failures happen before the server
+            // executes anything (a parse error rejects the whole string;
+            // an oversized packet never lands), so nothing has run twice.
+            if Self.shouldRetryStatementByStatement(error, sql: sqlToRun) {
+                AnalyticsService.trackFeatureUsed("sql_query_run_autosplit")
+                await runStatements(DelimiterScript.allStatements(from: sqlToRun))
+                return
+            }
             queryErrorMessage = describe(error, sql: sqlToRun, serverVersion: await service.serverVersion)
             isShowingQueryResult = false
             queryEditContext = nil
             AnalyticsService.trackError(error, feature: "sql_query_run")
         }
+    }
+
+    /// Whether a failed one-packet "Run" should silently be retried as
+    /// separate statements.
+    ///
+    /// Two failures say "this was really several statements": the server
+    /// parsed only the first one and choked where the next began
+    /// (`.invalidSyntax` — mysql-nio's mapping of `ER_PARSE_ERROR`, the
+    /// usual outcome since this connection doesn't negotiate
+    /// `CLIENT_MULTI_STATEMENTS`), or the blob exceeded
+    /// `max_allowed_packet`. Neither is worth retrying unless the script
+    /// actually splits into more than one statement — a single oversized
+    /// `INSERT`, or a plain typo in a lone statement, would just fail again
+    /// with a more confusing message.
+    ///
+    /// A routine body is the one shape that must *not* be retried:
+    /// `DelimiterScript.allStatements(from:)` has no `BEGIN…END`
+    /// awareness, so it cuts a `CREATE PROCEDURE`/`FUNCTION`/`TRIGGER` at
+    /// its own internal `;`s. Sent whole, such a body is valid and
+    /// succeeds; if it failed, it has a real error in it, and splitting
+    /// would bury that behind nonsense fragment errors.
+    static func shouldRetryStatementByStatement(_ error: Error, sql: String) -> Bool {
+        guard let mysqlError = error as? MySQLError else { return false }
+        let isSplittableFailure: Bool
+        switch mysqlError {
+        case .invalidSyntax:
+            isSplittableFailure = true
+        case .server(let packet):
+            isSplittableFailure = packet.errorCode == .NET_PACKET_TOO_LARGE
+        default:
+            isSplittableFailure = false
+        }
+        guard isSplittableFailure else { return false }
+        guard DelimiterScript.allStatements(from: sql).count > 1 else { return false }
+        return !containsRoutineBody(sql)
+    }
+
+    /// `CREATE`/`ALTER` of a routine whose body holds its own `;`s. Matched
+    /// on the statement keywords rather than a bare `BEGIN`, which appears
+    /// harmlessly in `BEGIN`/`START TRANSACTION` scripts that *are* safe to
+    /// split.
+    private static func containsRoutineBody(_ sql: String) -> Bool {
+        sql.range(
+            of: #"(?is)\b(CREATE|ALTER)\b[^;]*?\b(PROCEDURE|FUNCTION|TRIGGER|EVENT)\b"#,
+            options: .regularExpression
+        ) != nil
     }
 
     /// "Tümünü Çalıştır": splits the editor's selected text (or the whole
@@ -491,22 +548,30 @@ final class SQLConsoleViewModel: ObservableObject {
         return error.localizedDescription
     }
 
-    /// `describe`, plus a nudge toward "Run All" when the failure is
-    /// specifically "Run sent one packet bigger than the server accepts"
-    /// *and* the script would actually split into several statements.
+    /// `describe`, plus a nudge toward "Run All" when the failure is one
+    /// "Run"'s single-packet send would explain *and* the script would
+    /// actually split into several statements.
     ///
     /// "Run" deliberately sends the editor's text as a single statement, so
-    /// a pasted multi-statement dump hits `max_allowed_packet` as one huge
-    /// packet — while "Run All" splits it and sends each statement on its
-    /// own, which is what the user wanted. The size check isn't enough on
-    /// its own: a single oversized `INSERT` (one extended-values statement
-    /// bigger than the limit) can't be helped by splitting, and suggesting
-    /// it there would just send someone down a dead end.
+    /// a pasted multi-statement dump can fail two different ways: it hits
+    /// `max_allowed_packet` as one huge packet (`NET_PACKET_TOO_LARGE`), or —
+    /// far more commonly, since this connection doesn't negotiate
+    /// `CLIENT_MULTI_STATEMENTS` — the server parses only the first
+    /// statement and reports a syntax error right at the boundary where the
+    /// next one begins.
+    ///
+    /// Both of those are now handled without bothering the user at all:
+    /// `shouldRetryStatementByStatement` re-runs the script statement by
+    /// statement instead. What's left for this hint is the case that retry
+    /// deliberately skips — a routine body, where splitting would mangle
+    /// `BEGIN…END` — so it only ever fires for an oversized packet.
     /// `describe`, plus whichever hint the specific failure earns — the
     /// server's own message says *what* broke, these say what to do about
     /// it. `serverVersion` is `MySQLService`'s cached `SELECT VERSION()`
     /// result, passed in rather than awaited here so this stays sync.
-    private func describe(_ error: Error, sql: String, serverVersion: String?) -> String {
+    /// Internal (not private), like `runAllHint`, so the error-to-hint
+    /// dispatch can be tested without a live server producing each error.
+    func describe(_ error: Error, sql: String, serverVersion: String?) -> String {
         var described = describe(error)
         guard case .server(let packet)? = error as? MySQLError else { return described }
 

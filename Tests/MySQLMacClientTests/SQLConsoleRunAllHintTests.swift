@@ -1,4 +1,5 @@
 import XCTest
+import MySQLNIO
 @testable import MySQLMacClient
 
 /// Pure logic — no database, unlike `SQLConsoleViewModelTests`. Covers when
@@ -36,6 +37,66 @@ final class SQLConsoleRunAllHintTests: XCTestCase {
     /// Semicolons inside string literals aren't statement boundaries.
     func testSemicolonInsideAStringLiteralIsNotAStatementBoundary() {
         XCTAssertNil(SQLConsoleViewModel.runAllHint(forFailedSQL: "INSERT INTO `a` VALUES ('x;y');"))
+    }
+
+    // MARK: - Silent statement-by-statement retry
+
+    private let syntaxError = MySQLError.invalidSyntax(
+        "You have an error in your SQL syntax; ... near 'INSERT INTO `a`' at line 2"
+    )
+
+    /// The reported case: a pasted `CREATE TABLE` + `INSERT`s dump run with
+    /// "Run". The connection doesn't negotiate multi-statements, so the
+    /// server parses only the first statement and raises `ER_PARSE_ERROR`
+    /// at the boundary — which mysql-nio surfaces as `.invalidSyntax`, not
+    /// a `.server` packet. "Run" should just re-run it properly.
+    func testMultiStatementDumpIsRetriedStatementByStatement() {
+        let dump = """
+        CREATE TABLE `a` (`id` int);
+        INSERT INTO `a` VALUES (1),(2),(3);
+        """
+        XCTAssertTrue(SQLConsoleViewModel.shouldRetryStatementByStatement(syntaxError, sql: dump))
+    }
+
+    /// A genuine one-statement typo raises the same `.invalidSyntax`.
+    /// Splitting can't help it, and retrying would only restate the error.
+    func testSingleStatementTypoIsNotRetried() {
+        XCTAssertFalse(SQLConsoleViewModel.shouldRetryStatementByStatement(
+            syntaxError, sql: "SELECT * FORM `widgets`;"
+        ))
+    }
+
+    /// A routine body is valid only when sent whole — the splitter would cut
+    /// it at the `;`s inside `BEGIN…END`, so a real error in the body must
+    /// be reported as-is rather than buried under fragment errors.
+    func testRoutineBodyIsNotRetried() {
+        let procedure = """
+        CREATE PROCEDURE `bump`(IN n INT)
+        BEGIN
+          UPDATE `a` SET `id` = `id` + n;
+          SELECT ROW_COUNT();
+        END
+        """
+        XCTAssertFalse(SQLConsoleViewModel.shouldRetryStatementByStatement(syntaxError, sql: procedure))
+    }
+
+    /// `BEGIN` as a transaction keyword isn't a routine body — a script
+    /// wrapping its statements in one still splits safely.
+    func testTransactionBlockIsStillRetried() {
+        let script = """
+        BEGIN;
+        INSERT INTO `a` VALUES (1);
+        COMMIT;
+        """
+        XCTAssertTrue(SQLConsoleViewModel.shouldRetryStatementByStatement(syntaxError, sql: script))
+    }
+
+    /// An unrelated failure (a missing table, say) must not trigger a
+    /// retry — the script ran as intended and simply failed.
+    func testUnrelatedErrorIsNotRetried() {
+        let error = MySQLError.duplicateEntry("Duplicate entry '1' for key 'PRIMARY'")
+        let dump = "INSERT INTO `a` VALUES (1);\nINSERT INTO `a` VALUES (2);"
+        XCTAssertFalse(SQLConsoleViewModel.shouldRetryStatementByStatement(error, sql: dump))
     }
 
     // MARK: - Unknown collation

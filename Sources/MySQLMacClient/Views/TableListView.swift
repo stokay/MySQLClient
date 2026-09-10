@@ -13,6 +13,20 @@ import SwiftUI
 struct TableListView: View {
     @ObservedObject var viewModel: SchemaTreeViewModel
     @Binding var selectedTable: TableInfo?
+    /// The database whose row shows the highlight — either clicked
+    /// directly, or (via the `onChange` in `body`) wherever `selectedTable`
+    /// just moved to, so selecting a table always drags the highlight along
+    /// with it instead of leaving a stale one behind on whatever database
+    /// was last clicked directly.
+    ///
+    /// Owned by `MainWindowView`, not `@State` here: it stopped being
+    /// "purely a display concern" once the SQL console started needing it.
+    /// Clicking a *database* row (no table selected) is the whole reason
+    /// `SQLConsoleViewModel.currentDatabaseHint` can be set at all in a
+    /// freshly opened database — driving that hint off `selectedTable`
+    /// alone left unqualified pasted SQL failing with "No database
+    /// selected" while the sidebar plainly showed a database highlighted.
+    @Binding var selectedDatabaseName: String?
     let insertionBridge: SQLInsertionBridge
     /// The connection's own identity, shown as a root row above the
     /// database list — the one sidebar row that isn't scoped to any single
@@ -43,15 +57,6 @@ struct TableListView: View {
     let onDropTrigger: (TriggerInfo) -> Void
     let onAlterEvent: (EventInfo) -> Void
     let onDropEvent: (EventInfo) -> Void
-
-    /// The database whose row should show the highlight — either clicked
-    /// directly, or (via the `onChange` below) wherever `selectedTable`
-    /// just moved to, so selecting a table always drags the highlight
-    /// along with it instead of leaving a stale one behind on whatever
-    /// database was last clicked directly. Purely a display concern, so it
-    /// lives here rather than being threaded up to `MainWindowView`
-    /// alongside `selectedTable`.
-    @State private var selectedDatabaseName: String?
 
     var body: some View {
         ScrollView {
