@@ -6,6 +6,13 @@
 CREATE TABLE IF NOT EXISTS analytics_events (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     device_id CHAR(36) NOT NULL,
+    -- Readable name for the device, e.g. "Türkiye-23": the country it was
+    -- first seen in plus a running number. Handed out by analytics.php
+    -- from the analytics_devices / country_names tables, which live in
+    -- device-names.sql — run that file after this one (skipping its
+    -- step 1, since the column is already here). NULL until the device
+    -- has been seen with a known country.
+    device_name VARCHAR(80) NULL,
     event_name VARCHAR(32) NOT NULL,
     feature VARCHAR(64) NULL,
     -- Code + description together, e.g. "1146 Table doesn't exist".
@@ -35,6 +42,7 @@ CREATE TABLE IF NOT EXISTS analytics_events (
     appearance VARCHAR(8) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
+    KEY idx_device_id (device_id),
     KEY idx_event_name (event_name),
     KEY idx_error_code (error_code),
     KEY idx_country (country),

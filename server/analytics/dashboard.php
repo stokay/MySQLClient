@@ -4,7 +4,9 @@
  * writes and renders them as charts and sortable tables.
  *
  * Deployment: upload next to analytics.php (same directory, so it picks
- * up the same config.php), then open
+ * up the same config.php) together with world-map.js (the country
+ * outlines for the map — without it the Countries list simply shows no
+ * map), then open
  * https://tokay.tr/MySQLClient/analytics/dashboard.php
  *
  * Access: a login form (not the browser's native Basic Auth popup — that
@@ -217,7 +219,7 @@ $daily = q($pdo, "
 $countries = q($pdo, "
     SELECT country, COUNT(DISTINCT device_id) AS devices, COUNT(*) AS events
     FROM analytics_events WHERE {$where} AND country IS NOT NULL
-    GROUP BY country ORDER BY devices DESC, events DESC LIMIT 60
+    GROUP BY country ORDER BY devices DESC, events DESC LIMIT 250
 ");
 
 $languages = q($pdo, "
@@ -281,8 +283,12 @@ $networks = q($pdo, "
     GROUP BY network_org, network_asn ORDER BY events DESC LIMIT 30
 ");
 
+// The flag next to a device is its home country — the one in its name —
+// not wherever this particular event came from, so "Türkiye-4" keeps the
+// Turkish flag on a trip. A device with no name yet has no flag either.
 $recent = q($pdo, "
-    SELECT device_id, event_name, feature, error_code, app_version, country, language, appearance, created_at
+    SELECT device_name, event_name, feature, error_code, app_version, language, appearance, created_at,
+           (SELECT d.country FROM analytics_devices d WHERE d.device_id = analytics_events.device_id) AS device_country
     FROM analytics_events WHERE {$where}
     ORDER BY id DESC LIMIT 60
 ");
@@ -350,6 +356,33 @@ function maxOf(array $rows, string $key): int
 }
 
 $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'All time'];
+
+// The lists below the chart are opt-in: each one is a chip in the picker
+// and only the chosen ones are shown (the choice lives in the browser's
+// localStorage). Key => [chip label, row count or null for no badge].
+$panels = [
+    'countries' => ['Countries', count($countries)],
+    'languages' => ['Languages', count($languages)],
+    'features' => ['Features', count($features)],
+    'errors' => ['Errors', count($errors)],
+    'versions' => ['App versions', count($versions)],
+    'os' => ['macOS versions', count($osVersions)],
+    'models' => ['Mac models', count($models)],
+    'networks' => ['Networks', count($networks)],
+    'recent' => ['Recent events', null],
+];
+
+$mapRows = [];
+foreach ($countries as $row) {
+    $mapRows[] = [
+        'cc' => strtoupper((string) $row['country']),
+        'devices' => (int) $row['devices'],
+        'events' => (int) $row['events'],
+    ];
+}
+// Optional file: the dashboard still works (minus the map) if it wasn't uploaded.
+$mapFile = __DIR__ . '/world-map.js';
+$mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -370,6 +403,8 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
     --accent-soft: rgba(59, 110, 245, .12);
     --accent-2: #17a67c;
     --danger: #d93a3a;
+    --map-empty: #dde2e9;
+    --seq-1: #bfd0fb; --seq-2: #94b0f9; --seq-3: #668cf6; --seq-4: #3a66e0; --seq-5: #1e3f9e;
     --shadow: 0 1px 2px rgba(16, 20, 28, .06), 0 4px 16px rgba(16, 20, 28, .05);
     --radius: 12px;
     color-scheme: light;
@@ -386,6 +421,8 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
       --accent-soft: rgba(91, 140, 255, .16);
       --accent-2: #3fb98a;
       --danger: #f0665f;
+      --map-empty: #252c37;
+      --seq-1: #253d75; --seq-2: #2f55a8; --seq-3: #4472db; --seq-4: #6c98ff; --seq-5: #b4caff;
       --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
       color-scheme: dark;
     }
@@ -401,6 +438,8 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
     --accent-soft: rgba(91, 140, 255, .16);
     --accent-2: #3fb98a;
     --danger: #f0665f;
+    --map-empty: #252c37;
+    --seq-1: #253d75; --seq-2: #2f55a8; --seq-3: #4472db; --seq-4: #6c98ff; --seq-5: #b4caff;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
     color-scheme: dark;
   }
@@ -444,7 +483,14 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
     transition: color .15s, border-color .15s;
   }
   .btn:hover { color: var(--text); }
-  .btn.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .btn.on, .btn[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+  .picker { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 18px; }
+  .picker-label { color: var(--muted); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; margin-right: 2px; }
+  .picker .btn { padding: 6px 12px; border-radius: 999px; box-shadow: none; }
+  .picker .btn span { font-size: 11px; font-variant-numeric: tabular-nums; opacity: .7; }
+  .picker .plain { background: none; border: none; color: var(--accent); font: inherit; font-size: 13px; cursor: pointer; padding: 6px 4px; }
+  .picker .plain:hover { text-decoration: underline; }
 
   .kpis {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -471,6 +517,39 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
 
   .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)); gap: 18px; }
   .grid2 .card { margin-bottom: 0; }
+  .grid2.single { grid-template-columns: minmax(0, 1fr); }
+  .grid2 .wide { grid-column: 1 / -1; }
+  .grid2 > .empty { grid-column: 1 / -1; }
+
+  /* Countries: map beside the table once world-map.js has loaded. */
+  .split { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .split.has-map { grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr); }
+  .split.has-map .scroll { border-left: 1px solid var(--border); }
+  .split.has-map .bar-cell { display: none; } /* the map already carries the magnitude */
+  .split.has-map th, .split.has-map td { padding-left: 14px; padding-right: 14px; }
+  @media (max-width: 860px) {
+    .split.has-map { grid-template-columns: minmax(0, 1fr); }
+    .split.has-map .scroll { border-left: none; border-top: 1px solid var(--border); }
+  }
+  .map-wrap { position: relative; padding: 16px 18px 0; }
+  .map { width: 100%; height: auto; aspect-ratio: var(--map-aspect, 2000 / 879); display: block; -webkit-user-select: none; user-select: none; }
+  .map.zoomed { cursor: grab; touch-action: none; }
+  .map.dragging { cursor: grabbing; }
+  .map-zoom { position: absolute; top: 16px; right: 18px; z-index: 2; display: flex; flex-direction: column; gap: 6px; }
+  .map-zoom .btn { width: 30px; height: 30px; padding: 0; justify-content: center; font-size: 16px; line-height: 1; }
+  .map-zoom .btn:disabled { opacity: .4; cursor: default; color: var(--muted); }
+  .map-zoom .btn svg { display: block; }
+  .map-hint { margin-left: auto; }
+  /* Full screen (or, where the browser has no such thing, filling the window): the map takes whatever shape it's given. */
+  .map-wrap.is-full { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; background: var(--surface); padding: 20px 24px 0; }
+  .map-wrap.is-full .map { flex: 1; min-height: 0; aspect-ratio: auto; }
+  .map-wrap.is-full .map-zoom { top: 20px; right: 24px; }
+  .map path { fill: var(--map-empty); stroke: var(--surface); stroke-width: .75; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+  .map path.hover { fill: none; stroke: var(--text); stroke-width: 1.25; pointer-events: none; }
+  /* Device-count bubbles: neutral disc, ink-coloured number, ring in the country's shade. */
+  .map circle { fill: var(--surface); stroke-width: 2; vector-effect: non-scaling-stroke; cursor: default; }
+  .map text { fill: var(--text); font-weight: 600; text-anchor: middle; dominant-baseline: central; font-variant-numeric: tabular-nums; pointer-events: none; }
+  .map-legend { padding: 12px 0 14px; flex-wrap: wrap; gap: 6px 14px; }
 
   .banner {
     background: var(--accent-soft); border: 1px solid var(--border); color: var(--text);
@@ -583,11 +662,38 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
     </div>
   </section>
 
-  <div class="grid2">
+  <noscript><style>.picker { display: none; } [data-panel][hidden] { display: block !important; }</style></noscript>
 
-    <section class="card">
+  <nav class="picker" aria-label="Lists to show">
+    <span class="picker-label">Show</span>
+    <?php foreach ($panels as $key => [$label, $count]): ?>
+      <button class="btn" type="button" data-panel-toggle="<?= h($key) ?>" aria-pressed="false"><?= h($label) ?><?php if ($count !== null): ?> <span><?= number_format($count) ?></span><?php endif; ?></button>
+    <?php endforeach; ?>
+    <button class="plain" type="button" data-panel-set="all">All</button>
+    <button class="plain" type="button" data-panel-set="none">None</button>
+  </nav>
+
+  <div class="grid2" id="panels">
+
+    <div class="empty" id="no-panels" hidden>Pick a list above to show it here.</div>
+
+    <section class="card wide" data-panel="countries" hidden>
       <h2>Countries <span>where the app is used</span></h2>
       <?php if (!$countries): ?><div class="empty">No data in this range.</div><?php else: $m = maxOf($countries, 'devices'); ?>
+      <div class="split" id="countries-split">
+      <div class="map-wrap" id="map-wrap" hidden>
+        <svg id="map" class="map" role="img" aria-label="World map of unique devices per country"></svg>
+        <div class="map-zoom">
+          <button class="btn" type="button" id="map-zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+          <button class="btn" type="button" id="map-zoom-out" title="Zoom out" aria-label="Zoom out">−</button>
+          <button class="btn" type="button" id="map-zoom-reset" title="Show the whole map" aria-label="Show the whole map">↺</button>
+          <button class="btn" type="button" id="map-full" title="Full screen" aria-label="Full screen" aria-pressed="false">
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg>
+          </button>
+        </div>
+        <div class="legend map-legend" id="map-legend"></div>
+        <div class="tip" id="map-tip"></div>
+      </div>
       <div class="scroll"><table data-sortable-table>
         <thead><tr>
           <th data-sortable data-type="text">Country</th>
@@ -606,10 +712,11 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
         <?php endforeach; ?>
         </tbody>
       </table></div>
+      </div>
       <?php endif; ?>
     </section>
 
-    <section class="card">
+    <section class="card" data-panel="languages" hidden>
       <h2>Languages <span>what to localize next</span></h2>
       <?php if (!$languages): ?><div class="empty">No data in this range.</div><?php else: $m = maxOf($languages, 'devices'); ?>
       <div class="scroll"><table data-sortable-table>
@@ -633,7 +740,7 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
       <?php endif; ?>
     </section>
 
-    <section class="card">
+    <section class="card" data-panel="features" hidden>
       <h2>Features <span>what people actually use</span></h2>
       <?php if (!$features): ?><div class="empty">No feature usage in this range.</div><?php else: $m = maxOf($features, 'uses'); ?>
       <div class="scroll"><table data-sortable-table>
@@ -657,7 +764,7 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
       <?php endif; ?>
     </section>
 
-    <section class="card">
+    <section class="card" data-panel="errors" hidden>
       <h2>Errors <span>code and where it happened</span></h2>
       <?php if (!$errors): ?><div class="empty">No errors in this range. 🎉</div><?php else: $m = maxOf($errors, 'hits'); ?>
       <div class="scroll"><table data-sortable-table>
@@ -681,7 +788,7 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
       <?php endif; ?>
     </section>
 
-    <section class="card">
+    <section class="card" data-panel="versions" hidden>
       <h2>App versions <span>update adoption</span></h2>
       <?php if (!$versions): ?><div class="empty">No data in this range.</div><?php else: $m = maxOf($versions, 'devices'); ?>
       <div class="scroll"><table data-sortable-table>
@@ -705,7 +812,7 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
       <?php endif; ?>
     </section>
 
-    <section class="card">
+    <section class="card" data-panel="os" hidden>
       <h2>macOS versions <span>minimum-target planning</span></h2>
       <?php if (!$osVersions): ?><div class="empty">No data in this range.</div><?php else: $m = maxOf($osVersions, 'devices'); ?>
       <div class="scroll"><table data-sortable-table>
@@ -727,7 +834,7 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
       <?php endif; ?>
     </section>
 
-    <section class="card">
+    <section class="card" data-panel="models" hidden>
       <h2>Mac models</h2>
       <?php if (!$models): ?><div class="empty">No data in this range.</div><?php else: $m = maxOf($models, 'devices'); ?>
       <div class="scroll"><table data-sortable-table>
@@ -749,7 +856,7 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
       <?php endif; ?>
     </section>
 
-    <section class="card">
+    <section class="card" data-panel="networks" hidden>
       <h2>Networks <span>useful for spotting review traffic</span></h2>
       <?php if (!$networks): ?><div class="empty">No data in this range.</div><?php else: $m = maxOf($networks, 'events'); ?>
       <div class="scroll"><table data-sortable-table>
@@ -773,41 +880,42 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
       <?php endif; ?>
     </section>
 
-  </div>
+    <section class="card wide" data-panel="recent" hidden>
+      <h2>Recent events <span>latest 60</span></h2>
+      <?php if (!$recent): ?><div class="empty">Nothing recorded in this range.</div><?php else: ?>
+      <div class="scroll"><table data-sortable-table>
+        <thead><tr>
+          <th data-sortable data-type="text">When</th>
+          <th data-sortable data-type="text">Device</th>
+          <th data-sortable data-type="text">Language</th>
+          <th data-sortable data-type="text">Mode</th>
+          <th data-sortable data-type="text">Event</th>
+          <th data-sortable data-type="text">Detail</th>
+          <th data-sortable data-type="text">Version</th>
+        </tr></thead>
+        <tbody>
+        <?php foreach ($recent as $row): ?>
+          <tr>
+            <td class="mono" data-sort="<?= h($row['created_at']) ?>"><?= h(date('d M H:i', strtotime((string) $row['created_at']))) ?></td>
+            <td class="device" data-cc="<?= h($row['device_country']) ?>" data-sort="<?= h($row['device_name']) ?>"><?= h($row['device_name'] ?? '—') ?></td>
+            <td class="lang" data-lc="<?= h($row['language']) ?>"><?= h($row['language'] ?? '—') ?></td>
+            <td data-sort="<?= h($row['appearance']) ?>"><?= $row['appearance'] === 'dark' ? '🌙' : ($row['appearance'] === 'light' ? '☀️' : '—') ?></td>
+            <td><?= h(str_replace('_', ' ', (string) $row['event_name'])) ?></td>
+            <td class="mono"><?= h($row['error_code'] ?? $row['feature'] ?? '—') ?></td>
+            <td class="mono"><?= h($row['app_version'] ?? '—') ?></td>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table></div>
+      <?php endif; ?>
+    </section>
 
-  <section class="card" style="margin-top: 18px;">
-    <h2>Recent events <span>latest 60</span></h2>
-    <?php if (!$recent): ?><div class="empty">Nothing recorded in this range.</div><?php else: ?>
-    <div class="scroll"><table data-sortable-table>
-      <thead><tr>
-        <th data-sortable data-type="text">When</th>
-        <th data-sortable data-type="text">Country</th>
-        <th data-sortable data-type="text">Language</th>
-        <th data-sortable data-type="text">Mode</th>
-        <th data-sortable data-type="text">Event</th>
-        <th data-sortable data-type="text">Detail</th>
-        <th data-sortable data-type="text">Version</th>
-      </tr></thead>
-      <tbody>
-      <?php foreach ($recent as $row): ?>
-        <tr>
-          <td class="mono" data-sort="<?= h($row['created_at']) ?>"><?= h(date('d M H:i', strtotime((string) $row['created_at']))) ?></td>
-          <td class="country" data-cc="<?= h($row['country']) ?>"><?= h($row['country'] ?? '—') ?></td>
-          <td class="lang" data-lc="<?= h($row['language']) ?>"><?= h($row['language'] ?? '—') ?></td>
-          <td data-sort="<?= h($row['appearance']) ?>"><?= $row['appearance'] === 'dark' ? '🌙' : ($row['appearance'] === 'light' ? '☀️' : '—') ?></td>
-          <td><?= h(str_replace('_', ' ', (string) $row['event_name'])) ?></td>
-          <td class="mono"><?= h($row['error_code'] ?? $row['feature'] ?? '—') ?></td>
-          <td class="mono"><?= h($row['app_version'] ?? '—') ?></td>
-        </tr>
-      <?php endforeach; ?>
-      </tbody>
-    </table></div>
-    <?php endif; ?>
-  </section>
+  </div>
 
   <footer>MySQL Client analytics · no IP addresses are stored</footer>
 </div>
 
+<?php if ($mapVersion !== null): ?><script src="world-map.js?v=<?= $mapVersion ?>"></script><?php endif; ?>
 <script>
 (function () {
   // ---- Theme -------------------------------------------------------
@@ -824,6 +932,54 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
     try { localStorage.setItem('dash-theme', next); } catch (e) {}
     draw();
   });
+
+  // ---- Panel picker ------------------------------------------------
+  // Which lists are on screen is the viewer's choice, remembered per
+  // browser. Everything is already in the page, so toggling is instant.
+  var redrawMap = function () {}; // set by the world map below; its bubbles are sized from the map's on-screen width
+  var panelGrid = document.getElementById('panels');
+  var panelToggles = Array.prototype.slice.call(document.querySelectorAll('[data-panel-toggle]'));
+  var shownPanels = ['countries'];
+  try {
+    var savedPanels = JSON.parse(localStorage.getItem('dash-panels'));
+    if (Array.isArray(savedPanels)) shownPanels = savedPanels;
+  } catch (e) {}
+
+  function applyPanels() {
+    var visible = 0;
+    panelToggles.forEach(function (btn) {
+      var key = btn.dataset.panelToggle;
+      var on = shownPanels.indexOf(key) !== -1;
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      panelGrid.querySelector('[data-panel="' + key + '"]').hidden = !on;
+      if (on) visible++;
+    });
+    panelGrid.classList.toggle('single', visible === 1);
+    document.getElementById('no-panels').hidden = visible > 0;
+    redrawMap();
+  }
+  function setPanels(keys) {
+    shownPanels = keys;
+    try { localStorage.setItem('dash-panels', JSON.stringify(keys)); } catch (e) {}
+    applyPanels();
+  }
+
+  panelToggles.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var key = btn.dataset.panelToggle;
+      setPanels(shownPanels.indexOf(key) === -1
+        ? shownPanels.concat(key)
+        : shownPanels.filter(function (k) { return k !== key; }));
+    });
+  });
+  document.querySelectorAll('[data-panel-set]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setPanels(btn.dataset.panelSet === 'all'
+        ? panelToggles.map(function (b) { return b.dataset.panelToggle; })
+        : []);
+    });
+  });
+  applyPanels();
 
   // ---- Friendly country / language names ---------------------------
   var regionNames = null, langNames = null;
@@ -845,6 +1001,9 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
     var name = cc;
     try { name = regionNames ? regionNames.of(cc) : cc; } catch (e) {}
     td.textContent = flag(cc) + ' ' + name;
+  });
+  document.querySelectorAll('td.device').forEach(function (td) {
+    if (td.dataset.cc) td.textContent = flag(td.dataset.cc) + ' ' + td.textContent;
   });
   document.querySelectorAll('td.lang').forEach(function (td) {
     var lc = td.dataset.lc;
@@ -1004,8 +1163,287 @@ $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'Al
   var resizeTimer;
   addEventListener('resize', function () {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(draw, 120);
+    resizeTimer = setTimeout(function () { draw(); redrawMap(); }, 120);
   });
+
+  // ---- World map ---------------------------------------------------
+  // Countries shaded by unique devices. Colours are CSS variables, so the
+  // theme toggle repaints it without a redraw.
+  var world = window.DASH_WORLD_MAP;
+  var mapRows = <?= json_encode($mapRows) ?>;
+  var mapWrap = document.getElementById('map-wrap');
+  if (world && mapWrap && mapRows.length) {
+    var map = document.getElementById('map');
+    var mapTip = document.getElementById('map-tip');
+    var byCode = {}, maxDevices = 1;
+    mapRows.forEach(function (row) {
+      byCode[row.cc] = row;
+      maxDevices = Math.max(maxDevices, row.devices);
+    });
+
+    // Usage piles up in a few countries, so the (at most five) bins widen
+    // geometrically — 1–2, 3–4, 5–9… — instead of splitting the range
+    // evenly and leaving everything but the leader in the palest shade.
+    var breaks = [];
+    for (var step = 1; step <= 5; step++) {
+      var upper = Math.max(breaks.length ? breaks[breaks.length - 1] + 1 : 1,
+        Math.round(Math.pow(maxDevices, step / 5)));
+      if (upper >= maxDevices) { breaks.push(maxDevices); break; }
+      breaks.push(upper);
+    }
+    function shade(devices) {
+      var bin = 0;
+      while (bin < breaks.length - 1 && devices > breaks[bin]) bin++;
+      return 'var(--seq-' + (breaks.length === 1 ? 4 : 1 + Math.round(bin * 4 / (breaks.length - 1))) + ')';
+    }
+    function fmt(n) { return n.toLocaleString('en'); }
+    function count(n, noun) { return fmt(n) + ' ' + noun + (n === 1 ? '' : 's'); }
+    function short(n) { return n < 1000 ? String(n) : (n / 1000).toFixed(n < 10000 ? 1 : 0) + 'k'; }
+
+    // The part of the map on screen, in map units — the SVG's viewBox is the camera.
+    var view = { x: 0, y: 0, w: world.w, h: world.h };
+    map.style.setProperty('--map-aspect', world.w + ' / ' + world.h);
+    var land = document.createElementNS(NS, 'g');
+    Object.keys(world.shapes).forEach(function (cc) {
+      var shape = document.createElementNS(NS, 'path');
+      shape.setAttribute('d', world.shapes[cc]);
+      shape.setAttribute('data-cc', cc);
+      if (byCode[cc]) shape.style.fill = shade(byCode[cc].devices);
+      land.appendChild(shape);
+    });
+    map.appendChild(land);
+    // Outline of the hovered country, drawn above its neighbours so
+    // none of them covers part of it.
+    var hover = document.createElementNS(NS, 'path');
+    hover.setAttribute('class', 'hover');
+    map.appendChild(hover);
+
+    // One bubble per country with data, carrying its device count. This
+    // is also what makes places with no visible outline at this scale —
+    // Singapore, Hong Kong, Malta… — show up at all. Smallest counts
+    // first, so that where bubbles still touch the bigger one is on top.
+    var bubbles = [];
+    mapRows.slice().sort(function (a, b) { return a.devices - b.devices; }).forEach(function (row) {
+      var at = world.points[row.cc];
+      if (!at) return;
+      var disc = document.createElementNS(NS, 'circle');
+      disc.setAttribute('data-cc', row.cc);
+      disc.style.stroke = shade(row.devices);
+      var label = document.createElementNS(NS, 'text');
+      label.textContent = short(row.devices);
+      map.appendChild(disc);
+      map.appendChild(label);
+      bubbles.push({ disc: disc, label: label, homeX: at[0], homeY: at[1], chars: label.textContent.length });
+    });
+
+    // Bubbles keep one on-screen size whatever the map's width or zoom,
+    // so their size in map units — and how far crowded ones (Europe)
+    // must nudge apart — depends on the current scale. Re-run whenever
+    // that changes; zooming in is what un-crowds them.
+    function placeBubbles() {
+      var scale = map.getBoundingClientRect().width / view.w;
+      if (!scale) return; // panel hidden; runs again when it's shown
+      bubbles.forEach(function (b) {
+        b.x = b.homeX; b.y = b.homeY;
+        b.r = Math.max(9, b.chars * 3.2 + 3) / scale;
+      });
+      var gap = 1 / scale;
+      for (var pass = 0; pass < 80; pass++) {
+        for (var i = 0; i < bubbles.length; i++) {
+          for (var j = i + 1; j < bubbles.length; j++) {
+            var a = bubbles[i], b = bubbles[j];
+            var dx = b.x - a.x, dy = b.y - a.y;
+            var dist = Math.sqrt(dx * dx + dy * dy) || 0.01;
+            var overlap = a.r + b.r + gap - dist;
+            if (overlap <= 0) continue;
+            var push = overlap / 2 / dist;
+            a.x -= dx * push; a.y -= dy * push;
+            b.x += dx * push; b.y += dy * push;
+          }
+        }
+        // …while a gentle pull home stops a nudged bubble drifting off its country.
+        bubbles.forEach(function (b) {
+          b.x += (b.homeX - b.x) * 0.04;
+          b.y += (b.homeY - b.y) * 0.04;
+        });
+      }
+      bubbles.forEach(function (b) {
+        b.x = Math.min(Math.max(b.x, b.r), world.w - b.r);
+        b.y = Math.min(Math.max(b.y, b.r), world.h - b.r);
+        b.disc.setAttribute('cx', b.x); b.disc.setAttribute('cy', b.y); b.disc.setAttribute('r', b.r);
+        b.label.setAttribute('x', b.x); b.label.setAttribute('y', b.y);
+        b.label.setAttribute('font-size', 11 / scale);
+      });
+    }
+
+    var mapLegend = document.getElementById('map-legend');
+    var legendTitle = document.createElement('span');
+    legendTitle.textContent = 'Unique devices';
+    mapLegend.appendChild(legendTitle);
+    breaks.forEach(function (to, i) {
+      var from = i ? breaks[i - 1] + 1 : 1;
+      var item = document.createElement('span'), swatch = document.createElement('i');
+      swatch.style.background = shade(to);
+      item.appendChild(swatch);
+      item.appendChild(document.createTextNode(from === to ? fmt(to) : fmt(from) + '–' + fmt(to)));
+      mapLegend.appendChild(item);
+    });
+    var mapHint = document.createElement('span');
+    mapHint.className = 'map-hint';
+    mapHint.textContent = 'Pinch or ⌘-scroll to zoom · drag to move';
+    mapLegend.appendChild(mapHint);
+
+    function clearHover() {
+      mapTip.style.opacity = 0;
+      hover.removeAttribute('d');
+    }
+    map.addEventListener('mousemove', function (ev) {
+      var cc = ev.target.getAttribute && ev.target.getAttribute('data-cc');
+      if (drag || !cc || cc.charAt(0) === '_') { clearHover(); return; } // "_n" = land with no ISO code
+      hover.setAttribute('d', world.shapes[cc] || '');
+      var row = byCode[cc], name = cc;
+      try { name = regionNames ? regionNames.of(cc) : cc; } catch (e) {}
+      var title = document.createElement('b');
+      title.textContent = flag(cc) + ' ' + name;
+      mapTip.textContent = '';
+      mapTip.appendChild(title);
+      mapTip.appendChild(document.createElement('br'));
+      mapTip.appendChild(document.createTextNode(row
+        ? count(row.devices, 'device') + ' · ' + count(row.events, 'event')
+        : 'No data'));
+      mapTip.style.opacity = 1;
+      var rect = mapWrap.getBoundingClientRect(), tw = mapTip.offsetWidth;
+      mapTip.style.left = Math.min(Math.max(ev.clientX - rect.left - tw / 2, 4), rect.width - tw - 4) + 'px';
+      mapTip.style.top = Math.max(ev.clientY - rect.top - mapTip.offsetHeight - 12, 0) + 'px';
+    });
+    map.addEventListener('mouseleave', clearHover);
+
+    // Zoom & pan. Plain scrolling is left to the page — the map sits in
+    // the middle of it — so the wheel only zooms with ⌘/Ctrl held, which
+    // is also how Chrome and Firefox report a trackpad pinch.
+    var MAX_ZOOM = 12;
+    var zoomIn = document.getElementById('map-zoom-in');
+    var zoomOut = document.getElementById('map-zoom-out');
+    var zoomReset = document.getElementById('map-zoom-reset');
+
+    /** The map element's shape (it changes in full screen) and the widest view that still shows the whole world in it. */
+    function frame() {
+      var rect = map.getBoundingClientRect();
+      var aspect = rect.width ? rect.height / rect.width : world.h / world.w;
+      return { aspect: aspect, maxW: Math.max(world.w, world.h / aspect) };
+    }
+    /** Keeps the view inside the world along one axis — or centres the world when the view is larger than it. */
+    function bound(start, size, total) {
+      return size >= total ? (total - size) / 2 : Math.min(Math.max(start, 0), total - size);
+    }
+    function showView() {
+      var f = frame(), centreY = view.y + view.h / 2;
+      view.w = Math.min(Math.max(view.w, world.w / MAX_ZOOM), f.maxW);
+      view.h = view.w * f.aspect;
+      view.x = bound(view.x, view.w, world.w);
+      view.y = bound(centreY - view.h / 2, view.h, world.h);
+      map.setAttribute('viewBox', [view.x, view.y, view.w, view.h].join(' '));
+      var zoomed = view.w < f.maxW * 0.999;
+      map.classList.toggle('zoomed', zoomed);
+      zoomOut.disabled = zoomReset.disabled = !zoomed;
+      zoomIn.disabled = view.w <= world.w / MAX_ZOOM * 1.001;
+      placeBubbles();
+    }
+    /** For when the map's size or shape changed: a zoomed-out map stays zoomed out, a zoomed-in one keeps its centre. */
+    function refit() {
+      if (!map.classList.contains('zoomed')) view.w = Infinity;
+      showView();
+    }
+    redrawMap = refit;
+    /** Zooms by `factor`, keeping whatever is under the given screen point under it. */
+    function zoomAt(clientX, clientY, factor) {
+      var rect = map.getBoundingClientRect(), f = frame();
+      var fx = (clientX - rect.left) / rect.width, fy = (clientY - rect.top) / rect.height;
+      var anchorX = view.x + fx * view.w, anchorY = view.y + fy * view.h;
+      view.w = Math.min(Math.max(view.w / factor, world.w / MAX_ZOOM), f.maxW);
+      view.h = view.w * f.aspect;
+      view.x = anchorX - fx * view.w;
+      view.y = anchorY - fy * view.h;
+      showView();
+    }
+    function zoomCentre(factor) {
+      var rect = map.getBoundingClientRect();
+      zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, factor);
+    }
+    zoomIn.addEventListener('click', function () { zoomCentre(1.6); });
+    zoomOut.addEventListener('click', function () { zoomCentre(1 / 1.6); });
+    zoomReset.addEventListener('click', function () { view.w = Infinity; showView(); });
+    map.addEventListener('dblclick', function (ev) { zoomAt(ev.clientX, ev.clientY, 2); });
+    map.addEventListener('wheel', function (ev) {
+      if (!ev.ctrlKey && !ev.metaKey) return;
+      ev.preventDefault();
+      // A mouse wheel reports ~100 per notch, a pinch a few units per frame: cap it so neither jumps.
+      zoomAt(ev.clientX, ev.clientY, Math.exp(-Math.max(-30, Math.min(30, ev.deltaY)) * 0.012));
+    }, { passive: false });
+    // Safari reports a trackpad pinch as its own gesture events instead.
+    var pinchFrom = 0;
+    map.addEventListener('gesturestart', function (ev) { ev.preventDefault(); pinchFrom = view.w; });
+    map.addEventListener('gesturechange', function (ev) {
+      ev.preventDefault();
+      if (pinchFrom && ev.scale > 0) zoomAt(ev.clientX, ev.clientY, view.w * ev.scale / pinchFrom);
+    });
+
+    var drag = null;
+    map.addEventListener('pointerdown', function (ev) {
+      if (ev.button !== 0 || !map.classList.contains('zoomed')) return;
+      drag = { id: ev.pointerId, fromX: ev.clientX, fromY: ev.clientY, viewX: view.x, viewY: view.y };
+      map.setPointerCapture(ev.pointerId);
+      map.classList.add('dragging');
+      clearHover();
+    });
+    map.addEventListener('pointermove', function (ev) {
+      if (!drag || ev.pointerId !== drag.id) return;
+      var unitsPerPx = view.w / map.getBoundingClientRect().width;
+      view.x = drag.viewX - (ev.clientX - drag.fromX) * unitsPerPx;
+      view.y = drag.viewY - (ev.clientY - drag.fromY) * unitsPerPx;
+      showView();
+    });
+    function endDrag(ev) {
+      if (!drag || ev.pointerId !== drag.id) return;
+      drag = null;
+      map.classList.remove('dragging');
+    }
+    map.addEventListener('pointerup', endDrag);
+    map.addEventListener('pointercancel', endDrag);
+
+    // Full screen. Safari before 16.4 only has the prefixed API, and
+    // iPhones have none at all — there the map fills the window instead.
+    var fullButton = document.getElementById('map-full');
+    var requestFull = mapWrap.requestFullscreen || mapWrap.webkitRequestFullscreen;
+    var exitFull = document.exitFullscreen || document.webkitExitFullscreen;
+    function fullElement() { return document.fullscreenElement || document.webkitFullscreenElement; }
+    function showFull(on) {
+      mapWrap.classList.toggle('is-full', on);
+      fullButton.title = on ? 'Exit full screen' : 'Full screen';
+      fullButton.setAttribute('aria-label', fullButton.title);
+      fullButton.setAttribute('aria-pressed', on ? 'true' : 'false');
+      clearHover();
+      refit();
+    }
+    fullButton.addEventListener('click', function () {
+      if (fullElement()) { exitFull.call(document); return; }
+      if (mapWrap.classList.contains('is-full')) { showFull(false); return; }
+      if (!requestFull) { showFull(true); return; }
+      var entering = requestFull.call(mapWrap);
+      if (entering && entering.catch) entering.catch(function () { showFull(true); });
+    });
+    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (type) {
+      document.addEventListener(type, function () { showFull(fullElement() === mapWrap); });
+    });
+    document.addEventListener('keydown', function (ev) {
+      // Real full screen handles Esc itself; this is for the fill-the-window fallback.
+      if (ev.key === 'Escape' && mapWrap.classList.contains('is-full') && !fullElement()) showFull(false);
+    });
+
+    mapWrap.hidden = false;
+    document.getElementById('countries-split').classList.add('has-map');
+    showView();
+  }
 })();
 </script>
 </body>

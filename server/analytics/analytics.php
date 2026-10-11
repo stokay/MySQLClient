@@ -5,7 +5,8 @@
  * Deployment (cPanel File Manager, manual — this host isn't served by the
  * app's GitHub repo):
  *   1. Create a MySQL database on tokay.tr (or reuse an existing one) and
- *      run schema.sql against it once, e.g. via phpMyAdmin.
+ *      run schema.sql against it once, e.g. via phpMyAdmin, then
+ *      device-names.sql (see the note at its top about step 1).
  *   2. Copy config.sample.php to config.php in this same directory and
  *      fill in the real DB host/name/user/password. config.php is
  *      gitignored — never commit it.
@@ -67,6 +68,79 @@ function analytics_string(array $body, string $key, int $maxLength): ?string
         return null;
     }
     return mb_substr($value, 0, $maxLength);
+}
+
+/**
+ * The device's readable name ("Türkiye-23"), handing it one if this is the
+ * first time it shows up with a known country — or null while it has none.
+ *
+ * Named after the country it was FIRST located in, numbered in order of
+ * appearance within that country, and never renamed afterwards. A device
+ * whose first events had no country (failed geo-IP lookup) stays unnamed
+ * until one does, and those earlier events are then labelled too.
+ */
+function analytics_device_name(PDO $pdo, string $deviceId, ?string $country): ?string
+{
+    $existing = $pdo->prepare('SELECT device_name FROM analytics_devices WHERE device_id = :device_id');
+    $existing->execute(['device_id' => $deviceId]);
+    $name = $existing->fetchColumn();
+    if (is_string($name)) {
+        return $name;
+    }
+    if ($country === null) {
+        return null;
+    }
+
+    // A code that isn't in country_names yet names the device after the
+    // bare code ("XX-1") — same fallback as mysql_error_codes below.
+    $lookup = $pdo->prepare('SELECT name FROM country_names WHERE code = :code');
+    $lookup->execute(['code' => $country]);
+    $label = $lookup->fetchColumn();
+    if (!is_string($label)) {
+        $label = $country;
+    }
+
+    // Next number for this country, taken and stored in one statement. Two
+    // requests can still pick the same number at the same instant; the
+    // table's unique keys reject the loser, which waits a moment and tries
+    // again — or, if it was this very device's other request that won,
+    // finds the name already there. Giving up is harmless: the event is
+    // stored unnamed and the device's next event names both.
+    $claim = $pdo->prepare(
+        'INSERT INTO analytics_devices (device_id, country, seq, device_name)
+         SELECT :device_id, :country, COALESCE(MAX(seq), 0) + 1, CONCAT(:label, \'-\', COALESCE(MAX(seq), 0) + 1)
+         FROM analytics_devices WHERE country = :same_country'
+    );
+    $claimed = false;
+    for ($attempt = 0; $attempt < 6 && !$claimed; $attempt++) {
+        try {
+            $claim->execute([
+                'device_id' => $deviceId,
+                'country' => $country,
+                'label' => $label,
+                'same_country' => $country,
+            ]);
+            $claimed = true;
+        } catch (PDOException $e) {
+            $existing->execute(['device_id' => $deviceId]);
+            if (is_string($existing->fetchColumn())) {
+                break;
+            }
+            usleep(random_int(5000, 40000));
+        }
+    }
+
+    $existing->execute(['device_id' => $deviceId]);
+    $name = $existing->fetchColumn();
+    if (!is_string($name)) {
+        return null;
+    }
+    if ($claimed) {
+        // Freshly named: label whatever it sent before it could be located.
+        $relabel = $pdo->prepare('UPDATE analytics_events SET device_name = :name WHERE device_id = :device_id AND device_name IS NULL');
+        $relabel->execute(['name' => $name, 'device_id' => $deviceId]);
+    }
+    return $name;
 }
 
 $deviceId = $body['device_id'] ?? null;
@@ -173,14 +247,23 @@ try {
             : (string) $errorCode;
     }
 
+    // Naming is a nicety: if it fails (say, device-names.sql hasn't been
+    // run yet) the event is still recorded, just without a name.
+    try {
+        $deviceName = analytics_device_name($pdo, $deviceId, $country);
+    } catch (Throwable $e) {
+        $deviceName = null;
+    }
+
     $statement = $pdo->prepare(
         'INSERT INTO analytics_events
-            (device_id, event_name, feature, error_code, app_version, os_version, device_model, language, timezone, country, network_org, network_asn, appearance)
+            (device_id, device_name, event_name, feature, error_code, app_version, os_version, device_model, language, timezone, country, network_org, network_asn, appearance)
          VALUES
-            (:device_id, :event_name, :feature, :error_code, :app_version, :os_version, :device_model, :language, :timezone, :country, :network_org, :network_asn, :appearance)'
+            (:device_id, :device_name, :event_name, :feature, :error_code, :app_version, :os_version, :device_model, :language, :timezone, :country, :network_org, :network_asn, :appearance)'
     );
     $statement->execute([
         'device_id' => $deviceId,
+        'device_name' => $deviceName,
         'event_name' => $eventName,
         'feature' => $feature,
         'error_code' => $errorCode,
