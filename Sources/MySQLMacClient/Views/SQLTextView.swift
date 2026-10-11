@@ -95,6 +95,9 @@ struct SQLTextView: NSViewRepresentable {
     /// to a plain non-`@Published` var on the view model on purpose — see
     /// `TableDataViewModel.querySelectedText`.
     @Binding var selectedText: String?
+    /// Where that selection starts in the text (UTF-16 offset), `nil`
+    /// alongside `selectedText`.
+    @Binding var selectionStart: Int?
 
     static let keywords: Set<String> = [
         "select", "from", "where", "insert", "into", "values", "update", "set",
@@ -308,13 +311,14 @@ struct SQLTextView: NSViewRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text, selectedText: $selectedText)
+        Coordinator(text: $text, selectedText: $selectedText, selectionStart: $selectionStart)
     }
 
     @MainActor
     final class Coordinator: NSObject, NSTextViewDelegate {
         let text: Binding<String>
         let selectedText: Binding<String?>
+        let selectionStart: Binding<Int?>
         weak var textView: NSTextView?
         weak var rulerView: LineNumberRulerView?
         /// Fingerprint of the last editor settings applied to the text
@@ -331,9 +335,10 @@ struct SQLTextView: NSViewRepresentable {
         /// via the `undoManager(for:)` delegate method below.
         let editorUndoManager = UndoManager()
 
-        init(text: Binding<String>, selectedText: Binding<String?>) {
+        init(text: Binding<String>, selectedText: Binding<String?>, selectionStart: Binding<Int?>) {
             self.text = text
             self.selectedText = selectedText
+            self.selectionStart = selectionStart
         }
 
         func undoManager(for view: NSTextView) -> UndoManager? {
@@ -364,6 +369,7 @@ struct SQLTextView: NSViewRepresentable {
             selectedText.wrappedValue = range.length > 0
                 ? (textView.string as NSString).substring(with: range)
                 : nil
+            selectionStart.wrappedValue = range.length > 0 ? range.location : nil
         }
 
         /// Rewrites any reserved word to its uppercase form in place. Runs
@@ -466,6 +472,14 @@ final class LineNumberRulerView: NSRulerView {
         super.init(scrollView: scrollView, orientation: .verticalRuler)
         clientView = textView
         ruleThickness = 34
+        // macOS 26 draws a ruler's marks into a document-tall subview that
+        // it slides along as the text scrolls, and views stopped clipping
+        // by default back in macOS 14 — so that subview's line numbers
+        // spilled out of the gutter over whatever sits below the editor.
+        // Worse, with no clip AppKit takes the *window* as what's visible:
+        // on scroll it only asks for the strip newly exposed at the
+        // window's edge, never for the one entering the gutter itself.
+        clipsToBounds = true
     }
 
     required init(coder: NSCoder) {
@@ -524,10 +538,16 @@ final class LineNumberRulerView: NSRulerView {
     override func drawHashMarksAndLabels(in rect: NSRect) {
         guard let textView, let layoutManager = textView.layoutManager, let container = textView.textContainer else { return }
 
+        // Everything here is bounded by `rect` vertically, never by
+        // `bounds`: on scroll AppKit shifts what's already drawn and asks
+        // only for the newly exposed strip, which on macOS 26 isn't even
+        // drawn in this view's own backing (see `init`). Painting or
+        // culling by `bounds` there left that strip blank — the gutter
+        // lost its numbers as soon as the editor was scrolled.
         NSColor.controlBackgroundColor.setFill()
-        bounds.fill()
+        NSRect(x: bounds.minX, y: rect.minY, width: bounds.width, height: rect.height).fill()
         NSColor.gridLineColor.setFill()
-        NSRect(x: bounds.maxX - 1, y: bounds.minY, width: 1, height: bounds.height).fill()
+        NSRect(x: bounds.maxX - 1, y: rect.minY, width: 1, height: rect.height).fill()
 
         let attributes: [NSAttributedString.Key: Any] = [
             .font: NSFont.monospacedDigitSystemFont(ofSize: 10, weight: .regular),
@@ -542,7 +562,7 @@ final class LineNumberRulerView: NSRulerView {
             let label = NSAttributedString(string: String(lineNumber), attributes: attributes)
             let size = label.size()
             let y = lineTop + insetHeight + textViewOriginInRuler + (lineHeight - size.height) / 2
-            guard y + size.height >= 0, y <= bounds.maxY else { return }
+            guard y + size.height >= rect.minY, y <= rect.maxY else { return }
             label.draw(at: NSPoint(x: ruleThickness - size.width - 5, y: y))
         }
 

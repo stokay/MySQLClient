@@ -9,6 +9,7 @@ struct QueryPanelView: View {
     @ObservedObject var console: SQLConsoleViewModel
     @StateObject private var undoProxy = SQLEditorUndoProxy()
     @EnvironmentObject private var settingsStore: SettingsStore
+    @State private var copiedStatusMessage: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -21,7 +22,8 @@ struct QueryPanelView: View {
                 text: $console.queryText,
                 pendingInsertion: $console.pendingQueryInsertion,
                 pendingAppend: $console.pendingQueryAppend,
-                selectedText: $console.querySelectedText
+                selectedText: $console.querySelectedText,
+                selectionStart: $console.querySelectionStart
             )
             .frame(minHeight: 70, maxHeight: .infinity)
 
@@ -29,17 +31,18 @@ struct QueryPanelView: View {
         }
     }
 
+    private static let maxStatusLines = 5
+
     /// A full-width row right under the editor, not a small trailing
     /// caption in the toolbar — a successful run (especially a write with
     /// no visible grid change) needs a result the user can't miss.
     ///
-    /// Always renders (never an empty/absent view) — the version that only
-    /// showed a row when there was something to say let the whole panel's
-    /// natural height flip between "with status row" and "without" as
-    /// queries ran, which `VSplitView` didn't reflow cleanly for, leaving
-    /// the pane visibly short with the toolbar/status clipped until the
-    /// user manually dragged it. Using `.opacity` instead of removing the
-    /// view keeps the reserved height constant either way.
+    /// Always renders (never an empty/absent view): with nothing to say it
+    /// holds a blank line at `.opacity(0)`, so the editor doesn't jump by a
+    /// row's height every time a query starts and finishes. A long message
+    /// does grow the row — up to `maxStatusLines`, taken out of the editor
+    /// above, since the panel's own height is fixed by the split — and
+    /// scrolls inside it past that.
     private var statusRow: some View {
         // Error color and font size come from the Ayarlar window; the
         // dynamic NSColor resolves the light/dark hex per current theme.
@@ -57,36 +60,85 @@ struct QueryPanelView: View {
         }()
 
         let hasMessage = color != .clear
+        let fontSize = CGFloat(settingsStore.settings.editor.statusFontSize)
+        let font = NSFont.systemFont(ofSize: fontSize)
+        let lineHeight = ceil(font.ascender - font.descender + font.leading)
+        let verticalPadding: CGFloat = 5
+        let copyMessage = {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(message, forType: .string)
+        }
 
-        return Label(message, systemImage: icon)
-            .font(.system(size: CGFloat(settingsStore.settings.editor.statusFontSize)))
+        // Server errors are long and quote the offending SQL with its own
+        // line breaks. On a single line the message stopped at the first
+        // of those breaks — without even an ellipsis, so it read as
+        // complete while the "at line N" part was missing. Shown whole
+        // instead, wrapped.
+        let label = Label(message, systemImage: icon)
             .foregroundStyle(color)
-            // Server error messages are long; without a line limit this row
-            // wrapped to two or three lines as the window narrowed, which
-            // both looked broken and ate into the panel's fixed height
-            // budget (the editor above shrank to pay for it). Truncated to
-            // one line, with the full text on hover.
-            .lineLimit(1)
-            .truncationMode(.tail)
+            .multilineTextAlignment(.leading)
             .help(message)
-            // Drag-selecting works on what's rendered, which the truncation
-            // above cuts short — so the context menu copies the *whole*
-            // message instead. A server error worth reading is usually one
-            // worth pasting somewhere, and re-typing it off a tooltip was
-            // the only way before this.
+            // A server error worth reading is usually one worth pasting
+            // somewhere: selectable for a part of it, and the context menu
+            // (like the button beside it) copies the whole message.
             .textSelection(.enabled)
             .contextMenu {
                 if hasMessage {
-                    Button("Copy") {
-                        NSPasteboard.general.clearContents()
-                        NSPasteboard.general.setString(message, forType: .string)
-                    }
+                    Button("Copy", action: copyMessage)
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 5)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .opacity(hasMessage ? 1 : 0)
+            .padding(.vertical, verticalPadding)
+
+        return HStack(alignment: .top, spacing: 8) {
+            // As tall as the message needs, until that's more than the
+            // cap (or than the panel can spare) — from there on the same
+            // text scrolls in place rather than being cut off.
+            HuggingHeightLayout(
+                minHeight: lineHeight + verticalPadding * 2,
+                maxHeight: lineHeight * CGFloat(Self.maxStatusLines) + verticalPadding * 2
+            ) {
+                ViewThatFits(in: .vertical) {
+                    label
+                    ScrollView(.vertical) { label }
+                }
+            }
+
+            // The selection and the context menu both have to be
+            // discovered; this is the same whole-message copy as a visible
+            // one-click target. Outside the scrolling area, so it stays on
+            // the first line however far the message is scrolled.
+            Button {
+                copyMessage()
+                copiedStatusMessage = message
+                Task {
+                    try? await Task.sleep(for: .seconds(1.5))
+                    if copiedStatusMessage == message {
+                        copiedStatusMessage = nil
+                    }
+                }
+            } label: {
+                // Compared against the message rather than a plain flag so
+                // the checkmark never carries over to the next query's
+                // message. The frame is one text line by a fixed slot: the
+                // two symbols differ in width, and both are taller than the
+                // line — left to size itself, the button grew this row by
+                // 1–3pt, height the panel's fixed budget takes straight out
+                // of the editor.
+                Label("Copy", systemImage: copiedStatusMessage == message ? "checkmark" : "doc.on.doc")
+                    .labelStyle(.iconOnly)
+                    .frame(width: fontSize + 4, height: lineHeight)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
+            .help("Copy")
+            .disabled(!hasMessage)
+            .padding(.top, verticalPadding)
+        }
+        .font(.system(size: fontSize))
+        .padding(.horizontal, 8)
+        .opacity(hasMessage ? 1 : 0)
     }
 
     /// See the identical treatment (and the reasoning in its comment) on
@@ -184,5 +236,30 @@ struct QueryPanelView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(nsColor: .controlBackgroundColor))
+    }
+}
+
+/// Sizes its one child to the height its content wants, within
+/// `minHeight...maxHeight` and never more than the parent offers.
+/// `.frame(maxHeight:)` can't do this: it caps the height but otherwise
+/// takes whatever is offered, so a one-line message got a five-line row.
+/// `.fixedSize()` hugs the content but ignores the offer, pushing the
+/// editor above below its own minimum in a short panel.
+private struct HuggingHeightLayout: Layout {
+    let minHeight: CGFloat
+    let maxHeight: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        guard let content = subviews.first else { return .zero }
+        let ideal = content.sizeThatFits(ProposedViewSize(width: proposal.width, height: nil))
+        var height = min(ideal.height, maxHeight)
+        if let offered = proposal.height {
+            height = min(height, max(offered, minHeight))
+        }
+        return CGSize(width: ideal.width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        subviews.first?.place(at: bounds.origin, proposal: ProposedViewSize(bounds.size))
     }
 }

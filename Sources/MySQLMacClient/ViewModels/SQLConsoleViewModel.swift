@@ -83,6 +83,11 @@ final class SQLConsoleViewModel: ObservableObject {
     /// renders it, and publishing would re-invalidate the UI on every
     /// caret drag.
     var querySelectedText: String?
+    /// Where that selection starts in `queryText` (a UTF-16 offset, as
+    /// `NSTextView` reports it); `nil` with no selection. Only read when a
+    /// query fails, to tell which editor line the server's "at line N"
+    /// refers to — it counts from the start of whatever text it was sent.
+    var querySelectionStart: Int?
 
     /// The database of whichever table is currently selected in the
     /// sidebar (nil when none is) — the fallback schema `runQuery` assumes
@@ -154,7 +159,7 @@ final class SQLConsoleViewModel: ObservableObject {
     /// back to a row's primary key, so those stay read-only regardless of
     /// the Editable toggle.
     func runQuery() async {
-        guard let sqlToRun = prepareToRunQuery() else { return }
+        guard let (sqlToRun, lineOffset) = prepareToRunQuery() else { return }
         defer { isExecutingQuery = false }
 
         // A `DELIMITER $$ ... DELIMITER ;`-wrapped script (the sidebar's
@@ -163,8 +168,8 @@ final class SQLConsoleViewModel: ObservableObject {
         // directive the server has never heard of. `DelimiterScript`
         // returns `nil` for every other query, so this only ever changes
         // behavior for scripts that actually contain one.
-        if let statements = DelimiterScript.statements(from: sqlToRun) {
-            await runStatements(statements)
+        if DelimiterScript.containsDelimiterDirective(sqlToRun) {
+            await runStatements(DelimiterScript.locatedStatements(from: sqlToRun), lineOffset: lineOffset)
             return
         }
 
@@ -182,10 +187,10 @@ final class SQLConsoleViewModel: ObservableObject {
             // an oversized packet never lands), so nothing has run twice.
             if Self.shouldRetryStatementByStatement(error, sql: sqlToRun) {
                 AnalyticsService.trackFeatureUsed("sql_query_run_autosplit")
-                await runStatements(DelimiterScript.allStatements(from: sqlToRun))
+                await runStatements(DelimiterScript.locatedStatements(from: sqlToRun), lineOffset: lineOffset)
                 return
             }
-            queryErrorMessage = describe(error, sql: sqlToRun, serverVersion: await service.serverVersion)
+            queryErrorMessage = describe(error, sql: sqlToRun, serverVersion: await service.serverVersion, lineOffset: lineOffset)
             isShowingQueryResult = false
             queryEditContext = nil
             AnalyticsService.trackError(error, feature: "sql_query_run")
@@ -248,9 +253,9 @@ final class SQLConsoleViewModel: ObservableObject {
     /// `CREATE PROCEDURE`/`FUNCTION`/`TRIGGER` body still needs `DELIMITER`
     /// wrapping even with this button.
     func runAllStatements() async {
-        guard let sqlToRun = prepareToRunQuery() else { return }
+        guard let (sqlToRun, lineOffset) = prepareToRunQuery() else { return }
         defer { isExecutingQuery = false }
-        await runStatements(DelimiterScript.allStatements(from: sqlToRun))
+        await runStatements(DelimiterScript.locatedStatements(from: sqlToRun), lineOffset: lineOffset)
     }
 
     /// Shared by `runQuery()`/`runAllStatements()`: resolves which text to
@@ -258,9 +263,14 @@ final class SQLConsoleViewModel: ObservableObject {
     /// run's error/message state, and flips `isExecutingQuery` — `nil`
     /// when there's nothing to run, which both callers treat as "do
     /// nothing" (no `isExecutingQuery` flip, no `defer` to unwind).
-    private func prepareToRunQuery() -> String? {
+    /// `lineOffset` is how many editor lines precede the text being run —
+    /// zero unless it's a selection further down.
+    private func prepareToRunQuery() -> (sql: String, lineOffset: Int)? {
         let selection = querySelectedText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let sqlToRun = selection.isEmpty ? queryText : selection
+        let lineOffset = selection.isEmpty
+            ? 0
+            : Self.lineOffset(ofSelection: querySelectedText ?? "", startingAt: querySelectionStart, in: queryText)
         let trimmed = sqlToRun.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
         // Recorded here, before the query runs, so a statement that fails
@@ -270,7 +280,20 @@ final class SQLConsoleViewModel: ObservableObject {
         isExecutingQuery = true
         queryErrorMessage = nil
         queryMessage = nil
-        return sqlToRun
+        return (sqlToRun, lineOffset)
+    }
+
+    /// How many lines of `text` come before the first line of `selection`
+    /// that actually gets run — the lines above where it starts, plus any
+    /// blank ones it opens with (those are trimmed off before sending).
+    /// Counts "\n" only, the one line break the server counts.
+    static func lineOffset(ofSelection selection: String, startingAt start: Int?, in text: String) -> Int {
+        let utf16 = text.utf16
+        let end = utf16.index(utf16.startIndex, offsetBy: max(0, start ?? 0), limitedBy: utf16.endIndex) ?? utf16.endIndex
+        let newline = "\n".utf16.first!
+        let linesAbove = utf16[..<end].count { $0 == newline }
+        let leadingBlankLines = selection.utf16.prefix { $0 <= " ".utf16.first! }.count { $0 == newline }
+        return linesAbove + leadingBlankLines
     }
 
     /// Runs a `DELIMITER`-split script's statements one at a time, in order
@@ -286,7 +309,7 @@ final class SQLConsoleViewModel: ObservableObject {
         String(localized: "\(count) rows affected.")
     }
 
-    private func runStatements(_ statements: [String]) async {
+    private func runStatements(_ statements: [DelimiterScript.Statement], lineOffset: Int) async {
         do {
             try await useCurrentDatabaseIfKnown()
         } catch {
@@ -297,14 +320,19 @@ final class SQLConsoleViewModel: ObservableObject {
         }
         for (index, statement) in statements.enumerated() {
             do {
-                let result = try await service.rawQuery(statement)
+                let result = try await service.rawQuery(statement.sql)
                 if index == statements.count - 1 {
-                    await applyResult(result, executedSQL: statement)
+                    await applyResult(result, executedSQL: statement.sql)
                     queryMessage = String(localized: "\(statements.count) statements executed. \(queryMessage ?? "")")
                         .trimmingCharacters(in: .whitespaces)
                 }
             } catch {
-                let detail = describe(error, sql: statement, serverVersion: await service.serverVersion)
+                let detail = describe(
+                    error,
+                    sql: statement.sql,
+                    serverVersion: await service.serverVersion,
+                    lineOffset: lineOffset + statement.lineOffset
+                )
                 queryErrorMessage = String(localized: "Statement \(index + 1)/\(statements.count) failed: \(detail)")
                 isShowingQueryResult = false
                 queryEditContext = nil
@@ -571,8 +599,8 @@ final class SQLConsoleViewModel: ObservableObject {
     /// result, passed in rather than awaited here so this stays sync.
     /// Internal (not private), like `runAllHint`, so the error-to-hint
     /// dispatch can be tested without a live server producing each error.
-    func describe(_ error: Error, sql: String, serverVersion: String?) -> String {
-        var described = describe(error)
+    func describe(_ error: Error, sql: String, serverVersion: String?, lineOffset: Int = 0) -> String {
+        var described = Self.relocatingErrorLine(in: describe(error), by: lineOffset)
         guard case .server(let packet)? = error as? MySQLError else { return described }
 
         if packet.errorCode == .NET_PACKET_TOO_LARGE, let hint = Self.runAllHint(forFailedSQL: sql) {
@@ -583,6 +611,23 @@ final class SQLConsoleViewModel: ObservableObject {
             described += "\n" + hint
         }
         return described
+    }
+
+    /// Rewrites the "at line N" a server error ends with so it names a
+    /// line of the editor. The server counts from the first line of the
+    /// text it received — which is the editor's first line only when the
+    /// whole editor was sent as one statement. For a selection, or for one
+    /// statement out of a script, its "line 5" could be line 14 on screen,
+    /// right next to a gutter saying otherwise.
+    ///
+    /// Only the server's English wording is recognized; a server set to
+    /// another `lc_messages` keeps its own number.
+    static func relocatingErrorLine(in message: String, by lineOffset: Int) -> String {
+        guard lineOffset > 0,
+              let match = message.firstMatch(of: /\bat line (\d+)$/),
+              let line = Int(match.1)
+        else { return message }
+        return message.replacingCharacters(in: match.range, with: "at line \(line + lineOffset)")
     }
 
     /// The hint text, or `nil` when splitting wouldn't actually help.
