@@ -143,3 +143,8 @@ INSERT INTO mysql_error_codes (code, description) VALUES
 -- ---------------------------------------------------------------------
 -- ALTER TABLE analytics_events
 --     ADD COLUMN appearance VARCHAR(8) NULL AFTER network_asn;
+
+-- ---------------------------------------------------------------------
+-- The app's "Send Feedback" form has tables of its own, kept apart from
+-- everything above on purpose: see feedback.sql.
+-- ---------------------------------------------------------------------

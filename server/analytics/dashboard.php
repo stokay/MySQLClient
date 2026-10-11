@@ -357,6 +357,15 @@ function maxOf(array $rows, string $key): int
 
 $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'All time'];
 
+// Unread messages from the app's "Send Feedback" form, for the link to
+// feedback-inbox.php. Null until feedback.sql has been run — the link is
+// simply left out then.
+try {
+    $newFeedback = (int) $pdo->query("SELECT COUNT(*) FROM feedback_messages WHERE status = 'new'")->fetchColumn();
+} catch (Throwable $e) {
+    $newFeedback = null;
+}
+
 // The lists below the chart are opt-in: each one is a chip in the picker
 // and only the chosen ones are shown (the choice lives in the browser's
 // localStorage). Key => [chip label, row count or null for no badge].
@@ -619,6 +628,11 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
       <a class="btn <?= $excludeMine ? 'on' : '' ?>"
          href="<?= h(filterUrl($range, $excludeReview, !$excludeMine)) ?>">
         <?= $excludeMine ? 'My testing hidden' : 'My testing shown' ?>
+      </a>
+      <?php endif; ?>
+      <?php if ($newFeedback !== null): ?>
+      <a class="btn <?= $newFeedback > 0 ? 'on' : '' ?>" href="feedback-inbox.php">
+        Feedback<?= $newFeedback > 0 ? ' · ' . $newFeedback . ' new' : '' ?>
       </a>
       <?php endif; ?>
       <button class="btn" id="theme" type="button" title="Toggle theme">Theme</button>

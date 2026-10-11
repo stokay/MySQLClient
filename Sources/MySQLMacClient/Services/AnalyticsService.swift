@@ -84,7 +84,7 @@ enum AnalyticsService {
         return generated
     }
 
-    private static var appVersion: String {
+    static var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
     }
 
@@ -92,14 +92,14 @@ enum AnalyticsService {
     /// localized (e.g. "Version"/"Build" translated) by the app's own
     /// language override, which both varies per language and runs longer
     /// than the plain number. This is locale-independent and short.
-    private static var osVersion: String {
+    static var osVersion: String {
         let v = ProcessInfo.processInfo.operatingSystemVersion
         return "macOS \(v.majorVersion).\(v.minorVersion).\(v.patchVersion)"
     }
 
     /// e.g. "MacBookPro18,3" — via `sysctlbyname`, the standard way to read
     /// the Mac model identifier; Foundation has no typed API for this.
-    private static var deviceModel: String {
+    static var deviceModel: String {
         var size = 0
         sysctlbyname("hw.model", nil, &size, nil, 0)
         guard size > 0 else { return "unknown" }

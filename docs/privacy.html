@@ -85,19 +85,20 @@
     <header>
       <div>
         <h1>MySQL Client</h1>
-        <p>Privacy Policy · Last updated: August 2026</p>
+        <p>Privacy Policy · Last updated: October 2026</p>
       </div>
     </header>
 
     <div class="highlight">
-      <strong>Short version:</strong> MySQL Client never collects your name, email, precise location, or anything about your databases (connection details, queries, results, credentials). It does send a small amount of anonymous usage data — see below — which you can turn off at any time in Settings.
+      <strong>Short version:</strong> MySQL Client never collects your precise location or anything about your databases (connection details, queries, results, credentials). It does send a small amount of anonymous usage data — see below — which you can turn off at any time in Settings. The only time it receives anything you typed — including a name or an email address — is when you choose to send feedback and enter them.
     </div>
 
     <h2>1. Information We Collect</h2>
     <p>To understand how the app is used and decide which languages and features to work on next, MySQL Client collects anonymous usage analytics: app opens, which features are used (e.g. Table Export, Database Backup, Table Import, running a query), and the numeric error code when an operation fails. Along with these events, we receive basic device context — a randomly generated identifier (not tied to your identity), device model, macOS version, app version, language, timezone, approximate location (country level), and the name of the network operator your connection belongs to (e.g. your internet provider), both derived from your connection. Your IP address itself is used only to look those two up and is discarded immediately — it is never stored or logged. This is sent to a server operated by the developer — never to a third party.</p>
     <p>We do <strong>not</strong> collect:</p>
     <ul>
-      <li>Your name, email address, or Apple ID</li>
+      <li>Your Apple ID</li>
+      <li>Your name or email address — unless you choose to enter them when sending feedback (see Section 2)</li>
       <li>Your precise location</li>
       <li>Your IP address (used momentarily to derive country and network operator, then discarded — never stored)</li>
       <li>Any connection details (host, port, username, password), query content, query results, or database content</li>
@@ -107,29 +108,43 @@
     </ul>
     <p>You can disable usage analytics at any time in <strong>Settings → General → "Share anonymous usage analytics."</strong></p>
 
-    <h2>2. Data Stored Locally on Your Mac</h2>
+    <h2>2. Feedback You Choose to Send</h2>
+    <p>The app has a <strong>Send Feedback</strong> form (in the Help menu and the window toolbar) for ideas, suggestions, problems and bug reports. Nothing is sent unless you fill it in and press Send. When you do, the developer receives:</p>
+    <ul>
+      <li><strong>Your message</strong> and the type you picked for it (idea, problem, bug, other)</li>
+      <li><strong>Your name</strong> — only if you enter one, and used only to address you in a reply</li>
+      <li><strong>Your email address</strong> — only if you enter one, and used only to reply to you</li>
+      <li><strong>System information</strong> — only while "Include system information" is ticked; the form shows exactly what it is: app version, macOS version, Mac model, app language, and the type and version of the database server you are connected to (for example "MySQL 8.0"). Never a host name, a user name, a password, a query, or anything from your databases</li>
+      <li><strong>A feedback identifier</strong> — a random ID used only to limit how many messages one installation can send per day. It is separate from the anonymous analytics identifier, so a message (and any name or email address sent with it) cannot be connected to your usage data</li>
+      <li><strong>Proof of an App Store installation</strong> — copies installed from the Mac App Store also send a record, signed by Apple, that the app was obtained there. It identifies the app, not you; it exists so that automated abuse of the form can be refused, and it is not stored</li>
+    </ul>
+    <p>Your IP address is not stored, and no location is derived from it for feedback. Messages are stored on a server operated by the developer, are read only by the developer, are never published, and are never shared with a third party. To have a message you sent deleted, ask through the same form or on <a href="https://github.com/stokay/MySQLClient" target="_blank">GitHub</a>.</p>
+    <p>Sending feedback is independent of the usage-analytics setting: it happens only when you press Send, whether analytics is on or off.</p>
+
+    <h2>3. Data Stored Locally on Your Mac</h2>
     <p>The app stores the following data <strong>exclusively on your device</strong>:</p>
     <ul>
       <li><strong>Connection profiles</strong> (host, port, username, database name): stored in <code>~/Library/Application Support/MySQLMacClient/connections.json</code> inside the app's sandbox container</li>
       <li><strong>Passwords</strong>: stored securely in the macOS Keychain — never written to disk in plaintext</li>
       <li><strong>App preferences</strong> (theme, grid settings, editor font size): stored in the app's sandbox container</li>
       <li><strong>Anonymous analytics identifier</strong> (a randomly generated ID, not tied to your identity): stored locally so repeated events can be recognized as coming from the same installation; only sent if usage analytics is enabled</li>
+      <li><strong>Feedback identifier</strong> (a separate randomly generated ID): created the first time you send feedback, and sent only with feedback</li>
     </ul>
 
-    <h2>3. Network Access</h2>
-    <p>The app makes outgoing TCP connections to the MySQL servers you explicitly configure, and — unless you disable it in Settings — sends the anonymous usage events described above to a first-party endpoint operated by the developer. No other network connections are made.</p>
+    <h2>4. Network Access</h2>
+    <p>The app makes outgoing TCP connections to the MySQL servers you explicitly configure, and — unless you disable it in Settings — sends the anonymous usage events described above to a first-party endpoint operated by the developer. When you press Send in the feedback form, your message goes to the same developer-operated server. No other network connections are made.</p>
 
-    <h2>4. Third-Party Services</h2>
-    <p>MySQL Client does not integrate any third-party SDKs, advertising networks, or crash reporting frameworks. The usage analytics described above are sent to infrastructure operated directly by the developer — no third-party analytics provider is used.</p>
+    <h2>5. Third-Party Services</h2>
+    <p>MySQL Client does not integrate any third-party SDKs, advertising networks, or crash reporting frameworks. The usage analytics and the feedback described above are sent to infrastructure operated directly by the developer — no third-party analytics or support provider is used.</p>
 
-    <h2>5. Children's Privacy</h2>
+    <h2>6. Children's Privacy</h2>
     <p>This app is not directed to children under 13. The anonymous usage analytics described in Section 1 contain no personal information and cannot be used to identify any individual user.</p>
 
-    <h2>6. Changes to This Policy</h2>
+    <h2>7. Changes to This Policy</h2>
     <p>If this privacy policy changes, the updated version will be posted at this URL. The "Last updated" date at the top of this page will reflect the change.</p>
 
-    <h2>7. Contact</h2>
-    <p>Questions about this privacy policy? Open an issue on <a href="https://github.com/stokay/MySQLClient" target="_blank">GitHub</a>.</p>
+    <h2>8. Contact</h2>
+    <p>Questions about this privacy policy? Use <strong>Help → Send Feedback</strong> in the app, or open an issue on <a href="https://github.com/stokay/MySQLClient" target="_blank">GitHub</a>.</p>
 
     <footer>
       <p>© 2025 Sedat Tokay · <a href="https://github.com/stokay/MySQLClient">GitHub</a></p>

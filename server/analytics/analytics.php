@@ -282,4 +282,13 @@ try {
     exit;
 }
 
+// Nothing to do with this event: analytics requests arrive all day, which
+// makes them the clock for feedback notifications that are waiting for
+// their interval to pass (see feedback-notify.php — there is no cron job).
+// One cheap query when there's nothing to send; it never fails the request.
+if (is_file(__DIR__ . '/feedback-notify.php')) {
+    require_once __DIR__ . '/feedback-notify.php';
+    feedback_notify_pending($pdo, $config);
+}
+
 http_response_code(204);

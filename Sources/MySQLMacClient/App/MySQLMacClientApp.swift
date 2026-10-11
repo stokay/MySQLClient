@@ -91,8 +91,33 @@ struct MySQLMacClientApp: App {
                     }
                     .help("New Connection")
                 }
+                // Here rather than in MainWindowView for the same reason:
+                // it has to be reachable from the connection form, where
+                // someone who can't connect is most likely to want it.
+                ToolbarItem(placement: .primaryAction) {
+                    FeedbackToolbarButton()
+                }
             }
         }
+        .commands {
+            FeedbackCommands()
+        }
+
+        // A single window, opened from the toolbar or the Help menu — and
+        // only from there. Without the two behaviors below it took part in
+        // launch like any other scene: quit with it open and the next
+        // launch brought back the feedback form *instead of* the main
+        // window.
+        Window("Send Feedback", id: FeedbackView.windowID) {
+            FeedbackView()
+                .environmentObject(appState)
+                .environmentObject(appearanceStore)
+                .environmentObject(settingsStore)
+                .preferredColorScheme(appearanceStore.mode.colorScheme)
+        }
+        .windowResizability(.contentSize)
+        .defaultLaunchBehavior(.suppressed)
+        .restorationBehavior(.disabled)
 
         // Environment/appearance must be re-attached here — a `Settings`
         // scene does not inherit the WindowGroup's modifiers.
