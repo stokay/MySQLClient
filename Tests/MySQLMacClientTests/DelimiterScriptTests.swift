@@ -100,4 +100,160 @@ final class DelimiterScriptTests: XCTestCase {
 
         XCTAssertEqual(DelimiterScript.allStatements(from: script), DelimiterScript.statements(from: script))
     }
+
+    // MARK: - Terminators the splitter must and must not honor
+
+    /// The reported case: a remark after the `;` kept `SET NAMES` from
+    /// ending, so it was sent glued to the `ALTER TABLE` below it and the
+    /// server rejected the pair with a syntax error "near 'ALTER TABLE'".
+    func testAllStatementsEndsAStatementBeforeATrailingComment() {
+        let script = [
+            "-- Run this file once (e.g. paste it into phpMyAdmin's SQL tab).",
+            "",
+            "SET NAMES utf8mb4; -- names like \"Türkiye\" and \"Côte d'Ivoire\"",
+            "",
+            "-- Step 1 — the new column.",
+            "ALTER TABLE analytics_events",
+            "    ADD COLUMN device_name VARCHAR(80) NULL AFTER device_id,",
+            "    ADD KEY idx_device_id (device_id);",
+        ].joined(separator: "\n")
+
+        XCTAssertEqual(DelimiterScript.allStatements(from: script), [
+            "SET NAMES utf8mb4",
+            "ALTER TABLE analytics_events\n    ADD COLUMN device_name VARCHAR(80) NULL AFTER device_id,\n    ADD KEY idx_device_id (device_id)",
+        ])
+    }
+
+    func testAllStatementsSplitsSeveralStatementsOnOneLine() {
+        XCTAssertEqual(DelimiterScript.allStatements(from: "USE db; CALL p(); SELECT 1"), ["USE db", "CALL p()", "SELECT 1"])
+    }
+
+    /// A `;` inside a string or a quoted identifier is data, wherever on
+    /// the line it sits — including the end, where the old line-based
+    /// splitter cut the statement in half.
+    func testAllStatementsKeepsTerminatorsInsideQuotes() {
+        let script = [
+            "INSERT INTO t (a) VALUES ('first;",
+            "second');",
+            #"INSERT INTO t (a) VALUES ('it''s; fine'), ('it\'s; fine'), ("say \"hi\"; ok");"#,
+            "SELECT `odd;name` FROM t;",
+        ].joined(separator: "\n")
+
+        XCTAssertEqual(DelimiterScript.allStatements(from: script), [
+            "INSERT INTO t (a) VALUES ('first;\nsecond')",
+            #"INSERT INTO t (a) VALUES ('it''s; fine'), ('it\'s; fine'), ("say \"hi\"; ok")"#,
+            "SELECT `odd;name` FROM t",
+        ])
+    }
+
+    /// Comments can hold terminators and stray quotes without either
+    /// meaning anything: an apostrophe in prose must not open a string
+    /// that swallows the statements after it.
+    func testAllStatementsIgnoresTerminatorsAndQuotesInsideComments() {
+        let script = [
+            "SELECT 1 -- don't stop here; really",
+            ";",
+            "SELECT 2; # it's a hash comment; still one",
+            "SELECT /* inline; isn't code */ 3;",
+        ].joined(separator: "\n")
+
+        XCTAssertEqual(DelimiterScript.allStatements(from: script), [
+            "SELECT 1 -- don't stop here; really",
+            "SELECT 2",
+            "SELECT /* inline; isn't code */ 3",
+        ])
+    }
+
+    /// Comments ahead of a statement aren't part of it, and comments with
+    /// no statement after them aren't one — the server answers a
+    /// comment-only query with "Query was empty".
+    func testAllStatementsDropsCommentOnlyStretches() {
+        let script = "-- header\n/* block */\nSELECT 1;\n-- closing remark\n# and another\n"
+        XCTAssertEqual(DelimiterScript.allStatements(from: script), ["SELECT 1"])
+        XCTAssertEqual(DelimiterScript.allStatements(from: "-- nothing to run here"), [])
+    }
+
+    /// mysqldump's preamble: version-gated "comments" are SQL the server
+    /// runs, so each one is a statement in its own right.
+    func testAllStatementsKeepsExecutableComments() {
+        let script = "/*!40101 SET NAMES utf8mb4 */;\n/*M!100616 SET NOTE_VERBOSITY=0 */;\nSELECT 1;"
+        XCTAssertEqual(DelimiterScript.allStatements(from: script), [
+            "/*!40101 SET NAMES utf8mb4 */",
+            "/*M!100616 SET NOTE_VERBOSITY=0 */",
+            "SELECT 1",
+        ])
+    }
+
+    /// `--` needs whitespace after it to be a comment, exactly as in
+    /// MySQL — otherwise it's a double negation.
+    func testAllStatementsTreatsDoubleDashWithoutSpaceAsArithmetic() {
+        XCTAssertEqual(DelimiterScript.allStatements(from: "SELECT 5--3; SELECT 1"), ["SELECT 5--3", "SELECT 1"])
+    }
+
+    /// A script saved with Windows line endings splits the same way.
+    func testAllStatementsHandlesCRLFLineEndings() {
+        let script = "DELIMITER $$\r\nCREATE PROCEDURE `p`()\r\nBEGIN\r\n    SELECT 1;\r\nEND$$\r\nDELIMITER ;\r\nUSE db; -- note\r\nSELECT 2;\r\n"
+        XCTAssertEqual(DelimiterScript.allStatements(from: script), [
+            "CREATE PROCEDURE `p`()\r\nBEGIN\r\n    SELECT 1;\r\nEND",
+            "USE db",
+            "SELECT 2",
+        ])
+    }
+
+    /// A line reading `DELIMITER …` inside a string is text, not a
+    /// directive.
+    func testAllStatementsLeavesADelimiterLineInsideAStringAlone() {
+        let script = "INSERT INTO notes (body) VALUES ('first line\nDELIMITER $$\nlast line');\nSELECT 1;"
+        XCTAssertEqual(DelimiterScript.allStatements(from: script), [
+            "INSERT INTO notes (body) VALUES ('first line\nDELIMITER $$\nlast line')",
+            "SELECT 1",
+        ])
+    }
+
+    /// An unterminated quote or comment runs to the end of the script
+    /// instead of reading past it.
+    func testAllStatementsSurvivesUnterminatedQuotesAndComments() {
+        XCTAssertEqual(DelimiterScript.allStatements(from: "SELECT 'oops; SELECT 2;"), ["SELECT 'oops; SELECT 2;"])
+        XCTAssertEqual(DelimiterScript.allStatements(from: "SELECT 1; /* never closed"), ["SELECT 1"])
+        XCTAssertEqual(DelimiterScript.allStatements(from: #"SELECT 'ends in a backslash\"#), [#"SELECT 'ends in a backslash\"#])
+        XCTAssertEqual(DelimiterScript.allStatements(from: ""), [])
+    }
+
+    // MARK: - Where each statement starts
+
+    /// The server reports an error's line counted from the start of the
+    /// statement it was sent, so each statement has to remember which
+    /// line of the script it began on — its first line of SQL, not the
+    /// comments above it.
+    func testLocatedStatementsRecordTheLineEachStatementStartsOn() {
+        let script = [
+            "-- header",                    // 0
+            "",                             // 1
+            "SET NAMES utf8mb4; -- note",   // 2
+            "",                             // 3
+            "-- Step 1",                    // 4
+            "ALTER TABLE t",                // 5
+            "    ADD COLUMN c INT;",        // 6
+            "SELECT 1; SELECT 2;",          // 7
+        ].joined(separator: "\n")
+
+        XCTAssertEqual(DelimiterScript.locatedStatements(from: script), [
+            .init(sql: "SET NAMES utf8mb4", lineOffset: 2),
+            .init(sql: "ALTER TABLE t\n    ADD COLUMN c INT", lineOffset: 5),
+            .init(sql: "SELECT 1", lineOffset: 7),
+            .init(sql: "SELECT 2", lineOffset: 7),
+        ])
+    }
+
+    /// Line breaks inside a string or a block comment still move the
+    /// statements after them down a line.
+    func testLocatedStatementsCountLineBreaksInsideStringsAndComments() {
+        let script = "INSERT INTO t VALUES ('a\nb\\\nc');\n/* one\ntwo */\nSELECT 1;\r\nSELECT 2;"
+        XCTAssertEqual(DelimiterScript.locatedStatements(from: script).map(\.lineOffset), [0, 5, 6])
+    }
+
+    func testLocatedStatementsSkipDelimiterLinesWhenCounting() {
+        let script = "DELIMITER $$\nCREATE PROCEDURE `p`()\nBEGIN\n    SELECT 1;\nEND$$\nDELIMITER ;\nSELECT 2;"
+        XCTAssertEqual(DelimiterScript.locatedStatements(from: script).map(\.lineOffset), [1, 6])
+    }
 }

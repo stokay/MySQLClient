@@ -11,7 +11,8 @@ import Foundation
 /// syntax error at `DELIMITER`. This mirrors what the real `mysql` CLI does
 /// with the same script: track a current statement terminator (starting at
 /// `;`), swap it whenever a `DELIMITER <token>` line is seen, and cut a new
-/// statement out every time that terminator is hit at the end of a line.
+/// statement out every time that terminator is hit outside a quoted string
+/// or a comment.
 enum DelimiterScript {
     /// `nil` when `script` has no `DELIMITER` line at all — the caller
     /// should fall back to sending it unmodified, exactly as before this
@@ -24,15 +25,29 @@ enum DelimiterScript {
     /// Çalıştır" uses instead, and why *that* one carries a real caveat
     /// for exactly this case.
     static func statements(from script: String) -> [String]? {
-        // `[ \t]`, not `\s` — this must only match a directive that's
-        // complete on one line, matching `parseDelimiterDirective`'s
-        // per-line check below (`\s` would let the token match across a
-        // newline, e.g. treating a stray "DELIMITER" line as directive by
-        // borrowing the next line's first word as its token).
-        guard script.range(of: #"(?im)^[ \t]*DELIMITER[ \t]+\S+[ \t]*$"#, options: .regularExpression) != nil else {
-            return nil
-        }
+        guard containsDelimiterDirective(script) else { return nil }
         return allStatements(from: script)
+    }
+
+    /// Whether `script` has a `DELIMITER <token>` line at all — the test
+    /// `statements(from:)` opts in on.
+    static func containsDelimiterDirective(_ script: String) -> Bool {
+        // `[ \t]`, not `\s` — this must only match a directive that's
+        // complete on one line, matching `delimiterDirective`'s per-line
+        // check below (`\s` would let the token match across a newline,
+        // e.g. treating a stray "DELIMITER" line as directive by borrowing
+        // the next line's first word as its token).
+        script.range(of: #"(?im)^[ \t]*DELIMITER[ \t]+\S+[ \t]*$"#, options: .regularExpression) != nil
+    }
+
+    /// One statement cut out of a script, and where it came from.
+    struct Statement: Equatable {
+        let sql: String
+        /// How many lines of the script precede the line this statement
+        /// starts on. The server numbers the lines of an error from the
+        /// start of whatever text it was sent, so this is what turns its
+        /// "at line 3" back into a line of the script.
+        let lineOffset: Int
     }
 
     /// Always splits — with a `DELIMITER` directive honored wherever one
@@ -42,52 +57,165 @@ enum DelimiterScript {
     /// `USE db;\ncall proc();` — two independent statements with no
     /// `DELIMITER` in sight.
     ///
+    /// The script is read the way the server's own lexer would read it: a
+    /// terminator only counts outside `'…'`/`"…"`/`` `…` `` and outside
+    /// `-- …`, `# …` and `/* … */` comments, and it counts wherever on the
+    /// line it falls. The version before this cut only where a *line ended*
+    /// with the terminator, so `SET NAMES utf8mb4; -- why` never ended its
+    /// statement — the next one was glued on and the server rejected the
+    /// pair as a syntax error — while a string or comment line that
+    /// happened to end in `;` was cut in half.
+    ///
+    /// Each statement starts at its first piece of actual SQL: comments
+    /// ahead of it are dropped, and a stretch that is nothing but comments
+    /// (a script's closing remarks) produces no statement at all — sent on
+    /// its own the server answers that with "Query was empty".
+    ///
     /// The tradeoff: this has no `BEGIN…END` awareness (same as the real
     /// `mysql` CLI without `DELIMITER`), so a pasted `CREATE PROCEDURE`/
     /// `FUNCTION`/`TRIGGER` body that relies on being sent as one statement
     /// gets cut apart at its own internal `;`s instead of erroring clearly.
     /// That's why this isn't what the plain "Çalıştır" button uses.
     static func allStatements(from script: String) -> [String] {
-        var statements: [String] = []
-        var buffer = ""
-        var currentDelimiter = ";"
+        locatedStatements(from: script).map(\.sql)
+    }
 
-        for line in script.split(separator: "\n", omittingEmptySubsequences: false) {
-            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
-            if let newDelimiter = parseDelimiterDirective(trimmedLine) {
-                currentDelimiter = newDelimiter
+    /// `allStatements(from:)`, with each statement's position in the script.
+    static func locatedStatements(from script: String) -> [Statement] {
+        // Bytes, not `Character`s: everything the scan looks for is ASCII,
+        // which never occurs inside a multi-byte UTF-8 sequence, so byte
+        // offsets found here are always safe places to cut. It also keeps
+        // a many-megabyte dump fast, and sees `\r\n` as two bytes where
+        // `Character` sees one that isn't equal to "\n".
+        let bytes = Array(script.utf8)
+        let count = bytes.count
+        var statements: [Statement] = []
+        var delimiter = Array(";".utf8)
+        // Offset of the current statement's first byte of SQL (and the
+        // line that byte is on), `nil` while only whitespace and comments
+        // have been seen since the last one.
+        var statementStart: (offset: Int, line: Int)?
+        // Line breaks passed so far — every loop below that steps over a
+        // "\n" has to count it.
+        var line = 0
+        var isAtLineStart = true
+        var index = 0
+
+        func endStatement(at end: Int) {
+            guard let start = statementStart else { return }
+            statementStart = nil
+            let statement = String(decoding: bytes[start.offset..<end], as: UTF8.self)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if !statement.isEmpty {
+                statements.append(Statement(sql: statement, lineOffset: start.line))
+            }
+        }
+
+        func byte(at offset: Int) -> UInt8? {
+            offset < count ? bytes[offset] : nil
+        }
+
+        while index < count {
+            if isAtLineStart {
+                isAtLineStart = false
+                if let directive = delimiterDirective(in: bytes, lineStart: index) {
+                    endStatement(at: index)
+                    delimiter = directive.delimiter
+                    index = directive.lineEnd
+                    continue
+                }
+            }
+
+            let current = bytes[index]
+            if current == delimiter[0], bytes[index...].starts(with: delimiter) {
+                endStatement(at: index)
+                index += delimiter.count
                 continue
             }
 
-            if !buffer.isEmpty { buffer += "\n" }
-            buffer += String(line)
+            switch current {
+            case UInt8(ascii: "\n"):
+                isAtLineStart = true
+                line += 1
+                index += 1
 
-            let trimmedBuffer = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
-            if trimmedBuffer.hasSuffix(currentDelimiter) {
-                let statement = String(trimmedBuffer.dropLast(currentDelimiter.count))
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                if !statement.isEmpty {
-                    statements.append(statement)
+            case UInt8(ascii: "'"), UInt8(ascii: "\""), UInt8(ascii: "`"):
+                if statementStart == nil { statementStart = (index, line) }
+                // A doubled quote (`'it''s'`) needs no special case: it
+                // reads as one string closing and the next one opening.
+                // Backslash escapes exist in strings, not in identifiers.
+                let quote = current
+                index += 1
+                while index < count, bytes[index] != quote {
+                    let isEscape = bytes[index] == UInt8(ascii: "\\") && quote != UInt8(ascii: "`")
+                    for skipped in index..<min(index + (isEscape ? 2 : 1), count) where bytes[skipped] == UInt8(ascii: "\n") {
+                        line += 1
+                    }
+                    index += isEscape ? 2 : 1
                 }
-                buffer = ""
+                index = min(index + 1, count)
+
+            // `--` only opens a comment when whitespace (or the end of the
+            // script) follows — `5--3` is arithmetic, as it is to MySQL.
+            case UInt8(ascii: "-") where byte(at: index + 1) == UInt8(ascii: "-") && (byte(at: index + 2) ?? 0) <= UInt8(ascii: " "),
+                 UInt8(ascii: "#"):
+                while index < count, bytes[index] != UInt8(ascii: "\n") {
+                    index += 1
+                }
+
+            case UInt8(ascii: "/") where byte(at: index + 1) == UInt8(ascii: "*"):
+                // `/*!40101 … */` (and MariaDB's `/*M! … */`) is SQL the
+                // server executes, so unlike a real comment it makes a
+                // statement on its own — mysqldump's preamble is built
+                // from exactly these.
+                let isExecutable = byte(at: index + 2) == UInt8(ascii: "!")
+                    || (byte(at: index + 2) == UInt8(ascii: "M") && byte(at: index + 3) == UInt8(ascii: "!"))
+                if isExecutable, statementStart == nil { statementStart = (index, line) }
+                index += 2
+                while index < count, !(bytes[index] == UInt8(ascii: "*") && byte(at: index + 1) == UInt8(ascii: "/")) {
+                    if bytes[index] == UInt8(ascii: "\n") { line += 1 }
+                    index += 1
+                }
+                index = min(index + 2, count)
+
+            default:
+                if statementStart == nil, current > UInt8(ascii: " ") { statementStart = (index, line) }
+                index += 1
             }
         }
 
-        let leftover = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !leftover.isEmpty {
-            statements.append(leftover)
-        }
-
+        endStatement(at: count)
         return statements
     }
 
-    /// `"DELIMITER $$"` → `"$$"`, `"delimiter ;"` → `";"`. Requires at least
-    /// one token after the keyword — a bare `"DELIMITER"` (or blank token)
-    /// isn't a directive this can act on, so it's left for the surrounding
-    /// statement accumulation to handle (harmlessly, as ordinary text).
-    private static func parseDelimiterDirective(_ trimmedLine: String) -> String? {
-        guard trimmedLine.lowercased().hasPrefix("delimiter ") else { return nil }
-        let token = trimmedLine.dropFirst("delimiter ".count).trimmingCharacters(in: .whitespaces)
-        return token.isEmpty ? nil : token
+    /// `"DELIMITER $$"` → `$$`, `"delimiter ;"` → `;`, along with where
+    /// that line ends. Requires a token after the keyword — a bare
+    /// `"DELIMITER"` isn't a directive this can act on, so it's left for
+    /// the surrounding statement to carry (harmlessly, as ordinary text).
+    /// Only ever asked about a line that starts outside a string or
+    /// comment, so a `DELIMITER` line quoted inside one is left alone.
+    private static func delimiterDirective(in bytes: [UInt8], lineStart: Int) -> (delimiter: [UInt8], lineEnd: Int)? {
+        let count = bytes.count
+        func isBlank(_ offset: Int) -> Bool {
+            bytes[offset] == UInt8(ascii: " ") || bytes[offset] == UInt8(ascii: "\t")
+        }
+
+        var index = lineStart
+        while index < count, isBlank(index) { index += 1 }
+        for letter in "delimiter".utf8 {
+            // `| 0x20` lowercases an ASCII letter.
+            guard index < count, bytes[index] | 0x20 == letter else { return nil }
+            index += 1
+        }
+        guard index < count, isBlank(index) else { return nil }
+        while index < count, isBlank(index) { index += 1 }
+
+        let tokenStart = index
+        while index < count, bytes[index] > UInt8(ascii: " ") { index += 1 }
+        guard index > tokenStart else { return nil }
+        let token = Array(bytes[tokenStart..<index])
+
+        while index < count, bytes[index] != UInt8(ascii: "\n") { index += 1 }
+        return (token, index)
     }
 }
