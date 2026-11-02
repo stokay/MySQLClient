@@ -184,6 +184,46 @@ final class DelimiterScriptTests: XCTestCase {
         ])
     }
 
+    /// Inside an executable comment is SQL, and both the mysql and the
+    /// MariaDB client read it as such: a `*/` in a string doesn't end the
+    /// comment, and a delimiter ends the statement. mysqldump wraps trigger
+    /// and view bodies in these.
+    func testAllStatementsReadsTheInsideOfAnExecutableCommentAsSQL() {
+        let script = """
+            DELIMITER ;;
+            /*!50003 CREATE*/ /*!50003 TRIGGER t_bu BEFORE UPDATE ON t FOR EACH ROW SET NEW.body = REPLACE(NEW.body, '*/', '') */;;
+            DELIMITER ;
+            /*!50001 VIEW `v_file` AS select regexp_replace(`t`.`path`,'^.*/','') AS `file` from `t` */;
+            /*M!100100 SELECT concat('/* ',`t`.`body`,' */') FROM t */;
+            SELECT 1 /*! , 2; */;
+            SELECT 3;
+            """
+        XCTAssertEqual(DelimiterScript.allStatements(from: script), [
+            "/*!50003 CREATE*/ /*!50003 TRIGGER t_bu BEFORE UPDATE ON t FOR EACH ROW SET NEW.body = REPLACE(NEW.body, '*/', '') */",
+            "/*!50001 VIEW `v_file` AS select regexp_replace(`t`.`path`,'^.*/','') AS `file` from `t` */",
+            "/*M!100100 SELECT concat('/* ',`t`.`body`,' */') FROM t */",
+            "SELECT 1 /*! , 2",
+            "*/",
+            "SELECT 3",
+        ])
+    }
+
+    /// `use <db>` alone on a line, with no delimiter, before a statement has
+    /// started, is a command of its own to the MariaDB client (and to the
+    /// mysql client with --commands), not the start of a statement that
+    /// runs on into the next line.
+    func testAllStatementsEndsAUseLineThatHasNoDelimiter() {
+        let script = "use shop\nINSERT INTO t VALUES (1);\n  USE `shop` -- why\nSELECT 1,\nuse x\n, 2;\nuse shop; SELECT 3;"
+        XCTAssertEqual(DelimiterScript.allStatements(from: script), [
+            "use shop",
+            "INSERT INTO t VALUES (1)",
+            "USE `shop` -- why",
+            "SELECT 1,\nuse x\n, 2",
+            "use shop",
+            "SELECT 3",
+        ])
+    }
+
     /// `--` needs whitespace after it to be a comment, exactly as in
     /// MySQL — otherwise it's a double negation.
     func testAllStatementsTreatsDoubleDashWithoutSpaceAsArithmetic() {
@@ -255,5 +295,65 @@ final class DelimiterScriptTests: XCTestCase {
     func testLocatedStatementsSkipDelimiterLinesWhenCounting() {
         let script = "DELIMITER $$\nCREATE PROCEDURE `p`()\nBEGIN\n    SELECT 1;\nEND$$\nDELIMITER ;\nSELECT 2;"
         XCTAssertEqual(DelimiterScript.locatedStatements(from: script).map(\.lineOffset), [1, 6])
+    }
+
+    // MARK: - Splitter (a script read in chunks)
+
+    /// Every chunk size from one byte up must give exactly the statements,
+    /// and lines, of splitting the whole script at once: cuts inside
+    /// strings, comments, executable comments, multi-byte characters, a
+    /// `DELIMITER` or `use` line and a two-character delimiter all have to
+    /// come out the same.
+    func testSplitterMatchesTheWholeScriptAtEveryChunkSize() throws {
+        let script = """
+            SET NAMES utf8mb4; -- comment; with a semicolon
+            INSERT INTO t VALUES ('a;b', 'it''s', 'back\\'slash; x', "dq;", `c;`), ('😀 ünï 中文;');
+            # hash comment;
+            /* block; comment */ SELECT 1 /*! executable; */; /*!50001 SELECT '*/;' */;\r
+            use db_x
+            SELECT 5--3;
+            DELIMITER $$
+            CREATE PROCEDURE p()
+            BEGIN
+                SELECT ';$'; SELECT '$$ in a string';
+            END$$
+            DELIMITER ;
+            SELECT 'DELIMITER $$ not a directive here'; SELECT 2;   DELIMITER ignored mid-line;
+            SELECT 'unterminated last statement'
+            """
+        let expected = DelimiterScript.locatedStatements(from: script)
+        XCTAssertEqual(expected.count, 12)
+        let bytes = Array(script.utf8)
+        for chunkSize in 1...bytes.count {
+            var splitter = DelimiterScript.Splitter()
+            var found: [(sql: [UInt8], line: Int)] = []
+            for start in stride(from: 0, to: bytes.count, by: chunkSize) {
+                found += splitter.feed(bytes[start..<min(start + chunkSize, bytes.count)])
+            }
+            found += splitter.finish()
+            let decoded = try found.map { statement in
+                let text = try XCTUnwrap(String(bytes: statement.sql, encoding: .utf8), "cut inside a character at chunk size \(chunkSize)")
+                return DelimiterScript.Statement(sql: text.trimmingCharacters(in: .whitespacesAndNewlines), lineOffset: statement.line)
+            }
+            XCTAssertEqual(decoded, expected, "chunk size \(chunkSize)")
+        }
+    }
+
+    /// A server in NO_BACKSLASH_ESCAPES mode reads a backslash in a string
+    /// as itself, so `'C:\'` is a whole string there. Only the server knows
+    /// its mode once a statement has changed it, so the splitter stops after
+    /// any statement that mentions sql_mode and reads the rest the way the
+    /// caller then says the server does.
+    func testSplitterReadsBackslashesInTheModeTheCallerSets() {
+        func sql(_ found: [(sql: [UInt8], line: Int)]) -> [String] {
+            found.map { String(decoding: $0.sql, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines) }
+        }
+        let script = "SET sql_mode = 'NO_BACKSLASH_ESCAPES';\nSELECT 'C:\\'; SELECT 2;\n/*!50003 SET SQL_MODE = '' */;\nSELECT 'it\\'s; one'; SELECT 3;\n"
+        var splitter = DelimiterScript.Splitter()
+        XCTAssertEqual(sql(splitter.feed(script.utf8)), ["SET sql_mode = 'NO_BACKSLASH_ESCAPES'"])
+        splitter.noBackslashEscapes = true
+        XCTAssertEqual(sql(splitter.feed(Data())), [#"SELECT 'C:\'"#, "SELECT 2", "/*!50003 SET SQL_MODE = '' */"])
+        splitter.noBackslashEscapes = false
+        XCTAssertEqual(sql(splitter.finish()), [#"SELECT 'it\'s; one'"#, "SELECT 3"])
     }
 }

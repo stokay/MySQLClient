@@ -33,7 +33,7 @@ enum DelimiterScript {
     /// `statements(from:)` opts in on.
     static func containsDelimiterDirective(_ script: String) -> Bool {
         // `[ \t]`, not `\s` — this must only match a directive that's
-        // complete on one line, matching `delimiterDirective`'s per-line
+        // complete on one line, matching `commandLine`'s per-line
         // check below (`\s` would let the token match across a newline,
         // e.g. treating a stray "DELIMITER" line as directive by borrowing
         // the next line's first word as its token).
@@ -88,40 +88,109 @@ enum DelimiterScript {
         // a many-megabyte dump fast, and sees `\r\n` as two bytes where
         // `Character` sees one that isn't equal to "\n".
         let bytes = Array(script.utf8)
-        let count = bytes.count
-        var statements: [Statement] = []
+        return scan(bytes, isFinal: true).statements.compactMap { found in
+            let statement = String(decoding: bytes[found.range], as: UTF8.self)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            return statement.isEmpty ? nil : Statement(sql: statement, lineOffset: found.line)
+        }
+    }
+
+    /// What a scan that stopped part-way needs to carry on from there.
+    struct ScanState: Equatable {
         var delimiter = Array(";".utf8)
+        var isAtLineStart = true
+        /// Line breaks before this point.
+        var line = 0
+        /// The server's sql_mode has NO_BACKSLASH_ESCAPES: a backslash in a
+        /// string is then an ordinary character, so `'C:\'` is a whole
+        /// string. The mysql client follows the server's status flag for
+        /// this; only the caller, which talks to the server, can keep it
+        /// up to date.
+        var noBackslashEscapes = false
+    }
+
+    /// The scanner behind `locatedStatements(from:)`, over raw bytes, and
+    /// able to work through a script a piece at a time (a dump too big to
+    /// hold in memory, see `DatabaseRestoreViewModel`).
+    ///
+    /// With `isFinal` false, `bytes` may stop anywhere — inside a string, a
+    /// comment or a `DELIMITER` line. The scan then returns only statements
+    /// that are complete, `consumed` (how many leading bytes they took) and
+    /// the state after them; the caller passes the rest again, with more
+    /// bytes after it, and that state. Everything is decided exactly as one
+    /// scan of the whole script would decide it, since a statement only
+    /// ever ends at a delimiter or a whole `DELIMITER` line.
+    ///
+    /// Each statement comes back as its byte range in `bytes`, untrimmed,
+    /// with the line it starts on; decoding is left to the caller.
+    ///
+    /// With `stopsAfterSQLMode`, the scan also stops right after a statement
+    /// that mentions sql_mode, as if the bytes ended there: running it may
+    /// change `noBackslashEscapes` for the rest.
+    static func scan(
+        _ bytes: [UInt8],
+        from state: ScanState = ScanState(),
+        isFinal: Bool,
+        stopsAfterSQLMode: Bool = false
+    ) -> (statements: [(range: Range<Int>, line: Int)], consumed: Int, state: ScanState) {
+        let count = bytes.count
+        var statements: [(range: Range<Int>, line: Int)] = []
+        var delimiter = state.delimiter
         // Offset of the current statement's first byte of SQL (and the
         // line that byte is on), `nil` while only whitespace and comments
         // have been seen since the last one.
         var statementStart: (offset: Int, line: Int)?
         // Line breaks passed so far — every loop below that steps over a
         // "\n" has to count it.
-        var line = 0
-        var isAtLineStart = true
+        var line = state.line
+        var isAtLineStart = state.isAtLineStart
         var index = 0
+        // The last point where a statement had just ended: where a scan
+        // that stops early can be picked up again.
+        var boundary = (offset: 0, state: state)
+        var stopped = false
 
         func endStatement(at end: Int) {
             guard let start = statementStart else { return }
             statementStart = nil
-            let statement = String(decoding: bytes[start.offset..<end], as: UTF8.self)
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            if !statement.isEmpty {
-                statements.append(Statement(sql: statement, lineOffset: start.line))
-            }
+            statements.append((start.offset..<end, start.line))
+            stopped = stopsAfterSQLMode && mentionsSQLMode(bytes[start.offset..<end])
+        }
+
+        // The state to carry on from here, between statements.
+        func stateHere(isAtLineStart: Bool = false) -> ScanState {
+            ScanState(delimiter: delimiter, isAtLineStart: isAtLineStart, line: line, noBackslashEscapes: state.noBackslashEscapes)
         }
 
         func byte(at offset: Int) -> UInt8? {
             offset < count ? bytes[offset] : nil
         }
 
-        while index < count {
+        scanning: while index < count {
             if isAtLineStart {
                 isAtLineStart = false
-                if let directive = delimiterDirective(in: bytes, lineStart: index) {
+                if let directive = commandLine("delimiter", in: bytes, lineStart: index) {
+                    // Without its line break, the line may go on in bytes
+                    // not read yet (`DELIMITER $` of `DELIMITER $$`).
+                    if !isFinal, directive.lineEnd == count { break scanning }
                     endStatement(at: index)
-                    delimiter = directive.delimiter
+                    delimiter = directive.argument
                     index = directive.lineEnd
+                    boundary = (index, stateHere())
+                    if stopped { break scanning }
+                    continue
+                }
+                // The MariaDB client (and the mysql client with --commands)
+                // runs a `use` line that has no delimiter on its own, when
+                // no statement has started yet.
+                if statementStart == nil, let use = commandLine("use", in: bytes, lineStart: index),
+                   !bytes[index..<use.lineEnd].contains(delimiter) {
+                    if !isFinal, use.lineEnd == count { break scanning }
+                    statementStart = (index, line)
+                    endStatement(at: use.lineEnd)
+                    index = use.lineEnd
+                    boundary = (index, stateHere())
+                    if stopped { break scanning }
                     continue
                 }
             }
@@ -130,6 +199,8 @@ enum DelimiterScript {
             if current == delimiter[0], bytes[index...].starts(with: delimiter) {
                 endStatement(at: index)
                 index += delimiter.count
+                boundary = (index, stateHere())
+                if stopped { break scanning }
                 continue
             }
 
@@ -147,7 +218,7 @@ enum DelimiterScript {
                 let quote = current
                 index += 1
                 while index < count, bytes[index] != quote {
-                    let isEscape = bytes[index] == UInt8(ascii: "\\") && quote != UInt8(ascii: "`")
+                    let isEscape = bytes[index] == UInt8(ascii: "\\") && quote != UInt8(ascii: "`") && !state.noBackslashEscapes
                     for skipped in index..<min(index + (isEscape ? 2 : 1), count) where bytes[skipped] == UInt8(ascii: "\n") {
                         line += 1
                     }
@@ -167,10 +238,16 @@ enum DelimiterScript {
                 // `/*!40101 … */` (and MariaDB's `/*M! … */`) is SQL the
                 // server executes, so unlike a real comment it makes a
                 // statement on its own — mysqldump's preamble is built
-                // from exactly these.
+                // from exactly these. Its inside is read on as SQL, as the
+                // mysql client reads it: a `*/` in a string there doesn't
+                // end it, and a delimiter ends the statement.
                 let isExecutable = byte(at: index + 2) == UInt8(ascii: "!")
                     || (byte(at: index + 2) == UInt8(ascii: "M") && byte(at: index + 3) == UInt8(ascii: "!"))
-                if isExecutable, statementStart == nil { statementStart = (index, line) }
+                if isExecutable {
+                    if statementStart == nil { statementStart = (index, line) }
+                    index += 2
+                    break
+                }
                 index += 2
                 while index < count, !(bytes[index] == UInt8(ascii: "*") && byte(at: index + 1) == UInt8(ascii: "/")) {
                     if bytes[index] == UInt8(ascii: "\n") { line += 1 }
@@ -184,17 +261,75 @@ enum DelimiterScript {
             }
         }
 
+        guard isFinal, !stopped else {
+            return (statements, boundary.offset, boundary.state)
+        }
         endStatement(at: count)
-        return statements
+        return (statements, count, stateHere(isAtLineStart: isAtLineStart))
     }
 
-    /// `"DELIMITER $$"` → `$$`, `"delimiter ;"` → `;`, along with where
-    /// that line ends. Requires a token after the keyword — a bare
-    /// `"DELIMITER"` isn't a directive this can act on, so it's left for
-    /// the surrounding statement to carry (harmlessly, as ordinary text).
-    /// Only ever asked about a line that starts outside a string or
-    /// comment, so a `DELIMITER` line quoted inside one is left alone.
-    private static func delimiterDirective(in bytes: [UInt8], lineStart: Int) -> (delimiter: [UInt8], lineEnd: Int)? {
+    /// Whether a statement mentions sql_mode, so may change how the server
+    /// reads a backslash in the strings after it (`noBackslashEscapes`).
+    static func mentionsSQLMode(_ statement: ArraySlice<UInt8>) -> Bool {
+        let name = Array("sql_mode".utf8)
+        // `| 0x20` lowercases an ASCII letter; `_` changes alike on both sides.
+        return statement.indices.dropLast(name.count - 1).contains { start in
+            statement[start] | 0x20 == name[0] && zip(statement[start...], name).allSatisfy { $0 | 0x20 == $1 | 0x20 }
+        }
+    }
+
+    /// Splits a script handed over a piece at a time — a file read in
+    /// chunks — into the same statements `locatedStatements(from:)` finds
+    /// in the whole of it. Statements come back as raw bytes: one is only
+    /// ever cut at a delimiter, never inside a multi-byte character, and
+    /// the caller decides how strictly to decode it.
+    ///
+    /// A statement longer than the chunks it arrives in is scanned again
+    /// from its start with each chunk, so a caller reading a file should
+    /// grow its reads while no statement ends (`DatabaseRestoreViewModel`
+    /// doubles them).
+    ///
+    /// It hands over nothing past a statement that mentions sql_mode: the
+    /// caller runs it, sets `noBackslashEscapes` from the server, and asks
+    /// for the rest with `feed` of no bytes (or `finish`).
+    struct Splitter {
+        private var pending: [UInt8] = []
+        private var state = ScanState()
+
+        var noBackslashEscapes: Bool {
+            get { state.noBackslashEscapes }
+            set { state.noBackslashEscapes = newValue }
+        }
+
+        /// The statements `bytes` completes.
+        mutating func feed(_ bytes: some Sequence<UInt8>) -> [(sql: [UInt8], line: Int)] {
+            pending.append(contentsOf: bytes)
+            return take(isFinal: false)
+        }
+
+        /// Whatever is left once the script has ended, as the last statement.
+        mutating func finish() -> [(sql: [UInt8], line: Int)] {
+            take(isFinal: true)
+        }
+
+        private mutating func take(isFinal: Bool) -> [(sql: [UInt8], line: Int)] {
+            let result = DelimiterScript.scan(pending, from: state, isFinal: isFinal, stopsAfterSQLMode: true)
+            let statements = result.statements.map { (sql: Array(pending[$0.range]), line: $0.line) }
+            pending.removeFirst(result.consumed)
+            state = result.state
+            return statements
+        }
+    }
+
+    /// A line that holds one of the mysql client's own commands: for
+    /// `"delimiter"`, `"DELIMITER $$"` → `$$`, `"delimiter ;"` → `;`,
+    /// along with where that line ends. Requires a token after the
+    /// keyword — a bare `"DELIMITER"` isn't a directive this can act on,
+    /// so it's left for the surrounding statement to carry (harmlessly,
+    /// as ordinary text). Only ever asked about a line that starts outside
+    /// a string or comment, so a `DELIMITER` line quoted inside one is
+    /// left alone.
+    private static func commandLine(_ command: String, in bytes: [UInt8], lineStart: Int) -> (argument: [UInt8], lineEnd: Int)? {
         let count = bytes.count
         func isBlank(_ offset: Int) -> Bool {
             bytes[offset] == UInt8(ascii: " ") || bytes[offset] == UInt8(ascii: "\t")
@@ -202,7 +337,7 @@ enum DelimiterScript {
 
         var index = lineStart
         while index < count, isBlank(index) { index += 1 }
-        for letter in "delimiter".utf8 {
+        for letter in command.utf8 {
             // `| 0x20` lowercases an ASCII letter.
             guard index < count, bytes[index] | 0x20 == letter else { return nil }
             index += 1

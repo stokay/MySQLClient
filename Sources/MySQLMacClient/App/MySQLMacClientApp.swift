@@ -7,6 +7,12 @@ import AppKit
 /// draws and takes clicks, but keyboard focus stays with whatever app was
 /// frontmost before launch (e.g. the IDE) and every keystroke leaks there.
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    /// Ends the ssh of every SSH tunnel, which would outlive the app: the
+    /// session's, and any still opening or closing.
+    func applicationWillTerminate(_ notification: Notification) {
+        SSHTunnel.closeAll()
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Bundle check keeps this a no-op for the .app builds while
         // restoring keyboard input for `swift run` development builds.

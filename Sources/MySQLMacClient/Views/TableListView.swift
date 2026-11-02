@@ -42,6 +42,7 @@ struct TableListView: View {
     let onCreateTrigger: (String) -> Void
     let onCreateEvent: (String) -> Void
     let onBackupDatabase: (DatabaseInfo) -> Void
+    let onRestoreDatabase: (DatabaseInfo) -> Void
     let onTruncateTable: (TableInfo) -> Void
     let onDropTable: (TableInfo) -> Void
     let onInsertQueryTemplate: (TableInfo, SQLTemplate.Kind) -> Void
@@ -89,6 +90,7 @@ struct TableListView: View {
                             onCreateTrigger: onCreateTrigger,
                             onCreateEvent: onCreateEvent,
                             onBackupDatabase: onBackupDatabase,
+                            onRestoreDatabase: onRestoreDatabase,
                             onTruncateTable: onTruncateTable,
                             onDropTable: onDropTable,
                             onInsertQueryTemplate: onInsertQueryTemplate,
@@ -299,7 +301,8 @@ private struct ConnectionRow: View {
 
     var body: some View {
         RowHeader(
-            title: "\(profile.username)@\(profile.host)",
+            // Through SSH, Host alone would read like a local database.
+            title: "\(profile.username)@\(profile.host)" + (profile.ssh.map { " " + String(localized: "via \($0.host)") } ?? ""),
             systemImage: "server.rack",
             // Reuses the database row's color rather than adding a
             // dedicated setting for a single row — see the create-database
@@ -332,6 +335,7 @@ private struct DatabaseRow: View {
     let onCreateTrigger: (String) -> Void
     let onCreateEvent: (String) -> Void
     let onBackupDatabase: (DatabaseInfo) -> Void
+    let onRestoreDatabase: (DatabaseInfo) -> Void
     let onTruncateTable: (TableInfo) -> Void
     let onDropTable: (TableInfo) -> Void
     let onInsertQueryTemplate: (TableInfo, SQLTemplate.Kind) -> Void
@@ -537,6 +541,9 @@ private struct DatabaseRow: View {
 
         Button("Backup...") {
             onBackupDatabase(node.info)
+        }
+        Button("Restore...") {
+            onRestoreDatabase(node.info)
         }
     }
 }
