@@ -8294,6 +8294,113 @@
         }
       }
     },
+    "Could not load the trigger/event list; the other objects were loaded: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تعذّر تحميل قائمة المشغّلات/الأحداث؛ تم تحميل الكائنات الأخرى: %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger-/Ereignisliste konnte nicht geladen werden; die übrigen Objekte wurden geladen: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar la lista de disparadores/eventos; se cargaron los demás objetos: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger la liste des triggers/événements ; les autres objets ont été chargés : %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ट्रिगर/इवेंट सूची लोड नहीं हो सकी; बाकी ऑब्जेक्ट लोड हो गए: %@"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidak dapat memuat daftar trigger/event; objek lainnya berhasil dimuat: %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile caricare l'elenco di trigger/eventi; gli altri oggetti sono stati caricati: %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トリガー／イベントのリストを読み込めませんでした。その他のオブジェクトは読み込まれました: %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "트리거/이벤트 목록을 불러올 수 없습니다. 나머지 개체는 불러왔습니다: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się wczytać listy wyzwalaczy/zdarzeń; pozostałe obiekty zostały wczytane: %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível carregar a lista de triggers/eventos; os demais objetos foram carregados: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось загрузить список триггеров/событий; остальные объекты загружены: %@"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โหลดรายการทริกเกอร์/อีเวนต์ไม่สำเร็จ แต่โหลดออบเจ็กต์อื่นสำเร็จแล้ว: %@"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger/Event listesi alınamadı, diğer nesneler yüklendi: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể tải danh sách trình kích hoạt/sự kiện; đã tải xong các đối tượng khác: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法加载触发器/事件列表；已加载其他对象：%@"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入觸發器／事件清單；已載入其他物件：%@"
+          }
+        }
+      }
+    },
     "Could not load view definition: %@": {
       "extractionState": "manual",
       "localizations": {
@@ -13120,6 +13227,113 @@
           "stringUnit": {
             "state": "translated",
             "value": "事件…"
+          }
+        }
+      }
+    },
+    "Event: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الحدث: %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ereignis: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evento: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Événement : %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इवेंट: %@"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event: %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evento: %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント: %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이벤트: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zdarzenie: %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evento: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Событие: %@"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อีเวนต์: %@"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sự kiện: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件：%@"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件：%@"
           }
         }
       }
@@ -22646,6 +22860,113 @@
           "stringUnit": {
             "state": "translated",
             "value": "無"
+          }
+        }
+      }
+    },
+    "Not InnoDB, so \"Single transaction\" can't read them from one snapshot (\"Lock tables for reading\" can): %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذه الجداول ليست InnoDB، لذا لا يستطيع خيار \"معاملة واحدة (single transaction)\" قراءتها من لقطة واحدة (أما \"قفل الجداول للقراءة\" فيستطيع): %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Tabellen verwenden nicht InnoDB, daher kann „Einzeltransaktion (single transaction)“ sie nicht aus einem einzigen Snapshot lesen („Tabellen zum Lesen sperren“ kann das): %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estas tablas no son InnoDB, así que «Transacción única (single transaction)» no puede leerlas de una sola instantánea («Bloquear tablas para lectura» sí puede): %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ces tables n'utilisent pas InnoDB, donc « Transaction unique (single transaction) » ne peut pas les lire depuis un seul instantané (« Verrouiller les tables en lecture » le peut) : %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ये टेबल InnoDB नहीं हैं, इसलिए \"एकल ट्रांज़ैक्शन (single transaction)\" इन्हें एक ही स्नैपशॉट से नहीं पढ़ सकता (\"पढ़ने के लिए टेबल लॉक करें\" पढ़ सकता है): %@"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tabel berikut bukan InnoDB, jadi \"Transaksi tunggal\" tidak bisa membacanya dari satu snapshot (\"Kunci tabel untuk pembacaan\" bisa): %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Queste tabelle non sono InnoDB, quindi \"Transazione singola (single transaction)\" non può leggerle da un unico snapshot (\"Blocca tabelle per la lettura\" può farlo): %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "これらのテーブルは InnoDB ではないため、「単一トランザクション (single transaction)」では 1 つのスナップショットから読み込めません（「テーブルを読み取り用にロックする」なら読み込めます）: %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음 테이블은 InnoDB가 아니어서 \"단일 트랜잭션 (single transaction)\"으로는 하나의 스냅샷에서 읽을 수 없습니다(\"읽기용으로 테이블 잠금\"으로는 읽을 수 있습니다): %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Te tabele nie używają InnoDB, więc „Jedna transakcja (single transaction)” nie może odczytać ich z jednej migawki („Blokuj tabele do odczytu” może): %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estas tabelas não são InnoDB, então \"Transação única (single transaction)\" não consegue lê-las de um único snapshot (\"Bloquear tabelas para leitura\" consegue): %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эти таблицы не используют InnoDB, поэтому «Одна транзакция (single transaction)» не может прочитать их из одного снимка («Блокировать таблицы для чтения» может): %@"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตารางต่อไปนี้ไม่ได้ใช้ InnoDB ดังนั้น \"ธุรกรรมเดียว\" จึงอ่านตารางเหล่านี้จากสแนปช็อตเดียวไม่ได้ (\"ล็อกตารางสำหรับการอ่าน\" อ่านได้): %@"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu tablolar InnoDB değil, bu yüzden “Tek işlem (single transaction)” onları tek bir anlık görüntüden okuyamaz (“Okuma için tabloları kilitle” okuyabilir): %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Các bảng sau không dùng InnoDB, nên \"Giao dịch đơn\" không thể đọc chúng từ cùng một ảnh chụp (\"Khóa bảng để đọc\" thì đọc được): %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这些表不是 InnoDB 表，因此“单一事务 (single transaction)”无法从同一个快照中读取它们（“锁定表以供读取”可以）：%@"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這些表格不是 InnoDB 表格，因此「單一交易 (single transaction)」無法從同一個快照讀取它們（「鎖定表格以供讀取」可以）：%@"
           }
         }
       }
@@ -32400,6 +32721,113 @@
         }
       }
     },
+    "The connection to the server dropped during the backup. The rest would have been read outside the backup's snapshot and settings, so nothing was saved. Run the backup again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "انقطع الاتصال بالخادم أثناء النسخ الاحتياطي. كان الباقي سيُقرأ خارج اللقطة والإعدادات الخاصة بالنسخ الاحتياطي، لذلك لم يُحفظ شيء. شغّل النسخ الاحتياطي مرة أخرى."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Verbindung zum Server ist während der Sicherung abgebrochen. Der Rest wäre außerhalb des Snapshots und der Einstellungen der Sicherung gelesen worden, daher wurde nichts gespeichert. Starten Sie die Sicherung erneut."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La conexión con el servidor se cortó durante la copia de seguridad. El resto se habría leído fuera de la instantánea y la configuración de la copia, así que no se guardó nada. Vuelve a ejecutar la copia de seguridad."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La connexion au serveur a été interrompue pendant la sauvegarde. Le reste aurait été lu hors de l'instantané et des réglages de la sauvegarde, donc rien n'a été enregistré. Relancez la sauvegarde."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बैकअप के दौरान सर्वर से कनेक्शन टूट गया। बाकी हिस्सा बैकअप के स्नैपशॉट और सेटिंग्स के बाहर पढ़ा जाता, इसलिए कुछ भी सेव नहीं किया गया। बैकअप फिर से चलाएँ।"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koneksi ke server terputus saat pencadangan. Sisanya akan terbaca di luar snapshot dan pengaturan pencadangan, jadi tidak ada yang disimpan. Jalankan pencadangan lagi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La connessione al server si è interrotta durante il backup. Il resto sarebbe stato letto fuori dallo snapshot e dalle impostazioni del backup, quindi non è stato salvato nulla. Esegui di nuovo il backup."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップ中にサーバーとの接続が切れました。残りはバックアップのスナップショットと設定の外で読み込まれることになるため、何も保存しませんでした。もう一度バックアップを実行してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백업 중에 서버 연결이 끊어졌습니다. 나머지는 백업의 스냅샷과 설정 밖에서 읽혔을 것이므로 아무것도 저장하지 않았습니다. 백업을 다시 실행하세요."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Połączenie z serwerem zostało przerwane podczas kopii zapasowej. Reszta zostałaby odczytana poza migawką i ustawieniami kopii, więc niczego nie zapisano. Uruchom kopię zapasową ponownie."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A conexão com o servidor caiu durante o backup. O restante seria lido fora do snapshot e das configurações do backup, então nada foi salvo. Execute o backup novamente."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Соединение с сервером прервалось во время резервного копирования. Остальное было бы прочитано вне снимка и настроек резервной копии, поэтому ничего не сохранено. Запустите резервное копирование ещё раз."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การเชื่อมต่อกับเซิร์ฟเวอร์หลุดระหว่างการสำรองข้อมูล ส่วนที่เหลือจะถูกอ่านนอกสแนปช็อตและการตั้งค่าของการสำรองข้อมูล จึงไม่ได้บันทึกอะไรไว้ โปรดสำรองข้อมูลอีกครั้ง"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yedekleme sırasında sunucu bağlantısı koptu. Geri kalanı yedeklemenin anlık görüntüsü ve ayarları dışında okunacaktı, bu yüzden hiçbir şey kaydedilmedi. Yedeklemeyi yeniden çalıştırın."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kết nối tới máy chủ bị ngắt trong khi sao lưu. Phần còn lại sẽ được đọc ngoài ảnh chụp và cài đặt của bản sao lưu, nên không có gì được lưu. Hãy chạy lại sao lưu."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备份期间与服务器的连接中断。其余部分将在备份的快照和设置之外读取，因此未保存任何内容。请重新运行备份。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "備份期間與伺服器的連線中斷。其餘部分將在備份的快照與設定之外讀取，因此未儲存任何內容。請重新執行備份。"
+          }
+        }
+      }
+    },
     "The message could not be accepted. Please check it and try again.": {
       "extractionState": "manual",
       "localizations": {
@@ -34108,6 +34536,113 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trigger…"
+          }
+        }
+      }
+    },
+    "Trigger: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger: %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disparador: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger : %@"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger: %@"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger: %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger: %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トリガー: %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyzwalacz: %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Триггер: %@"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทริกเกอร์: %@"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trình kích hoạt: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "触发器：%@"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger：%@"
           }
         }
       }
