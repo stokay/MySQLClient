@@ -57,7 +57,8 @@ A native macOS MySQL management tool built with **Swift 6 / SwiftUI**, available
 ### Export, Import & Backup
 - **Table Export** — CSV, HTML, JSON, SQL, and hand-rolled `.xlsx` (no third-party dependency), streamed page-by-page so multi-million-row tables don't sit in memory; live progress bar and cancel
 - **Table Import** — reads a CSV (streaming RFC4180 parser) or Excel `.xlsx` file (hand-rolled reader — DEFLATE-compressed archives, shared strings, multiple sheets, date-styled cells), auto-maps columns by header name (correctable per column), and writes every row inside a single transaction — all rows land or none do
-- **Database Backup** — HeidiSQL-style SQL dump dialog: structure/data/both, `DROP` statements, extended inserts, `LOCK TABLES` / `--single-transaction`, tables + views + routines, with progress and cancel
+- **Database Backup** — HeidiSQL-style SQL dump dialog: structure/data/both, `DROP` statements, extended inserts, tables + views + procedures + functions + triggers + events + MariaDB sequences, with progress and cancel. It reads on a connection of its own, from one consistent snapshot of InnoDB tables (the default; each table is let go once read, so DDL on it doesn't wait for the whole backup) or with every table and view under `LOCK TABLES` (which keeps other engines consistent too). Every value is written exactly as the server holds it (DECIMAL digits, fractions of a second, unsigned BIGINT, BIT, binary data as hex). The file sets its own character set, time zone and SQL mode the way mysqldump does, creates each routine, trigger, event and view under the settings it was created with, and creates objects in an order that restores: sequences before the tables using them, routines before views, each view after the views it's built on. So it restores the same on a differently configured server or into another database
+- **Database Restore** — runs a SQL file (a backup from this app, mysqldump or HeidiSQL) into a database, read a chunk at a time so a dump of any size works, on a connection of its own; by default into the database you picked: the file's own `USE` and `DROP DATABASE` are skipped, and its database character set and collation (`CREATE DATABASE … CHARACTER SET`, mysqldump's `ALTER DATABASE`) are given to the database you picked, so the original is never touched; a file that holds several databases is refused there (each can go into its own with "Use the database named in the file"). It reads backslashes the way the server's `sql_mode` says, as the mysql client does; stops at the first failed statement (or carries on and lists every failure) and says at which line of the file; and refuses a statement of 16 MB or more rather than send it cut off
 - All file writes go through an atomic temp-file-then-replace step, so a failed or cancelled run never touches (or deletes) a pre-existing file at the destination
 
 ### Localization
@@ -125,8 +126,9 @@ Sources/MySQLMacClient/
 git clone https://github.com/stokay/MySQLClient.git
 cd MySQLClient
 
-# Build and run
-swift run
+# Build and run (`--build-system native`: SwiftPM 6.4's default build
+# system fails on the app's String Catalog)
+swift run --build-system native
 
 # — or open in Xcode for full IDE experience —
 open Package.swift
@@ -152,6 +154,34 @@ into `MySQLMacClient-<version>.dmg` in the repo root.
 > reflects reality in this signed build — `swift run` doesn't actually
 > enforce App Sandbox, so a sandbox permission bug can look fine there and
 > still fail in the packaged app.
+
+### Running the tests
+
+Most tests talk to a real MySQL/MariaDB server, not a mock. The quickest way
+to get one is Docker:
+
+```bash
+testenv/run-tests.sh                  # starts MariaDB 10.4 in Docker, runs every test
+testenv/run-tests.sh --filter Backup  # extra arguments go to `swift test`
+docker compose -f testenv/docker-compose.yml down   # stop the server
+```
+
+The server listens on `127.0.0.1:43306` only, keeps its data in memory, and
+loads `testenv/fixtures.sql` (the `mysqlmacclient_test` schema) on start.
+To use a MariaDB server of your own instead (the schema uses MariaDB's Aria
+engine), load that file into it yourself, e.g.
+`mysql -u root -p < testenv/fixtures.sql`, and run
+`swift test --build-system native` with `MYSQL_TEST_HOST`,
+`MYSQL_TEST_PORT`, `MYSQL_TEST_USER` and `MYSQL_TEST_PASSWORD` set; without
+them the tests connect to `127.0.0.1:3306` as `root` with no password.
+`--build-system native` matters: SwiftPM 6.4's default build system fails
+on the app's String Catalog.
+
+`BackupRoundTripTests` backs a schema of edge cases up, drops it, restores
+the file, and checks that the server reports exactly the same tables,
+views, routines, triggers, events, rows and checksums as before.
+`testenv/run-round-trip-matrix.sh` runs those tests on MariaDB 11.4, MySQL
+8.0 and MySQL 8.4 as well.
 
 ### First Connection
 1. Launch the app → the connection form appears
@@ -188,4 +218,4 @@ into `MySQLMacClient-<version>.dmg` in the repo root.
 
 ## License
 
-Personal project — no license specified.
+Apache License 2.0 — see [LICENSE](LICENSE).

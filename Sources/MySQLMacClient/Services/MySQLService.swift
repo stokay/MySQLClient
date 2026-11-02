@@ -70,6 +70,11 @@ actor MySQLService {
 
     private(set) var isConnected: Bool = false
 
+    /// Off for a connection opened for one job (`openSeparateConnection`):
+    /// a new session would have lost the job's database and settings, so a
+    /// drop has to end the job rather than carry on somewhere else.
+    private var reconnectsAutomatically = true
+
     /// Whatever `SELECT VERSION()` returned on connect — e.g.
     /// `"10.4.32-MariaDB"` or `"8.0.45"`. Read once per connection rather
     /// than per use: it can't change under a live connection, and error
@@ -100,6 +105,16 @@ actor MySQLService {
                 tlsConfiguration: nil,
                 on: eventLoop
             ).get()
+            // MySQLNIO's login asks for collation 255, which only MySQL 8
+            // knows; MariaDB silently falls back to its default (often
+            // latin1) and would then store the UTF-8 this app sends as
+            // double-encoded text. Every reconnect comes through here too.
+            do {
+                _ = try await conn.simpleQuery("SET NAMES utf8mb4").get()
+            } catch {
+                try? await conn.close().get()
+                throw error
+            }
             self.eventLoopGroup = group
             self.connection = conn
             self.isConnected = true
@@ -113,6 +128,30 @@ actor MySQLService {
             try? await group.shutdownGracefully()
             throw error
         }
+    }
+
+    /// A second connection with this one's credentials, for a job that
+    /// changes its session (a restore runs USE and the file's own SET
+    /// statements) and so mustn't share the connection the rest of the app
+    /// is using. It starts in no database, since the one this connection
+    /// logged in to may have been dropped since, and it doesn't reconnect
+    /// by itself.
+    func openSeparateConnection() async throws -> MySQLService {
+        guard let credentials = lastCredentials else { throw MySQLServiceError.notConnected }
+        let separate = MySQLService()
+        try await separate.connect(
+            host: credentials.host,
+            port: credentials.port,
+            username: credentials.username,
+            password: credentials.password,
+            database: nil
+        )
+        await separate.disableAutomaticReconnect()
+        return separate
+    }
+
+    private func disableAutomaticReconnect() {
+        reconnectsAutomatically = false
     }
 
     func disconnect() async throws {
@@ -132,6 +171,19 @@ actor MySQLService {
         try await withRetryOnClosedConnection {
             try await self.withExclusiveConnectionAccess { conn in
                 try await conn.query(sql, binds).get()
+            }
+        }
+    }
+
+    /// `query` over the text protocol, which carries every value as the
+    /// server's own text. The binary protocol `query` uses is lossy for
+    /// some types once decoded (DECIMAL, BIT wider than 8 bits, YEAR,
+    /// TIME), so a backup, which has to write values back exactly, reads
+    /// with this instead. Takes no binds.
+    func textQuery(_ sql: String) async throws -> [MySQLRow] {
+        try await withRetryOnClosedConnection {
+            try await self.withExclusiveConnectionAccess { conn in
+                try await conn.simpleQuery(sql).get()
             }
         }
     }
@@ -220,7 +272,7 @@ actor MySQLService {
         do {
             return try await operation()
         } catch MySQLError.closed {
-            guard let credentials = lastCredentials else { throw MySQLError.closed }
+            guard reconnectsAutomatically, let credentials = lastCredentials else { throw MySQLError.closed }
             try await connect(
                 host: credentials.host,
                 port: credentials.port,
