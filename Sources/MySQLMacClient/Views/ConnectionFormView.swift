@@ -17,7 +17,7 @@ struct ConnectionFormView: View {
             savedConnectionsList
                 .frame(minWidth: 200, idealWidth: 220, maxWidth: 280)
 
-            form
+            ScrollView { form }
                 .frame(minWidth: 380, maxWidth: .infinity)
         }
         .frame(minWidth: 640, minHeight: 480)
@@ -153,6 +153,64 @@ struct ConnectionFormView: View {
                     TextField("Optional — lists all if empty", text: $viewModel.database)
                         .visibleFieldBorder()
                 }
+                formRow("Encryption") {
+                    Picker("", selection: $viewModel.tlsMode) {
+                        Text("Off").tag(TLSMode?.none)
+                        ForEach(TLSMode.allCases) { mode in
+                            Text(mode.displayName).tag(TLSMode?.some(mode))
+                        }
+                    }
+                    .labelsHidden()
+                    .fixedSize()
+                }
+                formRow("SSH") {
+                    Toggle("Connect through an SSH server", isOn: $viewModel.usesSSH)
+                        .toggleStyle(.checkbox)
+                }
+                if viewModel.usesSSH {
+                    formRow("SSH Host") {
+                        hostAndPort(host: $viewModel.sshHost, port: $viewModel.sshPort)
+                    }
+                    formRow("SSH Username") {
+                        TextField("", text: $viewModel.sshUsername)
+                            .visibleFieldBorder()
+                    }
+                    if ConnectionFormViewModel.isSandboxed {
+                        formRow("SSH Folder") {
+                            HStack(spacing: 8) {
+                                Text(viewModel.sshFolder?.path ?? String(localized: "Not chosen — ssh can only use a folder you choose"))
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Button("Choose…", action: chooseSSHFolder)
+                            }
+                        }
+                    }
+                    formRow("SSH Key") {
+                        HStack(spacing: 8) {
+                            TextField("Optional — ssh-agent and ~/.ssh if empty", text: $viewModel.sshKeyFile)
+                                .visibleFieldBorder()
+                            Button("Choose…", action: chooseKeyFile)
+                        }
+                    }
+                    formRow("HTTP Proxy") {
+                        Toggle("Reach the SSH server through an HTTP proxy", isOn: $viewModel.usesProxy)
+                            .toggleStyle(.checkbox)
+                    }
+                    if viewModel.usesProxy {
+                        formRow("Proxy Host") {
+                            hostAndPort(host: $viewModel.proxyHost, port: $viewModel.proxyPort)
+                        }
+                        formRow("Proxy Username") {
+                            TextField("Optional", text: $viewModel.proxyUsername)
+                                .visibleFieldBorder()
+                        }
+                        formRow("Proxy Password") {
+                            RevealablePasswordField(text: $viewModel.proxyPassword)
+                        }
+                    }
+                }
             }
             .padding(12)
             .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
@@ -198,6 +256,45 @@ struct ConnectionFormView: View {
         }
         .padding(32)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
+    private func hostAndPort(host: Binding<String>, port: Binding<String>) -> some View {
+        HStack(spacing: 8) {
+            TextField("", text: host)
+                .visibleFieldBorder()
+            Text("Port")
+            TextField("", text: port)
+                .visibleFieldBorder()
+                .frame(width: 64)
+        }
+    }
+
+    private func chooseKeyFile() {
+        let panel = NSOpenPanel()
+        panel.showsHiddenFiles = true
+        panel.directoryURL = viewModel.sshFolder ?? Self.homeSSHFolder
+        if panel.runModal() == .OK, let url = panel.url {
+            viewModel.sshKeyFile = url.path
+        }
+    }
+
+    private func chooseSSHFolder() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.showsHiddenFiles = true
+        panel.directoryURL = Self.homeSSHFolder
+        panel.message = String(localized: "Choose the folder ssh keeps your keys and known hosts in, usually .ssh in your home folder.")
+        if panel.runModal() == .OK, let url = panel.url {
+            viewModel.useSSHFolder(url)
+        }
+    }
+
+    /// ~/.ssh. Not from `homeDirectoryForCurrentUser`: in the App Sandbox
+    /// that's the app's container.
+    private static var homeSSHFolder: URL {
+        let home = getpwuid(getuid())?.pointee.pw_dir.map { String(cString: $0) } ?? NSHomeDirectory()
+        return URL(fileURLWithPath: home).appendingPathComponent(".ssh")
     }
 
     /// One `Grid` row: right-aligned label in the shared label column,

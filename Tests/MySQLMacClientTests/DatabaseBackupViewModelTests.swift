@@ -16,6 +16,8 @@ import XCTest
 final class DatabaseBackupViewModelTests: XCTestCase {
     var service: MySQLService!
     var tempFileURL: URL!
+    /// Made by `makeScratchDatabase`, dropped in tearDown.
+    private var scratchDatabases: [String] = []
 
     override func setUp() async throws {
         // Assigned before any throwing call — see TableExportViewModelTests
@@ -24,10 +26,10 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         tempFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).sql")
         service = MySQLService()
         try await service.connect(
-            host: "127.0.0.1",
-            port: 3306,
-            username: "root",
-            password: nil,
+            host: TestDatabase.host,
+            port: TestDatabase.port,
+            username: TestDatabase.username,
+            password: TestDatabase.password,
             database: "mysqlmacclient_test"
         )
         try await service.execute("DELETE FROM widgets")
@@ -46,11 +48,34 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         // catalog unavailable) or already dropped.
         _ = try? await service.rawQuery("DROP PROCEDURE IF EXISTS backup_test_proc")
         _ = try? await service.rawQuery("DROP FUNCTION IF EXISTS backup_test_fn")
+        for name in scratchDatabases {
+            _ = try? await service.rawQuery("DROP DATABASE IF EXISTS `\(name)`")
+        }
+        _ = try? await service.rawQuery("DROP USER IF EXISTS 'mysqlmacclient_noevent'@'%'")
         try await service.disconnect()
     }
 
     private func makeViewModel() -> DatabaseBackupViewModel {
         DatabaseBackupViewModel(service: service, database: DatabaseInfo(name: "mysqlmacclient_test"))
+    }
+
+    /// A database of the test's own, with `statements` run in it.
+    private func makeScratchDatabase(_ name: String, _ statements: [String]) async throws -> DatabaseInfo {
+        scratchDatabases.append(name)
+        _ = try await service.rawQuery("DROP DATABASE IF EXISTS `\(name)`")
+        _ = try await service.rawQuery("CREATE DATABASE `\(name)`")
+        _ = try await service.rawQuery("USE `\(name)`")
+        for statement in statements {
+            _ = try await service.rawQuery(statement)
+        }
+        _ = try await service.rawQuery("USE mysqlmacclient_test")
+        return DatabaseInfo(name: name)
+    }
+
+    private func connectAnother() async throws -> MySQLService {
+        let other = MySQLService()
+        try await other.connect(host: TestDatabase.host, port: TestDatabase.port, username: TestDatabase.username, password: TestDatabase.password, database: nil)
+        return other
     }
 
     /// `throws` so callers can `try await` it directly before the rest of
@@ -119,6 +144,39 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.errorMessage, "yükleme uyarısı, çalıştırma hatasıyla karıştırılmamalı")
     }
 
+    /// Listing events takes the EVENT privilege, which a user who can read
+    /// everything else may lack: they still get every trigger.
+    func testLoadObjectsListsTriggersForAUserWhoCantListEvents() async throws {
+        let scratch = try await makeScratchDatabase("mysqlmacclient_backup_noevent", [
+            "CREATE TABLE t (id INT PRIMARY KEY)",
+            "CREATE TRIGGER t_bi BEFORE INSERT ON t FOR EACH ROW SET NEW.id = NEW.id",
+        ])
+        _ = try await service.rawQuery("DROP USER IF EXISTS 'mysqlmacclient_noevent'@'%'")
+        _ = try await service.rawQuery("CREATE USER 'mysqlmacclient_noevent'@'%' IDENTIFIED BY 'no-event'")
+        _ = try await service.rawQuery("GRANT SELECT, SHOW VIEW, TRIGGER ON `mysqlmacclient_backup_noevent`.* TO 'mysqlmacclient_noevent'@'%'")
+        let restricted = MySQLService()
+        try await restricted.connect(host: TestDatabase.host, port: TestDatabase.port, username: "mysqlmacclient_noevent", password: "no-event", database: nil)
+
+        let viewModel = DatabaseBackupViewModel(service: restricted, database: scratch)
+        await viewModel.loadDatabasesAndObjects()
+        try await restricted.disconnect()
+
+        XCTAssertEqual(viewModel.allTriggers.map(\.name), ["t_bi"])
+        XCTAssertEqual(viewModel.selectedTriggers.map(\.name), ["t_bi"])
+        XCTAssertNotNil(viewModel.loadWarning, "the events that couldn't be listed")
+    }
+
+    /// A single transaction reads only InnoDB tables from one snapshot: the
+    /// dialog names the others (`widgets` is Aria).
+    func testLoadObjectsNamesTablesASingleTransactionCantSnapshot() async throws {
+        let viewModel = makeViewModel()
+        await viewModel.loadDatabasesAndObjects()
+
+        let warning = try XCTUnwrap(viewModel.loadWarning)
+        XCTAssertTrue(warning.contains("widgets"))
+        XCTAssertFalse(warning.contains("tags"), "an InnoDB table")
+    }
+
     func testSelectNoneThenSelectAllRestoresFullSelection() async throws {
         let viewModel = makeViewModel()
         await viewModel.loadDatabasesAndObjects()
@@ -170,7 +228,7 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.errorMessage)
         let contents = try String(contentsOf: tempFileURL, encoding: .utf8)
         XCTAssertTrue(contents.contains("CREATE TABLE IF NOT EXISTS `widgets`"))
-        XCTAssertTrue(contents.contains("INSERT INTO `mysqlmacclient_test`.`widgets`"))
+        XCTAssertTrue(contents.contains("INSERT INTO `widgets`"))
         XCTAssertTrue(contents.contains("CREATE OR REPLACE"))
         XCTAssertTrue(contents.contains("VIEW `widget_view`"))
         XCTAssertTrue(viewModel.didFinishSuccessfully, "başarılı bir yedekleme tamamlanma uyarısını tetiklemeli")
@@ -263,8 +321,8 @@ final class DatabaseBackupViewModelTests: XCTestCase {
 
         XCTAssertNil(viewModel.errorMessage)
         let contents = try String(contentsOf: tempFileURL, encoding: .utf8)
-        XCTAssertTrue(contents.contains("DROP TABLE IF EXISTS `mysqlmacclient_test`.`widgets`;"))
-        XCTAssertTrue(contents.contains("DROP VIEW IF EXISTS `mysqlmacclient_test`.`widget_view`;"))
+        XCTAssertTrue(contents.contains("DROP TABLE IF EXISTS `widgets`;"))
+        XCTAssertTrue(contents.contains("DROP VIEW IF EXISTS `widget_view`;"))
     }
 
     func testRunBackupWithDropStatementsOptionEmitsDropForRoutinesWhenAvailable() async throws {
@@ -282,8 +340,8 @@ final class DatabaseBackupViewModelTests: XCTestCase {
 
         XCTAssertNil(viewModel.errorMessage)
         let contents = try String(contentsOf: tempFileURL, encoding: .utf8)
-        XCTAssertTrue(contents.contains("DROP PROCEDURE IF EXISTS `mysqlmacclient_test`.`backup_test_proc`;"))
-        XCTAssertTrue(contents.contains("DROP FUNCTION IF EXISTS `mysqlmacclient_test`.`backup_test_fn`;"))
+        XCTAssertTrue(contents.contains("DROP PROCEDURE IF EXISTS `backup_test_proc`;"))
+        XCTAssertTrue(contents.contains("DROP FUNCTION IF EXISTS `backup_test_fn`;"))
     }
 
     func testForeignKeyChecksOptionEmitsBothSetStatementsWhenEnabled() async throws {
@@ -453,6 +511,52 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.didFinishSuccessfully, "iptal edilen bir yedekleme tamamlanma uyarısını tetiklememeli")
     }
 
+    /// Locking tables, a trigger whose table isn't backed up is still read:
+    /// its definition doesn't need the table locked.
+    func testLockingTablesBacksUpATriggerWithoutItsTable() async throws {
+        let scratch = try await makeScratchDatabase("mysqlmacclient_backup_locktrigger", [
+            "CREATE TABLE t (id INT PRIMARY KEY)",
+            "CREATE TABLE u (id INT PRIMARY KEY)",
+            "CREATE TRIGGER t_bi BEFORE INSERT ON t FOR EACH ROW SET NEW.id = NEW.id",
+        ])
+        let viewModel = DatabaseBackupViewModel(service: service, database: scratch)
+        await viewModel.loadDatabasesAndObjects()
+        viewModel.selectedTables = Set(viewModel.allTables.filter { $0.name == "u" })
+        viewModel.options.source.lockTablesForReading = true
+        viewModel.outputFileURL = tempFileURL
+        viewModel.outputLocationIsGranted = true
+
+        viewModel.startBackup()
+        while viewModel.isRunning { await Task.yield() }
+
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertTrue(try String(contentsOf: tempFileURL, encoding: .utf8).contains("TRIGGER `t_bi`"))
+    }
+
+    /// Cancelled before it has counted every table's rows, the backup stops
+    /// counting: on a big database each COUNT(*) reads a whole table on the
+    /// server.
+    func testCancelBackupStopsCountingRows() async throws {
+        let scratch = try await makeScratchDatabase("mysqlmacclient_backup_cancel", (1...40).map { "CREATE TABLE t\($0) (id INT PRIMARY KEY)" })
+        let viewModel = DatabaseBackupViewModel(service: service, database: scratch)
+        await viewModel.loadDatabasesAndObjects()
+        viewModel.outputFileURL = tempFileURL
+        viewModel.outputLocationIsGranted = true
+        func selectsSoFar() async throws -> Int {
+            let rows = try await service.textQuery("SHOW GLOBAL STATUS LIKE 'Com_select'")
+            return Int(rows.first?.column("Value")?.string ?? "") ?? 0
+        }
+        let before = try await selectsSoFar()
+
+        viewModel.startBackup()
+        viewModel.cancelBackup()
+        while viewModel.isRunning { await Task.yield() }
+
+        let selects = try await selectsSoFar() - before
+        XCTAssertLessThan(selects, 20, "SELECTs the server ran for a cancelled backup of 40 tables")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: tempFileURL.path))
+    }
+
     /// The regression guard for the data-loss bug this app's own
     /// `AtomicFileWriter` fixed: a backup cancelled mid-run must not touch
     /// whatever was already sitting at `outputFileURL` — e.g. yesterday's
@@ -476,6 +580,210 @@ final class DatabaseBackupViewModelTests: XCTestCase {
         XCTAssertEqual(try String(contentsOf: tempFileURL, encoding: .utf8), "dünkü yedek — bozulmamalı")
         let siblings = (try? FileManager.default.contentsOfDirectory(atPath: tempFileURL.deletingLastPathComponent().path)) ?? []
         XCTAssertTrue(siblings.filter { $0.hasPrefix(".\(tempFileURL.lastPathComponent).tmp-") }.isEmpty, "geçici dosya artık kalmamalı")
+    }
+
+    /// The server drops the backup's connection part-way through. A new
+    /// session would have neither the snapshot nor the settings the backup
+    /// reads under, so the backup must fail and save nothing rather than
+    /// carry on.
+    func testBackupFailsAndSavesNothingWhenItsConnectionDrops() async throws {
+        let viewModel = makeViewModel()
+        await viewModel.loadDatabasesAndObjects()
+        viewModel.outputFileURL = tempFileURL
+        viewModel.outputLocationIsGranted = true
+        viewModel.interObjectDelay = .milliseconds(300)
+        let newest = try await service.query("SELECT MAX(ID) AS id FROM information_schema.PROCESSLIST")
+        let newestBefore = try XCTUnwrap(newest.first?.column("id")?.int)
+
+        viewModel.startBackup()
+        // Into the pause after the first object.
+        while viewModel.progress?.currentObjectDescription.isEmpty ?? true { await Task.yield() }
+        try await Task.sleep(for: .milliseconds(100))
+        let backupConnection = try await service.query("""
+            SELECT ID AS id FROM information_schema.PROCESSLIST WHERE ID > \(newestBefore)
+            """)
+        try await kill(XCTUnwrap(backupConnection.first?.column("id")?.int, "the backup reads on a connection of its own"))
+        while viewModel.isRunning { await Task.yield() }
+
+        XCTAssertEqual(viewModel.errorMessage, DatabaseBackupViewModel.BackupError.connectionLost.errorDescription)
+        XCTAssertFalse(viewModel.didFinishSuccessfully)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: tempFileURL.path))
+    }
+
+    /// The app's connection dropped while the dialog sat open (a server
+    /// with a short wait_timeout). The backup opens one of its own, so it
+    /// isn't affected.
+    func testBackupRunsAfterTheAppsConnectionDroppedWhileIdle() async throws {
+        let viewModel = makeViewModel()
+        await viewModel.loadDatabasesAndObjects()
+        viewModel.outputFileURL = tempFileURL
+        viewModel.outputLocationIsGranted = true
+        viewModel.options.mode = .structureOnly
+        let idRows = try await service.query("SELECT CONNECTION_ID() AS id")
+        try await kill(XCTUnwrap(idRows.first?.column("id")?.int))
+
+        viewModel.startBackup()
+        while viewModel.isRunning { await Task.yield() }
+
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertTrue(viewModel.didFinishSuccessfully)
+    }
+
+    /// A transaction the user left open on the app's connection stays
+    /// theirs: a backup's START TRANSACTION on that connection would commit
+    /// it, and their ROLLBACK would then undo nothing.
+    func testBackupLeavesATransactionOpenOnTheAppsConnectionAlone() async throws {
+        _ = try await service.rawQuery("START TRANSACTION")
+        try await service.execute("INSERT INTO tags (name) VALUES ('not committed')")
+        let viewModel = makeViewModel()
+        await viewModel.loadDatabasesAndObjects()
+        viewModel.outputFileURL = tempFileURL
+        viewModel.outputLocationIsGranted = true
+
+        viewModel.startBackup()
+        while viewModel.isRunning { await Task.yield() }
+        _ = try await service.rawQuery("ROLLBACK")
+
+        XCTAssertNil(viewModel.errorMessage)
+        let rows = try await service.query("SELECT COUNT(*) AS n FROM tags WHERE name = 'not committed'")
+        try await service.execute("DELETE FROM tags WHERE name = 'not committed'")
+        XCTAssertEqual(rows.first?.column("n")?.int, 0)
+    }
+
+    private func kill(_ connectionID: Int) async throws {
+        let killer = try await connectAnother()
+        try await killer.execute("KILL \(connectionID)")
+        try await killer.disconnect()
+    }
+
+    /// A row committed after the backup began isn't in it, even with the
+    /// app's connection at READ COMMITTED, where the server ignores WITH
+    /// CONSISTENT SNAPSHOT and every read sees the latest commit.
+    func testBackupReadsOneSnapshotWhateverTheAppsIsolationLevel() async throws {
+        try await service.execute("DELETE FROM widget_logs_nopk")
+        _ = try await service.rawQuery("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED")
+        let viewModel = makeViewModel()
+        await viewModel.loadDatabasesAndObjects()
+        viewModel.outputFileURL = tempFileURL
+        viewModel.outputLocationIsGranted = true
+        viewModel.interObjectDelay = .milliseconds(200)
+
+        viewModel.startBackup()
+        // The first table is read, so the snapshot is taken; widget_logs_nopk
+        // is read later.
+        while (viewModel.progress?.completedObjects ?? 0) < 1 { await Task.yield() }
+        let writer = try await connectAnother()
+        try await writer.execute("INSERT INTO mysqlmacclient_test.widget_logs_nopk (message) VALUES ('after the snapshot')")
+        try await writer.disconnect()
+        while viewModel.isRunning { await Task.yield() }
+        try await service.execute("DELETE FROM widget_logs_nopk")
+
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertFalse(try String(contentsOf: tempFileURL, encoding: .utf8).contains("after the snapshot"))
+    }
+
+    /// Once read, a table is free for DDL again although the backup's
+    /// transaction goes on: otherwise an ALTER of it waits for the whole
+    /// backup, and every other query on the table queues behind the ALTER.
+    func testBackupLetsGoOfEachTableOnceItIsRead() async throws {
+        let scratch = try await makeScratchDatabase("mysqlmacclient_backup_mdl", [
+            "CREATE TABLE a (id INT PRIMARY KEY) ENGINE=InnoDB",
+            "CREATE TABLE b (id INT PRIMARY KEY) ENGINE=InnoDB",
+            "INSERT INTO a VALUES (1)",
+        ])
+        let viewModel = DatabaseBackupViewModel(service: service, database: scratch)
+        await viewModel.loadDatabasesAndObjects()
+        viewModel.outputFileURL = tempFileURL
+        viewModel.outputLocationIsGranted = true
+        viewModel.interObjectDelay = .seconds(2)
+
+        viewModel.startBackup()
+        // `a` is read; the backup is on `b` and then pauses.
+        while (viewModel.progress?.completedObjects ?? 0) < 1 { await Task.yield() }
+        let other = try await connectAnother()
+        _ = try await other.rawQuery("SET SESSION lock_wait_timeout = 1")
+        var alterError: Error?
+        do {
+            _ = try await other.rawQuery("ALTER TABLE mysqlmacclient_backup_mdl.a COMMENT = 'altered during the backup'")
+        } catch {
+            alterError = error
+        }
+        try await other.disconnect()
+        while viewModel.isRunning { await Task.yield() }
+
+        XCTAssertNil(alterError)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    /// The private folders the external tools' option files go in.
+    private func toolFolders() -> Set<String> {
+        let all = (try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.temporaryDirectory.path)) ?? []
+        return Set(all.filter { $0.hasPrefix("mysqlclient-tool-") })
+    }
+
+    /// Cancelled while mysqldump waits for a table another session has
+    /// locked: it's killed there and then (the backup ends while the lock is
+    /// still held), the file already at the path stays as it was, and the
+    /// option file with the password is gone.
+    func testCancellingAMysqldumpBackupKillsItAndLeavesNothingBehind() async throws {
+        guard ExternalTool.locate(.dump, configuredPath: "", preferMariaDB: true) != nil else {
+            throw XCTSkip("No mysqldump or mariadb-dump is installed.")
+        }
+        try Data("yesterday's backup".utf8).write(to: tempFileURL)
+        let locker = MySQLService()
+        try await locker.connect(host: TestDatabase.host, port: TestDatabase.port, username: TestDatabase.username,
+                                 password: TestDatabase.password, database: "mysqlmacclient_test")
+        _ = try await locker.rawQuery("LOCK TABLES widgets WRITE")
+        let foldersBefore = toolFolders()
+
+        let viewModel = makeViewModel()
+        await viewModel.loadDatabasesAndObjects()
+        viewModel.usesExternalTool = true
+        viewModel.outputFileURL = tempFileURL
+        viewModel.outputLocationIsGranted = true
+        viewModel.startBackup()
+
+        // On a connection of its own: one the backup were using would wait
+        // behind it.
+        let watcher = MySQLService()
+        try await watcher.connect(host: TestDatabase.host, port: TestDatabase.port, username: TestDatabase.username,
+                                  password: TestDatabase.password, database: nil)
+        var waiting = false
+        for _ in 0..<200 where !waiting {
+            try await Task.sleep(for: .milliseconds(50))
+            waiting = try await watcher.textQuery("""
+                SELECT COUNT(*) AS n FROM information_schema.PROCESSLIST
+                WHERE STATE LIKE '%lock%' AND INFO LIKE '%widgets%'
+                """).first?.column("n")?.string != "0"
+        }
+        try await watcher.disconnect()
+        XCTAssertTrue(waiting, "mysqldump never got to the locked table")
+        // While it runs, the password is in a file only this user can read,
+        // in a folder only this user can open.
+        let running = toolFolders().subtracting(foldersBefore)
+        XCTAssertEqual(running.count, 1)
+        for folder in running {
+            let folderURL = FileManager.default.temporaryDirectory.appendingPathComponent(folder)
+            XCTAssertEqual(try FileManager.default.attributesOfItem(atPath: folderURL.path)[.posixPermissions] as? Int, 0o700)
+            for file in try FileManager.default.contentsOfDirectory(atPath: folderURL.path) {
+                let attributes = try FileManager.default.attributesOfItem(atPath: folderURL.appendingPathComponent(file).path)
+                XCTAssertEqual(attributes[.posixPermissions] as? Int, 0o600, file)
+            }
+        }
+
+        viewModel.cancelBackup()
+        for _ in 0..<200 where viewModel.isRunning {
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertFalse(viewModel.isRunning, "mysqldump must be killed, not left waiting for the lock")
+        _ = try await locker.rawQuery("UNLOCK TABLES")
+        try await locker.disconnect()
+        while viewModel.isRunning { await Task.yield() }
+
+        XCTAssertEqual(try String(contentsOf: tempFileURL, encoding: .utf8), "yesterday's backup")
+        XCTAssertEqual(toolFolders(), foldersBefore, "the option file must be deleted")
+        XCTAssertFalse(viewModel.didFinishSuccessfully)
+        XCTAssertNil(viewModel.errorMessage)
     }
 
     func testRunBackupToUnwritablePathSetsErrorMessageInsteadOfCrashing() async throws {
