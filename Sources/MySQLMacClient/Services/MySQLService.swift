@@ -42,6 +42,7 @@ struct RawQueryResult: Sendable {
 enum MySQLServiceError: Error, LocalizedError {
     case notConnected
     case invalidIdentifier(String)
+    case notEncrypted
 
     var errorDescription: String? {
         switch self {
@@ -49,6 +50,8 @@ enum MySQLServiceError: Error, LocalizedError {
             return String(localized: "Not connected to a database.")
         case .invalidIdentifier(let identifier):
             return String(localized: "Invalid table/column name: \(identifier)")
+        case .notEncrypted:
+            return String(localized: "The server doesn't offer an encrypted (TLS) connection, so the connection was closed. Turn encryption off for this connection, or enable TLS on the server.")
         }
     }
 }
@@ -66,9 +69,14 @@ actor MySQLService {
     /// write, as `MySQLError.closed`. A single long-lived connection with no
     /// pooling (the MVP's explicit tradeoff) needs this to stay usable
     /// across a normal session instead of erroring on every idle gap.
-    private var lastCredentials: (host: String, port: Int, username: String, password: String?, database: String?)?
+    private var lastCredentials: (host: String, port: Int, username: String, password: String?, database: String?, tls: TLSMode?)?
 
     private(set) var isConnected: Bool = false
+
+    /// Off for a connection opened for one job (`openSeparateConnection`):
+    /// a new session would have lost the job's database and settings, so a
+    /// drop has to end the job rather than carry on somewhere else.
+    private var reconnectsAutomatically = true
 
     /// Whatever `SELECT VERSION()` returned on connect — e.g.
     /// `"10.4.32-MariaDB"` or `"8.0.45"`. Read once per connection rather
@@ -82,7 +90,7 @@ actor MySQLService {
     /// `database: nil` connects with no default schema selected — MySQL
     /// allows this, and the caller is then expected to browse
     /// `SHOW DATABASES` and qualify every query as `` `db`.`table` ``.
-    func connect(host: String, port: Int, username: String, password: String?, database: String?) async throws {
+    func connect(host: String, port: Int, username: String, password: String?, database: String?, tls: TLSMode? = nil) async throws {
         if connection != nil {
             try await disconnect()
         }
@@ -97,13 +105,26 @@ actor MySQLService {
                 username: username,
                 database: database ?? "",
                 password: password,
-                tlsConfiguration: nil,
+                tlsConfiguration: tls.map(Self.tlsConfiguration),
+                // A host name for SNI and certificate checks; an IP address
+                // is checked against the certificate's addresses instead.
+                serverHostname: tls != nil && (try? SocketAddress(ipAddress: host, port: 0)) == nil ? host : nil,
                 on: eventLoop
             ).get()
+            // MySQLNIO's login asks for collation 255, which only MySQL 8
+            // knows; MariaDB silently falls back to its default (often
+            // latin1) and would then store the UTF-8 this app sends as
+            // double-encoded text. Every reconnect comes through here too.
+            do {
+                _ = try await conn.simpleQuery("SET NAMES utf8mb4").get()
+            } catch {
+                try? await conn.close().get()
+                throw error
+            }
             self.eventLoopGroup = group
             self.connection = conn
             self.isConnected = true
-            self.lastCredentials = (host, port, username, password, database)
+            self.lastCredentials = (host, port, username, password, database, tls)
             // Best-effort: a server that won't answer this is still a
             // perfectly usable connection, so a failure here is swallowed
             // rather than surfaced.
@@ -111,8 +132,46 @@ actor MySQLService {
                 .first?.column("version")?.string
         } catch {
             try? await group.shutdownGracefully()
+            // MySQLNIO refuses before the login when TLS was asked for and
+            // the server doesn't offer it.
+            if case MySQLError.secureConnectionRequired = error { throw MySQLServiceError.notEncrypted }
             throw error
         }
+    }
+
+    /// A second connection with this one's credentials, for a job that
+    /// changes its session (a restore runs USE and the file's own SET
+    /// statements) and so mustn't share the connection the rest of the app
+    /// is using. It starts in no database, since the one this connection
+    /// logged in to may have been dropped since, and it doesn't reconnect
+    /// by itself.
+    func openSeparateConnection() async throws -> MySQLService {
+        guard let credentials = lastCredentials else { throw MySQLServiceError.notConnected }
+        let separate = MySQLService()
+        try await separate.connect(
+            host: credentials.host,
+            port: credentials.port,
+            username: credentials.username,
+            password: credentials.password,
+            database: nil,
+            tls: credentials.tls
+        )
+        await separate.disableAutomaticReconnect()
+        return separate
+    }
+
+    private func disableAutomaticReconnect() {
+        reconnectsAutomatically = false
+    }
+
+    static func tlsConfiguration(_ mode: TLSMode) -> TLSConfiguration {
+        var configuration = TLSConfiguration.makeClientConfiguration()
+        // NIOSSL would still take TLS 1.0 and 1.1, which are broken (RFC 8996).
+        configuration.minimumTLSVersion = .tlsv12
+        if mode == .required {
+            configuration.certificateVerification = .none
+        }
+        return configuration
     }
 
     func disconnect() async throws {
@@ -132,6 +191,19 @@ actor MySQLService {
         try await withRetryOnClosedConnection {
             try await self.withExclusiveConnectionAccess { conn in
                 try await conn.query(sql, binds).get()
+            }
+        }
+    }
+
+    /// `query` over the text protocol, which carries every value as the
+    /// server's own text. The binary protocol `query` uses is lossy for
+    /// some types once decoded (DECIMAL, BIT wider than 8 bits, YEAR,
+    /// TIME), so a backup, which has to write values back exactly, reads
+    /// with this instead. Takes no binds.
+    func textQuery(_ sql: String) async throws -> [MySQLRow] {
+        try await withRetryOnClosedConnection {
+            try await self.withExclusiveConnectionAccess { conn in
+                try await conn.simpleQuery(sql).get()
             }
         }
     }
@@ -220,13 +292,14 @@ actor MySQLService {
         do {
             return try await operation()
         } catch MySQLError.closed {
-            guard let credentials = lastCredentials else { throw MySQLError.closed }
+            guard reconnectsAutomatically, let credentials = lastCredentials else { throw MySQLError.closed }
             try await connect(
                 host: credentials.host,
                 port: credentials.port,
                 username: credentials.username,
                 password: credentials.password,
-                database: credentials.database
+                database: credentials.database,
+                tls: credentials.tls
             )
             return try await operation()
         }
