@@ -125,8 +125,9 @@ Sources/MySQLMacClient/
 git clone https://github.com/stokay/MySQLClient.git
 cd MySQLClient
 
-# Build and run
-swift run
+# Build and run (`--build-system native`: SwiftPM 6.4's default build
+# system fails on the app's String Catalog)
+swift run --build-system native
 
 # — or open in Xcode for full IDE experience —
 open Package.swift
@@ -152,6 +153,32 @@ into `MySQLMacClient-<version>.dmg` in the repo root.
 > reflects reality in this signed build — `swift run` doesn't actually
 > enforce App Sandbox, so a sandbox permission bug can look fine there and
 > still fail in the packaged app.
+
+### Running the tests
+
+Most tests talk to a real MySQL/MariaDB server, not a mock. The quickest way
+to get one is Docker:
+
+```bash
+testenv/run-tests.sh                  # starts MariaDB 10.4 in Docker, runs every test
+testenv/run-tests.sh --filter Backup  # extra arguments go to `swift test`
+docker compose -f testenv/docker-compose.yml down   # stop the server
+```
+
+The server listens on `127.0.0.1:43306` only, keeps its data in memory, and
+loads `testenv/fixtures.sql` (the `mysqlmacclient_test` schema) on start.
+To use a MariaDB server of your own instead (the schema uses MariaDB's Aria
+engine), load that file into it yourself, e.g.
+`mysql -u root -p < testenv/fixtures.sql`, and run
+`swift test --build-system native` with `MYSQL_TEST_HOST`,
+`MYSQL_TEST_PORT`, `MYSQL_TEST_USER` and `MYSQL_TEST_PASSWORD` set; without
+them the tests connect to `127.0.0.1:3306` as `root` with no password.
+`--build-system native` matters: SwiftPM 6.4's default build system fails
+on the app's String Catalog.
+
+`BackupRoundTripTests` backs a schema of edge cases up, drops it, restores
+the file, and checks that the server reports exactly the same tables,
+views, routines, rows and checksums as before.
 
 ### First Connection
 1. Launch the app → the connection form appears
@@ -188,4 +215,4 @@ into `MySQLMacClient-<version>.dmg` in the repo root.
 
 ## License
 
-Personal project — no license specified.
+Apache License 2.0 — see [LICENSE](LICENSE).

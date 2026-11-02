@@ -10,12 +10,19 @@ final class MySQLServiceRawQueryTests: XCTestCase {
     override func setUp() async throws {
         service = MySQLService()
         try await service.connect(
-            host: "127.0.0.1",
-            port: 3306,
-            username: "root",
-            password: nil,
+            host: TestDatabase.host,
+            port: TestDatabase.port,
+            username: TestDatabase.username,
+            password: TestDatabase.password,
             database: "mysqlmacclient_test"
         )
+        try await service.execute("DELETE FROM widgets")
+        try await service.execute("""
+            INSERT INTO widgets (name, quantity, created_at, notes) VALUES
+            ('Bolt', 100, '2024-01-15 10:30:00', 'Standard bolt'),
+            ('Nut', 250, '2024-02-20 14:00:00', NULL),
+            ('Washer', NULL, NULL, 'Out of stock')
+            """)
     }
 
     override func tearDown() async throws {
