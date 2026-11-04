@@ -163,11 +163,12 @@ if ($days !== null) {
     // $days comes from the whitelist above, never from raw input.
     $conditions[] = "created_at >= DATE_SUB(NOW(), INTERVAL {$days} DAY)";
 }
+$deviceConditions = []; // everything but the range — see "Active devices" below
 if ($excludeReview) {
-    $conditions[] = "(network_asn IS NULL OR network_asn NOT LIKE 'AS714%')";
+    $conditions[] = $deviceConditions[] = "(network_asn IS NULL OR network_asn NOT LIKE 'AS714%')";
 }
 if ($excludeMine && $ownDeviceId !== null) {
-    $conditions[] = "device_id != '{$ownDeviceId}'"; // regex-validated above, safe to interpolate
+    $conditions[] = $deviceConditions[] = "device_id != '{$ownDeviceId}'"; // regex-validated above, safe to interpolate
 }
 $where = $conditions ? implode(' AND ', $conditions) : '1=1';
 
@@ -209,6 +210,18 @@ $kpi = q($pdo, "
         SUM(event_name = 'error')                       AS errors
     FROM analytics_events WHERE {$where}
 ")[0] ?? ['events' => 0, 'devices' => 0, 'opens' => 0, 'errors' => 0];
+
+// Active devices: ones that actually used the app — at least one
+// feature_used or error event — in the last 30 days. Always 30 days,
+// whatever range is selected above (the number would mean something
+// different in each otherwise), but it honours the review/own-device
+// filters. App opens alone don't count: a device that only launches the
+// app and does nothing isn't being used.
+$activeWhere = implode(' AND ', array_merge(
+    ["created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)", "event_name IN ('feature_used', 'error')"],
+    $deviceConditions
+));
+$activeDevices = (int) (q($pdo, "SELECT COUNT(DISTINCT device_id) AS n FROM analytics_events WHERE {$activeWhere}")[0]['n'] ?? 0);
 
 $daily = q($pdo, "
     SELECT DATE(created_at) AS day, COUNT(*) AS events, COUNT(DISTINCT device_id) AS devices
@@ -356,6 +369,12 @@ function maxOf(array $rows, string $key): int
 }
 
 $rangeLabels = ['week' => 'Last 7 days', 'month' => 'Last 30 days', 'all' => 'All time'];
+
+// Repeated in every card's heading. Shown only at the top of the page, the
+// range was easy to lose sight of by the time a list was reached — and a
+// count read without it looks wrong: a device that hasn't been back for a
+// month is missing from "Last 30 days" while its name says it exists.
+$rangeBadge = '<small class="range" title="Change the range at the top of the page">' . h($rangeLabels[$range]) . '</small>';
 
 // Unread messages from the app's "Send Feedback" form, for the link to
 // feedback-inbox.php. Null until feedback.sql has been run — the link is
@@ -512,6 +531,7 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
   .kpi .label { color: var(--muted); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
   .kpi .value { font-size: 28px; font-weight: 650; letter-spacing: -.02em; margin-top: 6px; font-variant-numeric: tabular-nums; }
   .kpi.danger .value { color: var(--danger); }
+  .kpi .sub { color: var(--muted); font-size: 11.5px; margin-top: 2px; }
 
   .card {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
@@ -522,6 +542,12 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
     border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: baseline;
   }
   .card > h2 span { color: var(--muted); font-weight: 450; font-size: 12px; }
+  /* Sits right after the title; the auto margin keeps the description
+     pushed to the far end of the heading as before. */
+  .card > h2 .range {
+    margin: 0 auto 0 8px; padding: 1px 8px; border-radius: 999px; white-space: nowrap;
+    background: var(--accent-soft); color: var(--accent); font-size: 11px; font-weight: 600;
+  }
   .card .body { padding: 16px 18px; }
 
   .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)); gap: 18px; }
@@ -656,7 +682,7 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
   <section class="kpis">
     <div class="kpi"><div class="label">Events</div><div class="value"><?= number_format((int) $kpi['events']) ?></div></div>
     <div class="kpi"><div class="label">Unique devices</div><div class="value"><?= number_format((int) $kpi['devices']) ?></div></div>
-    <div class="kpi"><div class="label">App opens</div><div class="value"><?= number_format((int) $kpi['opens']) ?></div></div>
+    <div class="kpi"><div class="label">Active devices</div><div class="value"><?= number_format($activeDevices) ?></div><div class="sub">Used within the last 30 days</div></div>
     <div class="kpi <?= (int) $kpi['errors'] > 0 ? 'danger' : '' ?>"><div class="label">Errors</div><div class="value"><?= number_format((int) $kpi['errors']) ?></div></div>
     <div class="kpi">
       <div class="label">Appearance</div>
@@ -665,7 +691,7 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
   </section>
 
   <section class="card">
-    <h2>Activity <span>events and unique devices per day</span></h2>
+    <h2>Activity <?= $rangeBadge ?><span>events and unique devices per day</span></h2>
     <div class="chart-wrap">
       <svg id="chart" role="img" aria-label="Daily activity chart"></svg>
       <div class="tip" id="tip"></div>
@@ -692,7 +718,7 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
     <div class="empty" id="no-panels" hidden>Pick a list above to show it here.</div>
 
     <section class="card wide" data-panel="countries" hidden>
-      <h2>Countries <span>where the app is used</span></h2>
+      <h2>Countries <?= $rangeBadge ?><span>where the app is used</span></h2>
       <?php if (!$countries): ?><div class="empty">No data in this range.</div><?php else: $m = maxOf($countries, 'devices'); ?>
       <div class="split" id="countries-split">
       <div class="map-wrap" id="map-wrap" hidden>
@@ -731,7 +757,7 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
     </section>
 
     <section class="card" data-panel="languages" hidden>
-      <h2>Languages <span>what to localize next</span></h2>
+      <h2>Languages <?= $rangeBadge ?><span>what to localize next</span></h2>
       <?php if (!$languages): ?><div class="empty">No data in this range.</div><?php else: $m = maxOf($languages, 'devices'); ?>
       <div class="scroll"><table data-sortable-table>
         <thead><tr>
@@ -755,7 +781,7 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
     </section>
 
     <section class="card" data-panel="features" hidden>
-      <h2>Features <span>what people actually use</span></h2>
+      <h2>Features <?= $rangeBadge ?><span>what people actually use</span></h2>
       <?php if (!$features): ?><div class="empty">No feature usage in this range.</div><?php else: $m = maxOf($features, 'uses'); ?>
       <div class="scroll"><table data-sortable-table>
         <thead><tr>
@@ -779,7 +805,7 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
     </section>
 
     <section class="card" data-panel="errors" hidden>
-      <h2>Errors <span>code and where it happened</span></h2>
+      <h2>Errors <?= $rangeBadge ?><span>code and where it happened</span></h2>
       <?php if (!$errors): ?><div class="empty">No errors in this range. 🎉</div><?php else: $m = maxOf($errors, 'hits'); ?>
       <div class="scroll"><table data-sortable-table>
         <thead><tr>
@@ -803,7 +829,7 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
     </section>
 
     <section class="card" data-panel="versions" hidden>
-      <h2>App versions <span>update adoption</span></h2>
+      <h2>App versions <?= $rangeBadge ?><span>update adoption</span></h2>
       <?php if (!$versions): ?><div class="empty">No data in this range.</div><?php else: $m = maxOf($versions, 'devices'); ?>
       <div class="scroll"><table data-sortable-table>
         <thead><tr>
@@ -827,7 +853,7 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
     </section>
 
     <section class="card" data-panel="os" hidden>
-      <h2>macOS versions <span>minimum-target planning</span></h2>
+      <h2>macOS versions <?= $rangeBadge ?><span>minimum-target planning</span></h2>
       <?php if (!$osVersions): ?><div class="empty">No data in this range.</div><?php else: $m = maxOf($osVersions, 'devices'); ?>
       <div class="scroll"><table data-sortable-table>
         <thead><tr>
@@ -849,7 +875,7 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
     </section>
 
     <section class="card" data-panel="models" hidden>
-      <h2>Mac models</h2>
+      <h2>Mac models <?= $rangeBadge ?></h2>
       <?php if (!$models): ?><div class="empty">No data in this range.</div><?php else: $m = maxOf($models, 'devices'); ?>
       <div class="scroll"><table data-sortable-table>
         <thead><tr>
@@ -871,7 +897,7 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
     </section>
 
     <section class="card" data-panel="networks" hidden>
-      <h2>Networks <span>useful for spotting review traffic</span></h2>
+      <h2>Networks <?= $rangeBadge ?><span>useful for spotting review traffic</span></h2>
       <?php if (!$networks): ?><div class="empty">No data in this range.</div><?php else: $m = maxOf($networks, 'events'); ?>
       <div class="scroll"><table data-sortable-table>
         <thead><tr>
@@ -895,7 +921,7 @@ $mapVersion = is_file($mapFile) ? (int) filemtime($mapFile) : null;
     </section>
 
     <section class="card wide" data-panel="recent" hidden>
-      <h2>Recent events <span>latest 60</span></h2>
+      <h2>Recent events <?= $rangeBadge ?><span>latest 60</span></h2>
       <?php if (!$recent): ?><div class="empty">Nothing recorded in this range.</div><?php else: ?>
       <div class="scroll"><table data-sortable-table>
         <thead><tr>
